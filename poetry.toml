@@ -1,0 +1,9 @@
+[virtualenvs]
+in-project = true
+create = true
+
+[experimental]
+new-installer = true
+
+[installer]
+parallel = true

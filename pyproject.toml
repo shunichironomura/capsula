@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "capsula"
+version = "0.0.1"
+description = "A Python package to capture and reproduce command execution environments"
+authors = ["Shunichiro Nomura <nomura@space.t.u-tokyo.ac.jp>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
