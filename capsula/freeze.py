@@ -1,7 +1,9 @@
 import logging
 import shlex
+import shutil
 import subprocess
 import sys
+from datetime import datetime
 from pathlib import Path
 
 from pydantic import BaseModel, Field
@@ -17,6 +19,9 @@ def to_hyphen_case(string: str) -> str:
 
 class FreezeConfig(BaseModel):
     """Configuration for the freeze command."""
+
+    vault_directory: Path
+    subdirectory_template: str
 
     # Whether to include the Capsula version in the output file.
     # include_capsula_version: bool = True # noqa: ERA001
@@ -48,8 +53,22 @@ def freeze(
         logger.debug(f"Running pre-freeze command: {command}")
         result = subprocess.run(shlex.split(command), capture_output=True, text=True)  # noqa: S603
         logger.debug(f"Pre-freeze command result: {result}")
+        if result.returncode != 0:
+            logger.error(f"Pre-freeze command failed: {command}")
+            logger.error(f"Pre-freeze command stdout: {result.stdout}")
+            logger.error(f"Pre-freeze command stderr: {result.stderr}")
+            msg = f"Pre-freeze command failed: {command}"
+            raise RuntimeError(msg)
 
     logger.info("Freezing the environment.")
+
+    subdirectory = config.vault_directory / datetime.now().strftime(config.subdirectory_template)
+    if config.files:
+        subdirectory.mkdir(parents=True, exist_ok=True)
+    for file in config.files:
+        logger.debug(f"Adding file: {file.absolute()}")
+        # Copy the file into the subdirectory.
+        shutil.copy2(file, subdirectory)
 
     kwargs = {}
     if not config.include_cpu:
