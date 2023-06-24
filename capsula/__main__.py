@@ -17,7 +17,6 @@ from capsula.freeze import freeze as freeze_core
 )
 @click.pass_context
 def main(ctx: click.Context, directory: Path) -> None:
-    click.echo("main")
     ctx.ensure_object(dict)
 
     ctx.obj["directory"] = directory
@@ -40,8 +39,5 @@ def main(ctx: click.Context, directory: Path) -> None:
 @click.pass_context
 def freeze(ctx: click.Context, output: Path | None) -> None:
     """Freeze the environment into a file."""
-    click.echo("freeze")
-
     capsula_freeze_config = FreezeConfig(**ctx.obj["capsula_config"]["freeze"])
-    click.echo(f"capsula_freeze_config: {capsula_freeze_config}")
     freeze_core(config=capsula_freeze_config, output=output)

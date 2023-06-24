@@ -16,6 +16,8 @@ class FreezeConfig(BaseModel):
     # Whether to include the Capsula version in the output file.
     # include_capsula_version: bool = True # noqa: ERA001
 
+    include_cpu: bool = True
+
     class Config:  # noqa: D106
         alias_generator = to_hyphen_case
         populate_by_name = False
@@ -28,7 +30,10 @@ def freeze(
     output: Path | None = None,
 ) -> None:
     """Freeze the environment into a file."""
-    env = Environment()
+    kwargs = {}
+    if not config.include_cpu:
+        kwargs["cpu"] = None
+    env = Environment(**kwargs)
 
     # Write the environment to the output file.
     env_json = env.model_dump_json(

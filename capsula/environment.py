@@ -1,7 +1,7 @@
 import platform as pf
 
 from cpuinfo import get_cpu_info
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class Architecture(BaseModel):
@@ -39,4 +39,5 @@ class Environment(BaseModel):
 
     # There are many duplicates between the platform and cpu info.
     # We could remove the duplicates, but it's not worth the effort.
-    cpu: dict = get_cpu_info()
+    # We use the default factory to avoid the overhead of getting the CPU info, which is slow.
+    cpu: dict | None = Field(default_factory=get_cpu_info)

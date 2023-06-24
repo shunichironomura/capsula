@@ -1,3 +1,4 @@
 [freeze]
 # include-capsula-version = true
 # vault-directory = 'vault'
+include-cpu = false
