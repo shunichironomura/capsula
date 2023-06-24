@@ -8,6 +8,8 @@ import click
     "--directory",
     "-C",
     type=click.Path(exists=True, file_okay=False, dir_okay=True, resolve_path=True, path_type=Path),
+    default=Path.cwd(),
+    help="The working directory to use. Defaults to the current directory.",
 )
 @click.pass_context
 def main(ctx: click.Context, directory: Path) -> None:
