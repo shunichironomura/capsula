@@ -46,7 +46,9 @@ class CaptureConfig(BaseModel):
     @property
     def subdirectory(self) -> Path:
         if self._subdirectory is None:
-            self._subdirectory = self.vault_directory / datetime.now(tz=None).strftime(self.subdirectory_template)
+            self._subdirectory = self.vault_directory / datetime.now(tz=None).strftime(  # noqa: DTZ005
+                self.subdirectory_template,
+            )
         return self._subdirectory
 
 
