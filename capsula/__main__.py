@@ -55,15 +55,8 @@ def main(
 
 
 @main.command()
-@click.option(
-    "--output",
-    "-o",
-    type=click.Path(exists=False, file_okay=True, dir_okay=False, resolve_path=True, path_type=Path),
-    default=None,
-    help="The file to write the frozen environment to. Defaults to stdout.",
-)
 @click.pass_context
-def capture(ctx: click.Context, output: Path | None) -> None:
+def capture(ctx: click.Context) -> None:
     """Capture the environment."""
     capsula_capture_config = CaptureConfig(**ctx.obj["capsula_config"]["capture"])
-    capture_core(config=capsula_capture_config, output=output)
+    capture_core(config=capsula_capture_config)

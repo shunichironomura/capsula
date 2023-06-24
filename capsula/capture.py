@@ -4,7 +4,6 @@ import logging
 import shlex
 import shutil
 import subprocess
-import sys
 from datetime import datetime
 from pathlib import Path
 
@@ -55,7 +54,6 @@ class CaptureConfig(BaseModel):
 def capture(
     *,
     config: CaptureConfig,
-    output: Path | None = None,
 ) -> None:
     """Capture the environment."""
     logger.debug(f"Capture config: {config}")
@@ -72,10 +70,9 @@ def capture(
             msg = f"Pre-capture command failed: {command}"
             raise RuntimeError(msg)
 
-    logger.info("Freezing the environment.")
+    logger.info("Capturing the environment.")
 
-    if config.files:
-        config.subdirectory.mkdir(parents=True, exist_ok=True)
+    config.subdirectory.mkdir(parents=True, exist_ok=True)
     for file in config.files:
         logger.debug(f"Adding file: {file.absolute()}")
         # Copy the file into the subdirectory.
@@ -90,8 +87,5 @@ def capture(
     env_json = env.model_dump_json(
         indent=4,
     )
-    if output is None:
-        sys.stdout.write(env_json)
-    else:
-        with output.open("w") as output_file:
-            output_file.write(env_json)
+    with (config.subdirectory / "environment.json").open("w") as output_file:
+        output_file.write(env_json)
