@@ -21,7 +21,18 @@ from capsula.capture import capture as capture_core
 @click.option(
     "--log-level",
     "-l",
-    type=click.Choice(["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]),
+    type=click.Choice(
+        [
+            "CRITICAL",
+            # "FATAL", # FATAL is an alias for CRITICAL
+            "ERROR",
+            # "WARN", # WARN is an alias for WARNING
+            "WARNING",
+            "INFO",
+            "DEBUG",
+            "NOTSET",
+        ],
+    ),
     default="INFO",
     help="The log level to use. Defaults to INFO.",
 )
