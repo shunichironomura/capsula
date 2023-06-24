@@ -101,9 +101,12 @@ class GitInfo(EnvironmentItem):
         git_infos = {}
         for name, path in config.git_repositories.items():
             repo = Repo(path)
-            sha = repo.head.object.hexsha
-            remotes = [GitRemote(name=remote.name, url=remote.url) for remote in repo.remotes]
-            git_infos[name] = cls(path=path, sha=sha, remotes=remotes, branch=repo.active_branch.name)
+            git_infos[name] = cls(
+                path=path,
+                sha=repo.head.object.hexsha,
+                remotes=[GitRemote(name=remote.name, url=remote.url) for remote in repo.remotes],
+                branch=repo.active_branch.name,
+            )
 
             diff = repo.git.diff()
             with (config.subdirectory / f"{name}.diff").open("w") as diff_file:
