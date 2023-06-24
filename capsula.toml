@@ -2,3 +2,16 @@
 # include-capsula-version = true
 # vault-directory = 'vault'
 include-cpu = false
+
+pre-freeze-commands = [
+    'poetry lock --check'
+]
+
+files = [
+    'pyproject.toml',
+    'poetry.lock',
+]
+
+git-repositories = [
+    '',
+]

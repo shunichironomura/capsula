@@ -1,3 +1,4 @@
+import logging
 import tomllib
 from pathlib import Path
 
@@ -15,9 +16,21 @@ from capsula.freeze import freeze as freeze_core
     default=Path.cwd(),
     help="The working directory to use. Defaults to the current directory.",
 )
+@click.option(
+    "--log-level",
+    "-l",
+    type=click.Choice(["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]),
+    default="INFO",
+    help="The log level to use. Defaults to INFO.",
+)
 @click.pass_context
-def main(ctx: click.Context, directory: Path) -> None:
+def main(
+    ctx: click.Context,
+    directory: Path,
+    log_level: str,
+) -> None:
     ctx.ensure_object(dict)
+    logging.basicConfig(level=logging.getLevelNamesMapping()[log_level])
 
     ctx.obj["directory"] = directory
     click.echo(f"directory: {ctx.obj['directory']}")

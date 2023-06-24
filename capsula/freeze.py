@@ -1,9 +1,14 @@
+import logging
+import shlex
+import subprocess
 import sys
 from pathlib import Path
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from capsula.environment import Environment
+
+logger = logging.getLogger(__name__)
 
 
 def to_hyphen_case(string: str) -> str:
@@ -18,6 +23,12 @@ class FreezeConfig(BaseModel):
 
     include_cpu: bool = True
 
+    pre_freeze_commands: list[str] = Field(default_factory=list)
+
+    files: list[Path] = Field(default_factory=list)
+
+    git_repositories: list[Path] = Field(default_factory=list)
+
     class Config:  # noqa: D106
         alias_generator = to_hyphen_case
         populate_by_name = False
@@ -30,6 +41,16 @@ def freeze(
     output: Path | None = None,
 ) -> None:
     """Freeze the environment into a file."""
+    logger.debug(f"Freeze config: {config}")
+
+    logger.debug(f"CWD: {Path.cwd()}")
+    for command in config.pre_freeze_commands:
+        logger.debug(f"Running pre-freeze command: {command}")
+        result = subprocess.run(shlex.split(command), capture_output=True, text=True)  # noqa: S603
+        logger.debug(f"Pre-freeze command result: {result}")
+
+    logger.info("Freezing the environment.")
+
     kwargs = {}
     if not config.include_cpu:
         kwargs["cpu"] = None
