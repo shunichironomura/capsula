@@ -1,2 +1,3 @@
 [freeze]
-include-capsula-version = true
+# include-capsula-version = true
+# vault-directory = 'vault'

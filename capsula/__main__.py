@@ -4,6 +4,7 @@ from pathlib import Path
 import click
 
 from capsula.freeze import FreezeConfig
+from capsula.freeze import freeze as freeze_core
 
 
 @click.group()
@@ -20,6 +21,7 @@ def main(ctx: click.Context, directory: Path) -> None:
     ctx.ensure_object(dict)
 
     ctx.obj["directory"] = directory
+    click.echo(f"directory: {ctx.obj['directory']}")
     capsula_config_path: Path = ctx.obj["directory"] / "capsula.toml"
     with capsula_config_path.open("rb") as capsula_config_file:
         capsula_config = tomllib.load(capsula_config_file)
@@ -28,11 +30,18 @@ def main(ctx: click.Context, directory: Path) -> None:
 
 
 @main.command()
+@click.option(
+    "--output",
+    "-o",
+    type=click.Path(exists=False, file_okay=True, dir_okay=False, resolve_path=True, path_type=Path),
+    default=None,
+    help="The file to write the frozen environment to. Defaults to stdout.",
+)
 @click.pass_context
-def freeze(ctx: click.Context) -> None:
+def freeze(ctx: click.Context, output: Path) -> None:
     """Freeze the environment into a file."""
     click.echo("freeze")
-    click.echo(f"directory: {ctx.obj['directory']}")
 
     capsula_freeze_config = FreezeConfig(**ctx.obj["capsula_config"]["freeze"])
     click.echo(f"capsula_freeze_config: {capsula_freeze_config}")
+    freeze_core(config=capsula_freeze_config, output=output)
