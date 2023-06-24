@@ -85,16 +85,30 @@ class Platform(EnvironmentItem):
         )
 
 
+class GitRemote(BaseModel):
+    name: str
+    url: str
+
+
 class GitInfo(EnvironmentItem):
+    path: Path
     sha: str
+    branch: str
+    remotes: list[GitRemote]
 
     @classmethod
     def capture(cls, config: CaptureConfig) -> dict[Path, Self]:
         git_infos = {}
-        for repository in config.git_repositories:
-            repo = Repo(repository)
+        for name, path in config.git_repositories.items():
+            repo = Repo(path)
             sha = repo.head.object.hexsha
-            git_infos[repository] = cls(sha=sha)
+            remotes = [GitRemote(name=remote.name, url=remote.url) for remote in repo.remotes]
+            git_infos[name] = cls(path=path, sha=sha, remotes=remotes, branch=repo.active_branch.name)
+
+            diff = repo.git.diff()
+            with (config.subdirectory / f"{name}.diff").open("w") as diff_file:
+                diff_file.write(diff)
+
         return git_infos
 
 

@@ -15,6 +15,5 @@ files = [
     'poetry.lock',
 ]
 
-git-repositories = [
-    '',
-]
+[capture.git-repositories]
+capsula = '.'

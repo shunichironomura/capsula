@@ -32,12 +32,20 @@ class CaptureConfig(BaseModel):
 
     files: list[Path] = Field(default_factory=list)
 
-    git_repositories: list[Path] = Field(default_factory=list)
+    git_repositories: dict[str, Path] = Field(default_factory=dict)
 
     class Config:  # noqa: D106
         alias_generator = to_hyphen_case
         populate_by_name = False
         extra = "forbid"
+
+    _subdirectory: Path | None = None
+
+    @property
+    def subdirectory(self) -> Path:
+        if self._subdirectory is None:
+            self._subdirectory = self.vault_directory / datetime.now(tz=None).strftime(self.subdirectory_template)
+        return self._subdirectory
 
 
 def capture(
@@ -62,13 +70,12 @@ def capture(
 
     logger.info("Freezing the environment.")
 
-    subdirectory = config.vault_directory / datetime.now(tz=None).strftime(config.subdirectory_template)  # noqa: DTZ005
     if config.files:
-        subdirectory.mkdir(parents=True, exist_ok=True)
+        config.subdirectory.mkdir(parents=True, exist_ok=True)
     for file in config.files:
         logger.debug(f"Adding file: {file.absolute()}")
         # Copy the file into the subdirectory.
-        shutil.copy2(file, subdirectory)
+        shutil.copy2(file, config.subdirectory)
 
     kwargs = {}
     if not config.include_cpu:
