@@ -30,7 +30,7 @@ class Architecture(EnvironmentItem):
     linkage: str
 
     @classmethod
-    def capture(cls, config: CaptureConfig) -> Self:
+    def capture(cls, _: CaptureConfig) -> Self:
         return cls(
             bits=pf.architecture()[0],
             linkage=pf.architecture()[1],
