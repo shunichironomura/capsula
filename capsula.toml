@@ -1,4 +1,4 @@
-[freeze]
+[capture]
 # include-capsula-version = true
 vault-directory = 'vault'
 
@@ -6,7 +6,7 @@ subdirectory-template = '%Y%m%d_%H%M%S'
 
 include-cpu = false
 
-pre-freeze-commands = [
+pre-capture-commands = [
     'poetry lock --check'
 ]
 

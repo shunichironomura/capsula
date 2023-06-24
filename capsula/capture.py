@@ -17,8 +17,8 @@ def to_hyphen_case(string: str) -> str:
     return string.replace("_", "-")
 
 
-class FreezeConfig(BaseModel):
-    """Configuration for the freeze command."""
+class CaptureConfig(BaseModel):
+    """Configuration for the capture command."""
 
     vault_directory: Path
     subdirectory_template: str
@@ -28,7 +28,7 @@ class FreezeConfig(BaseModel):
 
     include_cpu: bool = True
 
-    pre_freeze_commands: list[str] = Field(default_factory=list)
+    pre_capture_commands: list[str] = Field(default_factory=list)
 
     files: list[Path] = Field(default_factory=list)
 
@@ -40,29 +40,29 @@ class FreezeConfig(BaseModel):
         extra = "forbid"
 
 
-def freeze(
+def capture(
     *,
-    config: FreezeConfig,
+    config: CaptureConfig,
     output: Path | None = None,
 ) -> None:
-    """Freeze the environment into a file."""
-    logger.debug(f"Freeze config: {config}")
+    """Capture the environment."""
+    logger.debug(f"Capture config: {config}")
 
     logger.debug(f"CWD: {Path.cwd()}")
-    for command in config.pre_freeze_commands:
-        logger.debug(f"Running pre-freeze command: {command}")
+    for command in config.pre_capture_commands:
+        logger.debug(f"Running pre-capture command: {command}")
         result = subprocess.run(shlex.split(command), capture_output=True, text=True)  # noqa: S603
-        logger.debug(f"Pre-freeze command result: {result}")
+        logger.debug(f"Pre-capture command result: {result}")
         if result.returncode != 0:
-            logger.error(f"Pre-freeze command failed: {command}")
-            logger.error(f"Pre-freeze command stdout: {result.stdout}")
-            logger.error(f"Pre-freeze command stderr: {result.stderr}")
-            msg = f"Pre-freeze command failed: {command}"
+            logger.error(f"Pre-capture command failed: {command}")
+            logger.error(f"Pre-capture command stdout: {result.stdout}")
+            logger.error(f"Pre-capture command stderr: {result.stderr}")
+            msg = f"Pre-capture command failed: {command}"
             raise RuntimeError(msg)
 
     logger.info("Freezing the environment.")
 
-    subdirectory = config.vault_directory / datetime.now().strftime(config.subdirectory_template)
+    subdirectory = config.vault_directory / datetime.now(tz=None).strftime(config.subdirectory_template)  # noqa: DTZ005
     if config.files:
         subdirectory.mkdir(parents=True, exist_ok=True)
     for file in config.files:
@@ -73,7 +73,7 @@ def freeze(
     kwargs = {}
     if not config.include_cpu:
         kwargs["cpu"] = None
-    env = Environment(**kwargs)
+    env = Environment.capture(config)
 
     # Write the environment to the output file.
     env_json = env.model_dump_json(

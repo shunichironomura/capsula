@@ -4,8 +4,8 @@ from pathlib import Path
 
 import click
 
-from capsula.freeze import FreezeConfig
-from capsula.freeze import freeze as freeze_core
+from capsula.capture import CaptureConfig
+from capsula.capture import capture as capture_core
 
 
 @click.group()
@@ -50,7 +50,7 @@ def main(
     help="The file to write the frozen environment to. Defaults to stdout.",
 )
 @click.pass_context
-def freeze(ctx: click.Context, output: Path | None) -> None:
-    """Freeze the environment into a file."""
-    capsula_freeze_config = FreezeConfig(**ctx.obj["capsula_config"]["freeze"])
-    freeze_core(config=capsula_freeze_config, output=output)
+def capture(ctx: click.Context, output: Path | None) -> None:
+    """Capture the environment."""
+    capsula_capture_config = CaptureConfig(**ctx.obj["capsula_config"]["capture"])
+    capture_core(config=capsula_capture_config, output=output)
