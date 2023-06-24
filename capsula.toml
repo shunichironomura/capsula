@@ -1,0 +1,19 @@
+[capture]
+# include-capsula-version = true
+vault-directory = 'vault'
+
+subdirectory-template = '%Y%m%d_%H%M%S'
+
+include-cpu = false
+
+pre-capture-commands = [
+    'poetry lock --check'
+]
+
+files = [
+    'pyproject.toml',
+    'poetry.lock',
+]
+
+[capture.git-repositories]
+capsula = '.'
