@@ -38,7 +38,7 @@ def main(ctx: click.Context, directory: Path) -> None:
     help="The file to write the frozen environment to. Defaults to stdout.",
 )
 @click.pass_context
-def freeze(ctx: click.Context, output: Path) -> None:
+def freeze(ctx: click.Context, output: Path | None) -> None:
     """Freeze the environment into a file."""
     click.echo("freeze")
 
