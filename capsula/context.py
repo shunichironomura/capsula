@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Self
 
 from cpuinfo import get_cpu_info
 from git.repo import Repo
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 if TYPE_CHECKING:
     from collections.abc import Hashable
@@ -123,11 +123,11 @@ class Context(ContextItem):
     # There are many duplicates between the platform and cpu info.
     # We could remove the duplicates, but it's not worth the effort.
     # We use the default factory to avoid the overhead of getting the CPU info, which is slow.
-    cpu: dict | None = Field(default_factory=get_cpu_info)
+    cpu: dict | None
 
-    git: dict[Path, GitInfo] = Field(default_factory=dict)
+    git: dict[Path, GitInfo]
 
-    cwd: Path = Field(default_factory=Path.cwd)
+    cwd: Path
 
     @classmethod
     def capture(cls, config: CaptureConfig) -> Self:
