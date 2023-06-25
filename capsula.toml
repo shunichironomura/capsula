@@ -10,6 +10,10 @@ pre-capture-commands = [
     'poetry lock --check'
 ]
 
+environment-variables = [
+    'HOME',
+]
+
 [capture.files]
 "pyproject.toml" = { hash = "sha256", copy = true }
 "poetry.lock" = { hash = "sha256", copy = true }
