@@ -130,3 +130,7 @@ search = '__version__ = "{current_version}"'
 [[tool.tbump.after_push]]
 name = "GitHub release"
 cmd = "gh release create v{new_version} --generate-notes"
+
+[[tool.tbump.after_push]]
+name = "PyPI release"
+cmd = "poetry publish --build"
