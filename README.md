@@ -1,3 +1,3 @@
 # Capsula
 
-A Python package to capture and reproduce command execution environments.
+A Python package to capture and reproduce command execution contexts.

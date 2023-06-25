@@ -9,7 +9,7 @@ from pathlib import Path
 
 from pydantic import BaseModel, Field
 
-from capsula.environment import Environment
+from capsula.context import Context
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +55,7 @@ def capture(
     *,
     config: CaptureConfig,
 ) -> None:
-    """Capture the environment."""
+    """Capture the context."""
     logger.debug(f"Capture config: {config}")
 
     logger.debug(f"CWD: {Path.cwd()}")
@@ -70,7 +70,7 @@ def capture(
             msg = f"Pre-capture command failed: {command}"
             raise RuntimeError(msg)
 
-    logger.info("Capturing the environment.")
+    logger.info("Capturing the context.")
 
     config.subdirectory.mkdir(parents=True, exist_ok=True)
     for file in config.files:
@@ -81,11 +81,11 @@ def capture(
     kwargs = {}
     if not config.include_cpu:
         kwargs["cpu"] = None
-    env = Environment.capture(config)
+    ctx = Context.capture(config)
 
-    # Write the environment to the output file.
-    env_json = env.model_dump_json(
+    # Write the context to the output file.
+    ctx_json = ctx.model_dump_json(
         indent=4,
     )
-    with (config.subdirectory / "environment.json").open("w") as output_file:
-        output_file.write(env_json)
+    with (config.subdirectory / "context.json").open("w") as output_file:
+        output_file.write(ctx_json)
