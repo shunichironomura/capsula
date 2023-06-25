@@ -110,7 +110,12 @@ tag_template = "v{new_version}"
 # section containing the path of the file, relative to the
 # tbump.toml location.
 [[tool.tbump.file]]
-src = "..."
+src = "pyproject.toml"
+search = 'version = "{current_version}"'
+
+[[tool.tbump.file]]
+src = "capsula/_version.py"
+search = '__version__ = "{current_version}"'
 
 # You can specify a list of commands to
 # run after the files have been patched
@@ -122,6 +127,6 @@ src = "..."
 
 # Or run some commands after the git tag and the branch
 # have been pushed:
-#  [[tool.tbump.after_push]]
-#  name = "publish"
-#  cmd = "./publish.sh"
+[[tool.tbump.after_push]]
+name = "GitHub release"
+cmd = "gh release create v{new_version} --generate-notes"
