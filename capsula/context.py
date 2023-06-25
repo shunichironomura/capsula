@@ -15,17 +15,17 @@ if TYPE_CHECKING:
     from capsula.capture import CaptureConfig
 
 
-class EnvironmentItem(BaseModel, ABC):
-    """Base class for environment items."""
+class ContextItem(BaseModel, ABC):
+    """Base class for context items."""
 
     @classmethod
     @abstractmethod
     def capture(cls, config: CaptureConfig) -> Self | dict[Hashable, Self]:
-        """Capture the environment item."""
+        """Capture the context item."""
         raise NotImplementedError
 
 
-class Architecture(EnvironmentItem):
+class Architecture(ContextItem):
     bits: str
     linkage: str
 
@@ -37,7 +37,7 @@ class Architecture(EnvironmentItem):
         )
 
 
-class PythonInfo(EnvironmentItem):
+class PythonInfo(ContextItem):
     executable_architecture: Architecture
     build_no: str
     build_date: str
@@ -59,7 +59,7 @@ class PythonInfo(EnvironmentItem):
         )
 
 
-class Platform(EnvironmentItem):
+class Platform(ContextItem):
     """Information about the platform."""
 
     machine: str
@@ -90,7 +90,7 @@ class GitRemote(BaseModel):
     url: str
 
 
-class GitInfo(EnvironmentItem):
+class GitInfo(ContextItem):
     path: Path
     sha: str
     branch: str
@@ -115,8 +115,8 @@ class GitInfo(EnvironmentItem):
         return git_infos
 
 
-class Environment(EnvironmentItem):
-    """Execution environment to be stored and used later."""
+class Context(ContextItem):
+    """Execution context to be stored and used later."""
 
     platform: Platform
 

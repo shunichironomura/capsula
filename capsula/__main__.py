@@ -57,6 +57,6 @@ def main(
 @main.command()
 @click.pass_context
 def capture(ctx: click.Context) -> None:
-    """Capture the environment."""
+    """Capture the context."""
     capsula_capture_config = CaptureConfig(**ctx.obj["capsula_config"]["capture"])
     capture_core(config=capsula_capture_config)
