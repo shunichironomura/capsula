@@ -72,15 +72,17 @@ def capture(
 
     logger.info("Capturing the context.")
 
-    config.subdirectory.mkdir(parents=True, exist_ok=True)
+    try:
+        config.subdirectory.mkdir(parents=True, exist_ok=False)
+    except FileExistsError:
+        logger.exception(f"Subdirectory already exists: {config.subdirectory}")
+        raise
+
     for file in config.files:
         logger.debug(f"Adding file: {file.absolute()}")
         # Copy the file into the subdirectory.
         shutil.copy2(file, config.subdirectory)
 
-    kwargs = {}
-    if not config.include_cpu:
-        kwargs["cpu"] = None
     ctx = Context.capture(config)
 
     # Write the context to the output file.
