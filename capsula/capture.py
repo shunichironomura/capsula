@@ -36,6 +36,8 @@ class CaptureConfig(BaseModel):
 
     pre_capture_commands: list[str] = Field(default_factory=list)
 
+    environment_variables: list[str] = Field(default_factory=list)
+
     files: dict[Path, CaptureFileConfig] = Field(default_factory=list)
 
     git_repositories: dict[str, Path] = Field(default_factory=dict)

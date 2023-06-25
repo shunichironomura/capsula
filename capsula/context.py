@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import platform as pf
 from abc import ABC, abstractmethod
 from pathlib import Path
@@ -146,6 +147,8 @@ class Context(ContextItem):
     # We use the default factory to avoid the overhead of getting the CPU info, which is slow.
     cpu: dict | None
 
+    environment_variables: dict[str, str]
+
     cwd: Path
 
     git: dict[Path, GitInfo]
@@ -157,6 +160,7 @@ class Context(ContextItem):
         return cls(
             platform=Platform.capture(config),
             cpu=get_cpu_info() if config.include_cpu else None,
+            environment_variables={name: os.environ[name] for name in config.environment_variables},
             git=GitInfo.capture(config),
             cwd=Path.cwd(),
             files=FileContext.capture(config),
