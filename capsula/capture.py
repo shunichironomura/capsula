@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import logging
 import shlex
-import shutil
 import subprocess
 from datetime import datetime
 from pathlib import Path
+from typing import Literal
 
 from pydantic import BaseModel, Field
 
@@ -16,6 +16,11 @@ logger = logging.getLogger(__name__)
 
 def to_hyphen_case(string: str) -> str:
     return string.replace("_", "-")
+
+
+class CaptureFileConfig(BaseModel):
+    hash_algorithm: Literal["md5", "sha1", "sha256", "sha3"] = "sha256"
+    copy_: bool = Field(default=True, alias="copy")
 
 
 class CaptureConfig(BaseModel):
@@ -31,7 +36,7 @@ class CaptureConfig(BaseModel):
 
     pre_capture_commands: list[str] = Field(default_factory=list)
 
-    files: list[Path] = Field(default_factory=list)
+    files: dict[Path, CaptureFileConfig] = Field(default_factory=list)
 
     git_repositories: dict[str, Path] = Field(default_factory=dict)
 
@@ -77,11 +82,6 @@ def capture(
     except FileExistsError:
         logger.exception(f"Subdirectory already exists: {config.subdirectory}")
         raise
-
-    for file in config.files:
-        logger.debug(f"Adding file: {file.absolute()}")
-        # Copy the file into the subdirectory.
-        shutil.copy2(file, config.subdirectory)
 
     ctx = Context.capture(config)
 

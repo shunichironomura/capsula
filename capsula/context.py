@@ -3,11 +3,14 @@ from __future__ import annotations
 import platform as pf
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import TYPE_CHECKING, Self
+from shutil import copyfile
+from typing import TYPE_CHECKING, Literal, Self
 
 from cpuinfo import get_cpu_info
 from git.repo import Repo
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+
+from capsula.hash import compute_hash
 
 if TYPE_CHECKING:
     from collections.abc import Hashable
@@ -115,6 +118,24 @@ class GitInfo(ContextItem):
         return git_infos
 
 
+class FileContext(ContextItem):
+    hash_algorithm: Literal["md5", "sha1", "sha256", "sha3"]
+    file_hash: str = Field(..., alias="hash")
+
+    @classmethod
+    def capture(cls, config: CaptureConfig) -> dict[Path, Self]:
+        files = {}
+        for path, file_config in config.files.items():
+            files[path] = cls(
+                hash=compute_hash(path, file_config.hash_algorithm),
+                hash_algorithm=file_config.hash_algorithm,
+            )
+            if file_config.copy_:
+                copyfile(path, config.subdirectory / path.name)
+
+        return files
+
+
 class Context(ContextItem):
     """Execution context to be stored and used later."""
 
@@ -125,9 +146,11 @@ class Context(ContextItem):
     # We use the default factory to avoid the overhead of getting the CPU info, which is slow.
     cpu: dict | None
 
+    cwd: Path
+
     git: dict[Path, GitInfo]
 
-    cwd: Path
+    files: dict[Path, FileContext]
 
     @classmethod
     def capture(cls, config: CaptureConfig) -> Self:
@@ -136,4 +159,5 @@ class Context(ContextItem):
             cpu=get_cpu_info() if config.include_cpu else None,
             git=GitInfo.capture(config),
             cwd=Path.cwd(),
+            files=FileContext.capture(config),
         )

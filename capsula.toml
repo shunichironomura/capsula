@@ -10,10 +10,10 @@ pre-capture-commands = [
     'poetry lock --check'
 ]
 
-files = [
-    'pyproject.toml',
-    'poetry.lock',
-]
+[capture.files]
+"pyproject.toml" = { hash = "sha256", copy = true }
+"poetry.lock" = { hash = "sha256", copy = true }
+
 
 [capture.git-repositories]
 capsula = '.'
