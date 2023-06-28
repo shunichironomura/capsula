@@ -26,7 +26,7 @@ At the root of your project, create a `capsula.toml` file wit the following cont
 [capture]
 vault-directory = 'vault'
 
-subdirectory-template = '%Y%m%d_%H%M%S'
+capsule-template = '%Y%m%d_%H%M%S'
 
 include-cpu = false
 
@@ -52,7 +52,7 @@ capsula = '.'
 
 ### Context Capture
 
-Running `capsula capture` in the project root (the directory where `capsula.toml` is located) captures the execution context and stores it in a vault directory. The vault directory is specified in the `capsula.toml` file. The vault directory is organized by subdirectories, each of which contains the captured context of a single execution. The subdirectory name is generated using the `subdirectory-template` option in the `capsula.toml` file. The default template is `%Y%m%d_%H%M%S`, which generates a subdirectory name in the format of `YYYYMMDD_HHMMSS`. The context is stored in a JSON file named `context.json`.
+Running `capsula capture` in the project root (the directory where `capsula.toml` is located) captures the execution context and stores it in a vault directory. The vault directory is specified in the `capsula.toml` file. The vault directory is organized by subdirectories ("capsules"), each of which contains the captured context of a single execution. The capsule name is generated using the `capsule-template` option in the `capsula.toml` file. The default template is `%Y%m%d_%H%M%S`, which generates a capsule name in the format of `YYYYMMDD_HHMMSS`. The context is stored in a JSON file named `context.json`.
 
 Example of `context.json`:
 
@@ -108,6 +108,44 @@ Example of `context.json`:
         }
     }
 }
+```
+
+### Execution Monitoring
+
+Running `capsula monitor <commands>` in the project root (the directory where `capsula.toml` is located) monitors the execution of the specified commands. The context is logged in the `context.json` file in the capsule directory, and the command execution is logged in the `pre-run-info.json` and `post-run-info.json` files in the capsule directory.
+
+## Try it out
+
+### Prerequisites
+
+- [Poetry](https://python-poetry.org/docs/#installation)
+
+### Steps
+
+1. Clone this repository:
+
+```bash
+git clone git@github.com:shunichironomura/capsula.git
+```
+
+2. Install the package, including the examples:
+
+```bash
+poetry install --with examples
+```
+
+3. Run the example:
+
+Context capture:
+
+```bash
+capsula capture
+```
+
+Execution monitoring:
+
+```bash
+capsula monitor python examples/calculate_pi.py
 ```
 
 ## Roadmap

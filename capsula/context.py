@@ -5,7 +5,7 @@ import platform as pf
 from abc import ABC, abstractmethod
 from pathlib import Path
 from shutil import copyfile
-from typing import TYPE_CHECKING, Literal, Self
+from typing import TYPE_CHECKING, Any, Literal, Self
 
 from cpuinfo import get_cpu_info
 from git.repo import Repo
@@ -14,8 +14,6 @@ from pydantic import BaseModel, Field
 from capsula.hash import compute_hash
 
 if TYPE_CHECKING:
-    from collections.abc import Hashable
-
     from capsula.capture import CaptureConfig
 
 
@@ -24,7 +22,7 @@ class ContextItem(BaseModel, ABC):
 
     @classmethod
     @abstractmethod
-    def capture(cls, config: CaptureConfig) -> Self | dict[Hashable, Self]:
+    def capture(cls, config: CaptureConfig) -> Self | dict[Any, Self]:
         """Capture the context item."""
         raise NotImplementedError
 
@@ -101,7 +99,7 @@ class GitInfo(ContextItem):
     remotes: list[GitRemote]
 
     @classmethod
-    def capture(cls, config: CaptureConfig) -> dict[Path, Self]:
+    def capture(cls, config: CaptureConfig) -> dict[str, Self]:
         git_infos = {}
         for name, path in config.git.repositories.items():
             repo = Repo(path)
@@ -113,7 +111,7 @@ class GitInfo(ContextItem):
             )
 
             diff = repo.git.diff()
-            with (config.subdirectory / f"{name}.diff").open("w") as diff_file:
+            with (config.capsule / f"{name}.diff").open("w") as diff_file:
                 diff_file.write(diff)
 
         return git_infos
@@ -132,7 +130,7 @@ class FileContext(ContextItem):
                 hash_algorithm=file_config.hash_algorithm,
             )
             if file_config.copy_:
-                copyfile(path, config.subdirectory / path.name)
+                copyfile(path, config.capsule / path.name)
 
         return files
 
@@ -151,7 +149,7 @@ class Context(ContextItem):
 
     cwd: Path
 
-    git: dict[Path, GitInfo]
+    git: dict[str, GitInfo]
 
     files: dict[Path, FileContext]
 
