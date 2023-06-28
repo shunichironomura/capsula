@@ -2,7 +2,7 @@
 # include-capsula-version = true
 vault-directory = 'vault'
 
-subdirectory-template = '%Y%m%d_%H%M%S'
+capsule-template = '%Y%m%d_%H%M%S'
 
 include-cpu = false
 

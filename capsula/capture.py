@@ -31,7 +31,7 @@ class CaptureConfig(BaseModel):
     """Configuration for the capture command."""
 
     vault_directory: Path
-    subdirectory_template: str
+    capsule_template: str
 
     # Whether to include the Capsula version in the output file.
     # include_capsula_version: bool = True # noqa: ERA001
@@ -51,15 +51,15 @@ class CaptureConfig(BaseModel):
         populate_by_name = False
         extra = "forbid"
 
-    _subdirectory: Path | None = None
+    _capsule_directory: Path | None = None
 
     @property
-    def subdirectory(self) -> Path:
-        if self._subdirectory is None:
-            self._subdirectory = self.vault_directory / datetime.now(tz=None).strftime(  # noqa: DTZ005
-                self.subdirectory_template,
+    def capsule(self) -> Path:
+        if self._capsule_directory is None:
+            self._capsule_directory = self.vault_directory / datetime.now(tz=None).strftime(  # noqa: DTZ005
+                self.capsule_template,
             )
-        return self._subdirectory
+        return self._capsule_directory
 
 
 def capture(*, config: CaptureConfig) -> Context:
@@ -81,9 +81,9 @@ def capture(*, config: CaptureConfig) -> Context:
     logger.info("Capturing the context.")
 
     try:
-        config.subdirectory.mkdir(parents=True, exist_ok=False)
+        config.capsule.mkdir(parents=True, exist_ok=False)
     except FileExistsError:
-        logger.exception(f"Subdirectory already exists: {config.subdirectory}")
+        logger.exception(f"Capsule already exists: {config.capsule}")
         raise
 
     ctx = Context.capture(config)
@@ -92,7 +92,7 @@ def capture(*, config: CaptureConfig) -> Context:
     ctx_json = ctx.model_dump_json(
         indent=4,
     )
-    with (config.subdirectory / "context.json").open("w") as output_file:
+    with (config.capsule / "context.json").open("w") as output_file:
         output_file.write(ctx_json)
 
     return ctx

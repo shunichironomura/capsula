@@ -26,7 +26,7 @@ At the root of your project, create a `capsula.toml` file wit the following cont
 [capture]
 vault-directory = 'vault'
 
-subdirectory-template = '%Y%m%d_%H%M%S'
+capsule-template = '%Y%m%d_%H%M%S'
 
 include-cpu = false
 
@@ -52,7 +52,7 @@ capsula = '.'
 
 ### Context Capture
 
-Running `capsula capture` in the project root (the directory where `capsula.toml` is located) captures the execution context and stores it in a vault directory. The vault directory is specified in the `capsula.toml` file. The vault directory is organized by subdirectories, each of which contains the captured context of a single execution. The subdirectory name is generated using the `subdirectory-template` option in the `capsula.toml` file. The default template is `%Y%m%d_%H%M%S`, which generates a subdirectory name in the format of `YYYYMMDD_HHMMSS`. The context is stored in a JSON file named `context.json`.
+Running `capsula capture` in the project root (the directory where `capsula.toml` is located) captures the execution context and stores it in a vault directory. The vault directory is specified in the `capsula.toml` file. The vault directory is organized by subdirectories ("capsules"), each of which contains the captured context of a single execution. The capsule name is generated using the `capsule-template` option in the `capsula.toml` file. The default template is `%Y%m%d_%H%M%S`, which generates a capsule name in the format of `YYYYMMDD_HHMMSS`. The context is stored in a JSON file named `context.json`.
 
 Example of `context.json`:
 

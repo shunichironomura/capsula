@@ -113,7 +113,7 @@ class GitInfo(ContextItem):
             )
 
             diff = repo.git.diff()
-            with (config.subdirectory / f"{name}.diff").open("w") as diff_file:
+            with (config.capsule / f"{name}.diff").open("w") as diff_file:
                 diff_file.write(diff)
 
         return git_infos
@@ -132,7 +132,7 @@ class FileContext(ContextItem):
                 hash_algorithm=file_config.hash_algorithm,
             )
             if file_config.copy_:
-                copyfile(path, config.subdirectory / path.name)
+                copyfile(path, config.capsule / path.name)
 
         return files
 
