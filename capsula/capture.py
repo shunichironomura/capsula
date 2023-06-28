@@ -62,10 +62,7 @@ class CaptureConfig(BaseModel):
         return self._subdirectory
 
 
-def capture(
-    *,
-    config: CaptureConfig,
-) -> None:
+def capture(*, config: CaptureConfig) -> Context:
     """Capture the context."""
     logger.debug(f"Capture config: {config}")
 
@@ -97,3 +94,5 @@ def capture(
     )
     with (config.subdirectory / "context.json").open("w") as output_file:
         output_file.write(ctx_json)
+
+    return ctx
