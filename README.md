@@ -110,6 +110,44 @@ Example of `context.json`:
 }
 ```
 
+### Execution Monitoring
+
+Running `capsula monitor <commands>` in the project root (the directory where `capsula.toml` is located) monitors the execution of the specified commands. The context is logged in the `context.json` file in the capsule directory, and the command execution is logged in the `pre-run-info.json` and `post-run-info.json` files in the capsule directory.
+
+## Try it out
+
+### Prerequisites
+
+- [Poetry](https://python-poetry.org/docs/#installation)
+
+### Steps
+
+1. Clone this repository:
+
+```bash
+git clone git@github.com:shunichironomura/capsula.git
+```
+
+2. Install the package, including the examples:
+
+```bash
+poetry install --with examples
+```
+
+3. Run the example:
+
+Context capture:
+
+```bash
+capsula capture
+```
+
+Execution monitoring:
+
+```bash
+capsula monitor python examples/calculate_pi.py
+```
+
 ## Roadmap
 
 See [#1](https://github.com/shunichironomura/capsula/issues/1).
