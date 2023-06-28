@@ -103,7 +103,7 @@ class GitInfo(ContextItem):
     @classmethod
     def capture(cls, config: CaptureConfig) -> dict[Path, Self]:
         git_infos = {}
-        for name, path in config.git_repositories.items():
+        for name, path in config.git.repositories.items():
             repo = Repo(path)
             git_infos[name] = cls(
                 path=path,
