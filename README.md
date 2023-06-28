@@ -6,7 +6,7 @@
 
 ## Features
 
-1. **Context Capture:** *Capsula* logs the details of the execution context for future reference and reproduction. The context includes, but not limited to, Python version, system environment variables, and the Git commit hash of the current working directory.
+1. **Context Capture (under development):** *Capsula* logs the details of the execution context for future reference and reproduction. The context includes, but not limited to, Python version, system environment variables, and the Git commit hash of the current working directory.
 
 2. **Execution Monitoring (to be implemented):** *Capsula* monitors the execution of Python scripts, Jupyter notebooks, and CLI commands, logging information such as the execution status, output, duration, etc.
 
@@ -19,3 +19,35 @@ You can install *Capsula* via pip:
 ```bash
 pip install capsula
 ```
+
+At the root of your project, create a `capsula.toml` file wit the following content:
+
+```toml
+[capture]
+vault-directory = 'vault'
+
+subdirectory-template = '%Y%m%d_%H%M%S'
+
+include-cpu = false
+
+pre-capture-commands = [
+    'poetry lock --check'
+]
+
+environment-variables = [
+    'HOME',
+]
+
+[capture.files]
+"pyproject.toml" = { hash = "sha256", copy = true }
+"poetry.lock" = { hash = "sha256", copy = true }
+
+
+[capture.git.repositories]
+capsula = '.'
+```
+
+
+## Usage
+
+### Context Capture
