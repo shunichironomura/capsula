@@ -10,6 +10,8 @@ from typing import TYPE_CHECKING
 from pydantic import BaseModel
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from capsula.capture import CaptureConfig
     from capsula.context import Context
 
@@ -34,14 +36,20 @@ class PostCLIRunInfo(BaseModel):
     exit_code: int
 
 
-def monitor_cli(args, *, config: MonitorConfig, context: Context, capture_config: CaptureConfig):
-    pre_run_info = PreCLIRunInfo(args=args, cwd=Path.cwd(), timestamp=datetime.now(UTC).astimezone())
+def monitor_cli(
+    args: Sequence[str],
+    *,
+    config: MonitorConfig,  # noqa: ARG001
+    context: Context,  # noqa: ARG001
+    capture_config: CaptureConfig,
+) -> tuple[PreCLIRunInfo, PostCLIRunInfo]:
+    pre_run_info = PreCLIRunInfo(args=list(args), cwd=Path.cwd(), timestamp=datetime.now(UTC).astimezone())
 
     with (capture_config.capsule / "pre-run-info.json").open("w") as f:
         f.write(pre_run_info.model_dump_json(indent=4))
 
     start_time = time.perf_counter()
-    result = subprocess.run(args, capture_output=True, text=True)
+    result = subprocess.run(args, capture_output=True, text=True)  # noqa: S603
     end_time = time.perf_counter()
 
     post_run_info = PostCLIRunInfo(
@@ -54,3 +62,5 @@ def monitor_cli(args, *, config: MonitorConfig, context: Context, capture_config
 
     with (capture_config.capsule / "post-run-info.json").open("w") as f:
         f.write(post_run_info.model_dump_json(indent=4))
+
+    return pre_run_info, post_run_info
