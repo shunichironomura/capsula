@@ -23,6 +23,10 @@ class CaptureFileConfig(BaseModel):
     copy_: bool = Field(default=True, alias="copy")
 
 
+class GitConfig(BaseModel):
+    repositories: dict[str, Path] = Field(default_factory=dict)
+
+
 class CaptureConfig(BaseModel):
     """Configuration for the capture command."""
 
@@ -40,7 +44,7 @@ class CaptureConfig(BaseModel):
 
     files: dict[Path, CaptureFileConfig] = Field(default_factory=list)
 
-    git_repositories: dict[str, Path] = Field(default_factory=dict)
+    git: GitConfig = Field(default_factory=GitConfig)
 
     class Config:  # noqa: D106
         alias_generator = to_hyphen_case

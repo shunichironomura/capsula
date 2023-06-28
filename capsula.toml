@@ -19,5 +19,5 @@ environment-variables = [
 "poetry.lock" = { hash = "sha256", copy = true }
 
 
-[capture.git-repositories]
+[capture.git.repositories]
 capsula = '.'
