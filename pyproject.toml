@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "capsula"
-version = "0.0.6"
+version = "0.0.7"
 description = "A Python package to capture and reproduce command execution contexts"
 authors = ["Shunichiro Nomura <nomura@space.t.u-tokyo.ac.jp>"]
 license = "MIT"
@@ -102,7 +102,7 @@ ignore = [
 github_url = "https://github.com/shunichironomura/capsula/"
 
 [tool.tbump.version]
-current = "0.0.6"
+current = "0.0.7"
 
 # Example of a semver regexp.
 # Make sure this matches current_version before
