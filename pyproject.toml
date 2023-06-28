@@ -93,9 +93,6 @@ ignore = [
 "examples/*" = [
     "INP001",
 ]
-# "scripts/*" = [
-#     "INP001",
-# ]
 
 [tool.tbump]
 # Uncomment this if your project is hosted on GitHub:
