@@ -51,3 +51,65 @@ capsula = '.'
 ## Usage
 
 ### Context Capture
+
+`capsula capture` captures the execution context and stores it in a vault directory. The vault directory is specified in the `capsula.toml` file. The vault directory is organized by subdirectories, each of which contains the captured context of a single execution. The subdirectory name is generated using the `subdirectory-template` option in the `capsula.toml` file. The default template is `%Y%m%d_%H%M%S`, which generates a subdirectory name in the format of `YYYYMMDD_HHMMSS`. The context is stored in a JSON file named `context.json`.
+
+Example of `context.json`:
+
+```json
+{
+    "platform": {
+        "machine": "x86_64",
+        "node": "DESKTOP-XXXXXXX",
+        "platform": "Linux-5.15.90.1-microsoft-standard-WSL2-x86_64-with-glibc2.31",
+        "release": "5.15.90.1-microsoft-standard-WSL2",
+        "version": "#1 SMP Fri Jan 27 02:56:13 UTC 2023",
+        "system": "Linux",
+        "processor": "x86_64",
+        "python": {
+            "executable_architecture": {
+                "bits": "64bit",
+                "linkage": "ELF"
+            },
+            "build_no": "main",
+            "build_date": "Dec 30 2022 17:24:31",
+            "compiler": "GCC 9.4.0",
+            "branch": "",
+            "implementation": "CPython",
+            "version": "3.11.1"
+        }
+    },
+    "cpu": null,
+    "environment_variables": {
+        "HOME": "/home/directory"
+    },
+    "cwd": "/current/working/directory",
+    "git": {
+        "capsula": {
+            "path": ".",
+            "sha": "7dbaa0389ca4553b3d8b6e35c2d0e4d9e2501764",
+            "branch": "git-config",
+            "remotes": [
+                {
+                    "name": "origin",
+                    "url": "git@github.com:shunichironomura/capsula.git"
+                }
+            ]
+        }
+    },
+    "files": {
+        "pyproject.toml": {
+            "hash_algorithm": "sha256",
+            "file_hash": "e412f8efcdfc12aa7ec36f219a2037c90ade279df5fb11fdefa5a5c3f583a1df"
+        },
+        "poetry.lock": {
+            "hash_algorithm": "sha256",
+            "file_hash": "bd2ee84e4ab22528f89431ca4693c6db58aa304380b36cee7d3e21e19f756df2"
+        }
+    }
+}
+```
+
+## Roadmap
+
+See [#1](https://github.com/shunichironomura/capsula/issues/1).
