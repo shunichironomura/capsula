@@ -8,8 +8,7 @@ import click
 
 from capsula.capture import CaptureConfig
 from capsula.capture import capture as capture_core
-from capsula.monitor import MonitorConfig
-from capsula.monitor import monitor as monitor_core
+from capsula.monitor import MonitorConfig, monitor_cli
 
 
 @click.group()
@@ -73,4 +72,4 @@ def monitor(ctx: click.Context, args: tuple[str]) -> None:
     capsula_ctx = capture_core(config=capsula_capture_config)
 
     capsula_monitor_config = MonitorConfig(**ctx.obj["capsula_config"]["monitor"])
-    monitor_core(args, config=capsula_monitor_config, context=capsula_ctx)
+    monitor_cli(args, config=capsula_monitor_config, context=capsula_ctx, capture_config=capsula_capture_config)

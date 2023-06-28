@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 import shlex
 import subprocess
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Literal
 
@@ -56,7 +56,7 @@ class CaptureConfig(BaseModel):
     @property
     def capsule(self) -> Path:
         if self._capsule_directory is None:
-            self._capsule_directory = self.vault_directory / datetime.now(tz=None).strftime(  # noqa: DTZ005
+            self._capsule_directory = self.vault_directory / datetime.now(UTC).astimezone().strftime(
                 self.capsule_template,
             )
         return self._capsule_directory
@@ -89,10 +89,7 @@ def capture(*, config: CaptureConfig) -> Context:
     ctx = Context.capture(config)
 
     # Write the context to the output file.
-    ctx_json = ctx.model_dump_json(
-        indent=4,
-    )
     with (config.capsule / "context.json").open("w") as output_file:
-        output_file.write(ctx_json)
+        output_file.write(ctx.model_dump_json(indent=4))
 
     return ctx

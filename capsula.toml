@@ -21,3 +21,9 @@ environment-variables = [
 
 [capture.git.repositories]
 capsula = '.'
+
+[monitor]
+
+post-run-commands = []
+
+[monitor.post-run-files]
