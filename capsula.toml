@@ -23,7 +23,3 @@ environment-variables = [
 capsula = '.'
 
 [monitor]
-
-post-run-commands = []
-
-[monitor.post-run-files]
