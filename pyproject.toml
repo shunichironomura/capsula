@@ -146,7 +146,7 @@ cmd = "gh pr create --fill --base main"
 
 [[tool.tbump.after_push]]
 name = "GitHub PR merge"
-cmd = "gh pr merge --auto --delete-branch"
+cmd = "gh pr merge --auto --merge --delete-branch"
 
 [[tool.tbump.after_push]]
 name = "GitHub release"
