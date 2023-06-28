@@ -17,7 +17,8 @@
     "python.linting.enabled": false,
     "cSpell.words": [
         "capsula",
-        "pydantic",
-        "hexsha"
+        "hexsha",
+        "HHMMSS",
+        "pydantic"
     ],
 }
