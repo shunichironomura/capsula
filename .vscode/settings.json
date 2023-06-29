@@ -17,8 +17,12 @@
     "python.linting.enabled": false,
     "cSpell.words": [
         "capsula",
+        "figsize",
+        "globalvars",
         "hexsha",
         "HHMMSS",
-        "pydantic"
+        "pydantic",
+        "savefig",
+        "xlim"
     ],
 }
