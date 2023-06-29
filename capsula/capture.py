@@ -10,6 +10,7 @@ from pydantic import BaseModel, Field
 
 from capsula.context import Context
 from capsula.file import CaptureFileConfig  # noqa: TCH001 for pydantic
+from capsula.globalvars import set_capsule_dir
 
 logger = logging.getLogger(__name__)
 
@@ -80,6 +81,8 @@ def capture(*, config: CaptureConfig) -> Context:
     except FileExistsError:
         logger.exception(f"Capsule already exists: {config.capsule}")
         raise
+    else:
+        set_capsule_dir(config.capsule)
 
     ctx = Context.capture(config)
 

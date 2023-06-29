@@ -9,7 +9,6 @@ import click
 from capsula._monitor import MonitorConfig, monitor_cli
 from capsula.capture import CaptureConfig
 from capsula.capture import capture as capture_core
-from capsula.globalvars import set_capsule_dir
 
 
 @click.group()
@@ -71,9 +70,6 @@ def monitor(ctx: click.Context, args: tuple[str]) -> None:
     """Monitor execution."""
     capsula_capture_config = CaptureConfig(**ctx.obj["capsula_config"]["capture"])
     capsula_ctx = capture_core(config=capsula_capture_config)
-
-    # Add CAPSULE_DIR to the environment.
-    set_capsule_dir(capsula_capture_config.capsule)
 
     capsula_monitor_config = MonitorConfig(**ctx.obj["capsula_config"]["monitor"])
     monitor_cli(args, monitor_config=capsula_monitor_config, context=capsula_ctx, capture_config=capsula_capture_config)
