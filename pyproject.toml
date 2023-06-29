@@ -95,6 +95,8 @@ ignore = [
 ]
 
 [tool.tbump]
+# Run `tbump --no-tag {patch,minor,major}` in the main branch to bump the version
+
 # Uncomment this if your project is hosted on GitHub:
 github_url = "https://github.com/shunichironomura/capsula/"
 
@@ -131,9 +133,9 @@ search = '__version__ = "{current_version}"'
 # run after the files have been patched
 # and before the git commit is made
 
-#  [[tool.tbump.before_commit]]
-#  name = "check changelog"
-#  cmd = "grep -q {new_version} Changelog.rst"
+[[tool.tbump.before_commit]]
+name = "Create a new branch and push it"
+cmd = "git switch -c release/v{new_version} && git push origin -u release/v{new_version}"
 
 # Or run some commands after the git tag and the branch
 # have been pushed:
@@ -144,6 +146,10 @@ cmd = "gh pr create --fill --base main"
 [[tool.tbump.after_push]]
 name = "GitHub PR merge"
 cmd = "gh pr merge --auto --merge --delete-branch"
+
+[[tool.tbump.after_push]]
+name = "Create a tag"
+cmd = "git tag v{new_version} && git push origin v{new_version}"
 
 [[tool.tbump.after_push]]
 name = "GitHub release"
