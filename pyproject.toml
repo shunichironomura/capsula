@@ -94,6 +94,9 @@ ignore = [
 "examples/*" = [
     "INP001",
 ]
+"__init__.py" = [
+    "F401"
+]
 
 [tool.tbump]
 # Run `tbump {patch,minor,major}` in the main branch to bump the version
