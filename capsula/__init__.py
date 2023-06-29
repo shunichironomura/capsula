@@ -1,2 +1,2 @@
+from ._monitor import monitor
 from ._version import __version__
-from .monitor import monitor

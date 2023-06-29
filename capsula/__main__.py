@@ -6,10 +6,10 @@ from pathlib import Path
 
 import click
 
+from capsula._monitor import MonitorConfig, monitor_cli
 from capsula.capture import CaptureConfig
 from capsula.capture import capture as capture_core
 from capsula.globalvars import set_capsule_dir
-from capsula.monitor import MonitorConfig, monitor_cli
 
 
 @click.group()
