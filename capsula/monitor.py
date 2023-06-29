@@ -6,12 +6,12 @@ import time
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from shutil import copyfile
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Literal, ParamSpec, TypeVar
 
 from pydantic import BaseModel, Field
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Callable, Sequence
 
     from capsula.capture import CaptureConfig
     from capsula.context import Context
@@ -87,3 +87,15 @@ def monitor_cli(
         f.write(post_run_info.model_dump_json(indent=4))
 
     return pre_run_info, post_run_info
+
+
+T = TypeVar("T")
+P = ParamSpec("P")
+
+
+def monitor(fn: Callable[P, T]) -> Callable[P, T]:
+    def inner(*args: P.args, **kwargs: P.kwargs) -> T:
+        logging.info(f"{fn.__name__} was called")
+        return fn(*args, **kwargs)
+
+    return inner

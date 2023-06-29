@@ -1,27 +1,14 @@
 import logging
 import sys
 
-import click
 import numpy as np
+
+import capsula
 
 logger = logging.getLogger(__name__)
 
 
-@click.command()
-@click.option(
-    "-n",
-    type=int,
-    help="The number of samples to use.",
-    default=1_000_000,
-    show_default=True,
-)
-@click.option(
-    "--seed",
-    "-s",
-    type=int,
-    help="The seed to use for the random number generator passed to numpy.random.default_rng.",
-    default=None,
-)
+@capsula.monitor
 def main(n: int, seed: int | None = None) -> None:
     """Calculate pi using the Monte Carlo method."""
     if n < 1:
@@ -37,4 +24,4 @@ def main(n: int, seed: int | None = None) -> None:
 
 
 if __name__ == "__main__":
-    main()
+    main(1_000_000)
