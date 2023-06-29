@@ -76,4 +76,4 @@ def monitor(ctx: click.Context, args: tuple[str]) -> None:
     set_capsule_dir(capsula_capture_config.capsule)
 
     capsula_monitor_config = MonitorConfig(**ctx.obj["capsula_config"]["monitor"])
-    monitor_cli(args, config=capsula_monitor_config, context=capsula_ctx, capture_config=capsula_capture_config)
+    monitor_cli(args, monitor_config=capsula_monitor_config, context=capsula_ctx, capture_config=capsula_capture_config)

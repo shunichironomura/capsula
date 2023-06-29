@@ -1,5 +1,4 @@
 import logging
-import os
 import sys
 from pathlib import Path
 
@@ -53,10 +52,11 @@ def main(n: int, seed: int | None = None) -> None:
     theta = np.linspace(0, 2 * np.pi, 100)
     ax.plot(np.cos(theta), np.sin(theta), c="k")
 
-    capsule_dir = Path(os.environ["CAPSULE_DIR"])
-    logger.info(f"Saving plot to {capsule_dir / 'pi.png'}")
+    # capsule_dir = Path(os.environ["CAPSULE_DIR"])  # noqa: ERA001
+    # logger.info(f"Saving plot to {capsule_dir / 'pi.png'}")  # noqa: ERA001
 
-    fig.savefig(str(capsule_dir / "pi.png"), dpi=300)
+    output_path = Path(__file__).parent / "pi_cli.png"
+    fig.savefig(str(output_path), dpi=300)
 
 
 if __name__ == "__main__":

@@ -5,22 +5,24 @@ import subprocess
 import time
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import TYPE_CHECKING
+from shutil import copyfile
+from typing import TYPE_CHECKING, Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from capsula.capture import CaptureConfig
     from capsula.context import Context
-
+from capsula.file import CaptureFileConfig  # noqa: TCH001 for pydantic
+from capsula.hash import compute_hash
 
 logger = logging.getLogger(__name__)
 
 
 class MonitorConfig(BaseModel):
-    ...
+    files: dict[Path, CaptureFileConfig] = Field(default_factory=dict)
 
 
 class PreCLIRunInfo(BaseModel):
@@ -29,18 +31,24 @@ class PreCLIRunInfo(BaseModel):
     args: list[str]
 
 
+class OutputFileInfo(BaseModel):
+    hash_algorithm: Literal["md5", "sha1", "sha256", "sha3"]
+    file_hash: str = Field(..., alias="hash")
+
+
 class PostCLIRunInfo(BaseModel):
     timestamp: datetime
     run_time: timedelta
     stdout: str
     stderr: str
     exit_code: int
+    files: dict[Path, OutputFileInfo | None] = Field(default_factory=dict)
 
 
 def monitor_cli(
     args: Sequence[str],
     *,
-    config: MonitorConfig,  # noqa: ARG001
+    monitor_config: MonitorConfig,
     context: Context,  # noqa: ARG001
     capture_config: CaptureConfig,
 ) -> tuple[PreCLIRunInfo, PostCLIRunInfo]:
@@ -60,6 +68,20 @@ def monitor_cli(
         stderr=result.stderr,
         exit_code=result.returncode,
     )
+
+    files = {}
+    for path, file in monitor_config.files.items():
+        if not path.exists():
+            files[path] = None
+            continue
+        files[path] = OutputFileInfo(
+            hash_algorithm=file.hash_algorithm,
+            hash=compute_hash(path, file.hash_algorithm),
+        )
+        if file.copy_:
+            copyfile(path, capture_config.capsule / path.name)
+
+    post_run_info.files = files
 
     with (capture_config.capsule / "post-run-info.json").open("w") as f:
         f.write(post_run_info.model_dump_json(indent=4))
