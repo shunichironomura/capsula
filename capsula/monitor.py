@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from capsula.capture import CaptureConfig
     from capsula.context import Context
 
+
 logger = logging.getLogger(__name__)
 
 
