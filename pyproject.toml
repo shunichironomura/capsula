@@ -139,13 +139,13 @@ search = '__version__ = "{current_version}"'
 
 # # Or run some commands after the git tag and the branch
 # # have been pushed:
-[[tool.tbump.after_push]]
-name = "GitHub PR"
-cmd = "gh pr create --fill --base main"
+# [[tool.tbump.after_push]]
+# name = "GitHub PR"
+# cmd = "gh pr create --fill --base main"
 
-[[tool.tbump.after_push]]
-name = "GitHub PR merge"
-cmd = "gh pr merge --auto --rebase --delete-branch"
+# [[tool.tbump.after_push]]
+# name = "GitHub PR merge"
+# cmd = "gh pr merge --auto --rebase --delete-branch"
 
 [[tool.tbump.after_push]]
 name = "GitHub release"
