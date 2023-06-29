@@ -1,11 +1,11 @@
 import logging
+import os
 import sys
+from pathlib import Path
 
 import click
 import matplotlib.pyplot as plt
 import numpy as np
-
-from capsula.globalvars import get_capsule_dir
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +43,7 @@ def main(n: int, seed: int | None = None) -> None:
 
     # Plot the points
     ax = fig.add_subplot(1, 1, 1)
-    ax.scatter(x, y, s=1, c="k")
+    ax.scatter(x, y, s=0.01, c="k")
     ax.set_aspect("equal")
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
@@ -53,8 +53,8 @@ def main(n: int, seed: int | None = None) -> None:
     theta = np.linspace(0, 2 * np.pi, 100)
     ax.plot(np.cos(theta), np.sin(theta), c="k")
 
-    capsule_dir = get_capsule_dir()
-    print(f"Saving plot to {capsule_dir / 'pi.png'}")
+    capsule_dir = Path(os.environ["CAPSULE_DIR"])
+    logger.info(f"Saving plot to {capsule_dir / 'pi.png'}")
 
     fig.savefig(str(capsule_dir / "pi.png"), dpi=300)
 
