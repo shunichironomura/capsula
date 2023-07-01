@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 @capsula.monitor(
     directory=Path(__file__).parents[1],
     include_return_value=True,
+    item="calculate-pi-dec",
 )
 def main(n: int, seed: int | None = None) -> float:
     """Calculate pi using the Monte Carlo method."""

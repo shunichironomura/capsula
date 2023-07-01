@@ -23,13 +23,8 @@ environment-variables = [
 capsula = '.'
 
 [monitor]
-[monitor.files]
-
+[monitor.item.calculate-pi-cli.files]
 "examples/pi_cli.png" = { hash = "sha256" }
+
+[monitor.item.calculate-pi-dec.files]
 "examples/pi_dec.png" = { hash = "sha256" }
-
-# [monitor.item.calculate-pi]
-# optional = true
-
-# [monitor.item.calculate-pi.files]
-# "examples/pi_cli.png" = { hash = "sha256" }

@@ -64,12 +64,24 @@ def capture(ctx: click.Context) -> None:
 
 
 @main.command()
+@click.option(
+    "--item",
+    "-i",
+    default=None,
+    help="The item to monitor defined in the capsula.toml file.",
+)
 @click.argument("args", nargs=-1)
 @click.pass_context
-def monitor(ctx: click.Context, args: tuple[str]) -> None:
+def monitor(ctx: click.Context, item: str | None, args: tuple[str]) -> None:
     """Monitor execution."""
     capsula_capture_config = CaptureConfig(**ctx.obj["capsula_config"]["capture"])
     capsula_ctx = capture_core(config=capsula_capture_config)
 
     capsula_monitor_config = MonitorConfig(**ctx.obj["capsula_config"]["monitor"])
-    monitor_cli(args, monitor_config=capsula_monitor_config, context=capsula_ctx, capture_config=capsula_capture_config)
+    monitor_cli(
+        args,
+        item=item,
+        monitor_config=capsula_monitor_config,
+        context=capsula_ctx,
+        capture_config=capsula_capture_config,
+    )

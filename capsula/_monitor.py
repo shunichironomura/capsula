@@ -25,8 +25,12 @@ from capsula.hash import compute_hash
 logger = logging.getLogger(__name__)
 
 
-class MonitorConfig(BaseModel):
+class MonitorItemConfig(BaseModel):
     files: dict[Path, CaptureFileConfig] = Field(default_factory=dict)
+
+
+class MonitorConfig(BaseModel):
+    items: dict[str, MonitorItemConfig] = Field(default_factory=dict, alias="item")
 
 
 class PreRunInfo(BaseModel):
@@ -56,6 +60,7 @@ def monitor_cli(
     monitor_config: MonitorConfig,
     context: Context,  # noqa: ARG001
     capture_config: CaptureConfig,
+    item: str | None = None,
 ) -> tuple[PreRunInfo, PostRunInfo]:
     pre_run_info = PreRunInfo(args=list(args), cwd=Path.cwd(), timestamp=datetime.now(UTC).astimezone())
 
@@ -74,19 +79,19 @@ def monitor_cli(
         exit_code=result.returncode,
     )
 
-    files = {}
-    for path, file in monitor_config.files.items():
-        if not path.exists():
-            files[path] = None
-            continue
-        files[path] = OutputFileInfo(
-            hash_algorithm=file.hash_algorithm,
-            hash=compute_hash(path, file.hash_algorithm),
-        )
-        if file.copy_:
-            copyfile(path, capture_config.capsule / path.name)
-
-    post_run_info.files = files
+    post_run_info.files = {}
+    if item is not None:
+        for path, file in monitor_config.items[item].files.items():
+            if not path.exists():
+                logging.warning(f"File {path} does not exist.")
+                post_run_info.files[path] = None
+                continue
+            post_run_info.files[path] = OutputFileInfo(
+                hash_algorithm=file.hash_algorithm,
+                hash=compute_hash(path, file.hash_algorithm),
+            )
+            if file.copy_:
+                copyfile(path, capture_config.capsule / path.name)
 
     with (capture_config.capsule / "post-run-info.json").open("w") as f:
         f.write(post_run_info.model_dump_json(indent=4))
@@ -101,6 +106,7 @@ P = ParamSpec("P")
 def monitor(
     directory: Path,
     *,
+    item: str | None = None,
     include_return_value: bool = False,
 ) -> Callable[[Callable[P, T]], Callable[P, T]]:
     def decorator(func: Callable[P, T]) -> Callable[P, T]:
@@ -133,19 +139,18 @@ def monitor(
             if include_return_value:
                 post_run_info.return_value = ret
 
-            files = {}
-            for path, file in monitor_config.files.items():
-                if not path.exists():
-                    files[path] = None
-                    continue
-                files[path] = OutputFileInfo(
-                    hash_algorithm=file.hash_algorithm,
-                    hash=compute_hash(path, file.hash_algorithm),
-                )
-                if file.copy_:
-                    copyfile(path, capture_config.capsule / path.name)
-
-            post_run_info.files = files
+            post_run_info.files = {}
+            if item is not None:
+                for path, file in monitor_config.items[item].files.items():
+                    if not path.exists():
+                        post_run_info.files[path] = None
+                        continue
+                    post_run_info.files[path] = OutputFileInfo(
+                        hash_algorithm=file.hash_algorithm,
+                        hash=compute_hash(path, file.hash_algorithm),
+                    )
+                    if file.copy_:
+                        copyfile(path, capture_config.capsule / path.name)
 
             with (capture_config.capsule / "post-run-info.json").open("w") as f:
                 f.write(post_run_info.model_dump_json(indent=4))
