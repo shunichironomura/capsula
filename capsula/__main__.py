@@ -3,12 +3,16 @@ from __future__ import annotations
 import logging
 import tomllib
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import click
 
 from capsula._monitor import MonitorConfig, monitor_cli
 from capsula.capture import CaptureConfig
 from capsula.capture import capture as capture_core
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 
 @click.group()
@@ -67,12 +71,14 @@ def capture(ctx: click.Context) -> None:
 @click.option(
     "--item",
     "-i",
-    default=None,
+    "items",
+    multiple=True,
+    default=(),
     help="The item to monitor defined in the capsula.toml file.",
 )
 @click.argument("args", nargs=-1)
 @click.pass_context
-def monitor(ctx: click.Context, item: str | None, args: tuple[str]) -> None:
+def monitor(ctx: click.Context, items: Iterable[str], args: tuple[str]) -> None:
     """Monitor execution."""
     capsula_capture_config = CaptureConfig(**ctx.obj["capsula_config"]["capture"])
     capsula_ctx = capture_core(config=capsula_capture_config)
@@ -80,7 +86,7 @@ def monitor(ctx: click.Context, item: str | None, args: tuple[str]) -> None:
     capsula_monitor_config = MonitorConfig(**ctx.obj["capsula_config"]["monitor"])
     monitor_cli(
         args,
-        item=item,
+        items=items,
         monitor_config=capsula_monitor_config,
         context=capsula_ctx,
         capture_config=capsula_capture_config,

@@ -4,11 +4,13 @@ import logging
 import subprocess
 import time
 import tomllib
+import warnings
+from abc import ABC, abstractmethod
 from datetime import UTC, datetime, timedelta
 from functools import wraps
 from pathlib import Path
 from shutil import copyfile
-from typing import TYPE_CHECKING, Any, Literal, ParamSpec, TypeVar
+from typing import TYPE_CHECKING, Any, Generic, Literal, ParamSpec, TypeVar
 
 from pydantic import BaseModel, Field
 
@@ -18,7 +20,7 @@ from capsula.file import CaptureFileConfig  # noqa: TCH001 for pydantic
 from capsula.hash import compute_hash
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Sequence
+    from collections.abc import Callable, Iterable, Sequence
 
     from capsula.context import Context
 
@@ -39,7 +41,7 @@ class PreRunInfoBase(BaseModel):
 
 
 class PreRunInfoCli(PreRunInfoBase):
-    args: list[str] | None = None
+    args: list[str]
 
 
 class PreRunInfoFunc(PreRunInfoBase):
@@ -67,47 +69,89 @@ class PostRunInfoFunc(PostRunInfoBase):
     return_value: Any | None = None
 
 
+_TPreRunInfo = TypeVar("_TPreRunInfo", bound=PreRunInfoBase)
+_TPostRunInfo = TypeVar("_TPostRunInfo", bound=PostRunInfoBase)
+
+
+class MonitoringHandlerBase(ABC, Generic[_TPreRunInfo, _TPostRunInfo]):
+    def __init__(self, capture_config: CaptureConfig, monitor_config: MonitorConfig) -> None:
+        self.capture_config = capture_config
+        self.monitor_config = monitor_config
+
+    @abstractmethod
+    def setup(self) -> _TPreRunInfo:
+        ...
+
+    def run(
+        self,
+        func: Callable[[_TPreRunInfo], _TPostRunInfo],
+        *,
+        pre_run_info: _TPreRunInfo,
+        items: Iterable[str],
+        teardown: bool = True,
+    ) -> _TPostRunInfo:
+        post_run_info = func(pre_run_info)
+        if teardown:
+            post_run_info = self.teardown(post_run_info=post_run_info, items=items)
+        return post_run_info
+
+    def teardown(self, *, post_run_info: _TPostRunInfo, items: Iterable[str]) -> _TPostRunInfo:
+        post_run_info.files = {}
+        for item in items:
+            for path, file in self.monitor_config.items[item].files.items():
+                logger.debug(f"Capturing file {path}...")
+                if not path.exists():
+                    logger.warning(f"File {path} does not exist.")
+                    post_run_info.files[path] = None
+                    continue
+                post_run_info.files[path] = OutputFileInfo(
+                    hash_algorithm=file.hash_algorithm,
+                    hash=compute_hash(path, file.hash_algorithm),
+                )
+                if file.copy_:
+                    copyfile(path, self.capture_config.capsule / path.name)
+
+        with (self.capture_config.capsule / "post-run-info.json").open("w") as f:
+            f.write(post_run_info.model_dump_json(indent=4))
+
+        return post_run_info
+
+
+class MonitoringHandlerCli(MonitoringHandlerBase[PreRunInfoCli, PostRunInfoCli]):
+    def setup(self, args: Sequence[str]) -> PreRunInfoCli:
+        pre_run_info = PreRunInfoCli(args=list(args), cwd=Path.cwd(), timestamp=datetime.now(UTC).astimezone())
+
+        with (self.capture_config.capsule / "pre-run-info.json").open("w") as f:
+            f.write(pre_run_info.model_dump_json(indent=4))
+
+        return pre_run_info
+
+
 def monitor_cli(
     args: Sequence[str],
     *,
     monitor_config: MonitorConfig,
     context: Context,  # noqa: ARG001
     capture_config: CaptureConfig,
-    item: str | None = None,
+    items: Iterable[str],
 ) -> tuple[PreRunInfoCli, PostRunInfoCli]:
-    pre_run_info = PreRunInfoCli(args=list(args), cwd=Path.cwd(), timestamp=datetime.now(UTC).astimezone())
+    handler = MonitoringHandlerCli(capture_config, monitor_config)
+    pre_run_info = handler.setup(args)
 
-    with (capture_config.capsule / "pre-run-info.json").open("w") as f:
-        f.write(pre_run_info.model_dump_json(indent=4))
+    def func(pre_run_info: PreRunInfoCli) -> PostRunInfoCli:
+        start_time = time.perf_counter()
+        result = subprocess.run(pre_run_info.args, capture_output=True, text=True)  # noqa: S603
+        end_time = time.perf_counter()
 
-    start_time = time.perf_counter()
-    result = subprocess.run(args, capture_output=True, text=True)  # noqa: S603
-    end_time = time.perf_counter()
+        return PostRunInfoCli(
+            timestamp=datetime.now(UTC).astimezone(),
+            run_time=timedelta(seconds=end_time - start_time),
+            stdout=result.stdout,
+            stderr=result.stderr,
+            exit_code=result.returncode,
+        )
 
-    post_run_info = PostRunInfoCli(
-        timestamp=datetime.now(UTC).astimezone(),
-        run_time=timedelta(seconds=end_time - start_time),
-        stdout=result.stdout,
-        stderr=result.stderr,
-        exit_code=result.returncode,
-    )
-
-    post_run_info.files = {}
-    if item is not None:
-        for path, file in monitor_config.items[item].files.items():
-            if not path.exists():
-                logging.warning(f"File {path} does not exist.")
-                post_run_info.files[path] = None
-                continue
-            post_run_info.files[path] = OutputFileInfo(
-                hash_algorithm=file.hash_algorithm,
-                hash=compute_hash(path, file.hash_algorithm),
-            )
-            if file.copy_:
-                copyfile(path, capture_config.capsule / path.name)
-
-    with (capture_config.capsule / "post-run-info.json").open("w") as f:
-        f.write(post_run_info.model_dump_json(indent=4))
+    post_run_info = handler.run(func, pre_run_info=pre_run_info, items=items)
 
     return pre_run_info, post_run_info
 
@@ -119,9 +163,17 @@ P = ParamSpec("P")
 def monitor(
     directory: Path,
     *,
-    item: str | None = None,
+    items: Iterable[str] = (),
     include_return_value: bool = False,
 ) -> Callable[[Callable[P, T]], Callable[P, T]]:
+    if isinstance(items, str):
+        warnings.warn(
+            "Passing a single string to `monitor` is deprecated. Use a tuple instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        items = (items,)
+
     def decorator(func: Callable[P, T]) -> Callable[P, T]:
         capsula_config_path = directory / "capsula.toml"
         with capsula_config_path.open("rb") as capsula_config_file:
@@ -151,7 +203,7 @@ def monitor(
             )
 
             post_run_info.files = {}
-            if item is not None:
+            for item in items:
                 for path, file in monitor_config.items[item].files.items():
                     if not path.exists():
                         post_run_info.files[path] = None
