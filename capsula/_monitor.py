@@ -22,7 +22,6 @@ from capsula.hash import compute_hash
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Sequence
 
-    from capsula.context import Context
 
 logger = logging.getLogger(__name__)
 
@@ -79,7 +78,7 @@ class MonitoringHandlerBase(ABC, Generic[_TPreRunInfo, _TPostRunInfo]):
         self.monitor_config = monitor_config
 
     @abstractmethod
-    def setup(self) -> _TPreRunInfo:
+    def setup(self, *args: Any, **kwargs: Any) -> _TPreRunInfo:
         ...
 
     @abstractmethod
@@ -129,21 +128,6 @@ class MonitoringHandlerCli(MonitoringHandlerBase[PreRunInfoCli, PostRunInfoCli])
             stderr=result.stderr,
             exit_code=result.returncode,
         )
-
-
-def monitor_cli(
-    args: Sequence[str],
-    *,
-    monitor_config: MonitorConfig,
-    context: Context,  # noqa: ARG001
-    capture_config: CaptureConfig,
-    items: Iterable[str],
-) -> tuple[PreRunInfoCli, PostRunInfoCli]:
-    handler = MonitoringHandlerCli(capture_config, monitor_config)
-    pre_run_info = handler.setup(args)
-    post_run_info = handler.run(pre_run_info=pre_run_info, items=items)
-    post_run_info = handler.teardown(post_run_info=post_run_info, items=items)
-    return pre_run_info, post_run_info
 
 
 T = TypeVar("T")

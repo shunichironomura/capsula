@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 
 import click
 
-from capsula._monitor import MonitorConfig, monitor_cli
+from capsula._monitor import MonitorConfig, MonitoringHandlerCli
 from capsula.capture import CaptureConfig
 from capsula.capture import capture as capture_core
 
@@ -80,14 +80,11 @@ def capture(ctx: click.Context) -> None:
 @click.pass_context
 def monitor(ctx: click.Context, items: Iterable[str], args: tuple[str]) -> None:
     """Monitor execution."""
-    capsula_capture_config = CaptureConfig(**ctx.obj["capsula_config"]["capture"])
-    capsula_ctx = capture_core(config=capsula_capture_config)
+    capture_config = CaptureConfig(**ctx.obj["capsula_config"]["capture"])
+    capture_core(config=capture_config)
 
-    capsula_monitor_config = MonitorConfig(**ctx.obj["capsula_config"]["monitor"])
-    monitor_cli(
-        args,
-        items=items,
-        monitor_config=capsula_monitor_config,
-        context=capsula_ctx,
-        capture_config=capsula_capture_config,
-    )
+    monitor_config = MonitorConfig(**ctx.obj["capsula_config"]["monitor"])
+    handler = MonitoringHandlerCli(capture_config, monitor_config)
+    pre_run_info = handler.setup(args)
+    post_run_info = handler.run(pre_run_info=pre_run_info, items=items)
+    post_run_info = handler.teardown(post_run_info=post_run_info, items=items)
