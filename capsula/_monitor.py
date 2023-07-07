@@ -44,7 +44,8 @@ class PreRunInfoCli(PreRunInfoBase):
 
 
 class PreRunInfoFunc(PreRunInfoBase):
-    ...
+    args: tuple[Any, ...]
+    kwargs: dict[str, Any]
 
 
 class OutputFileInfo(BaseModel):
@@ -65,7 +66,7 @@ class PostRunInfoCli(PostRunInfoBase):
 
 
 class PostRunInfoFunc(PostRunInfoBase):
-    return_value: Any | None = None
+    return_value: Any
 
 
 _TPreRunInfo = TypeVar("_TPreRunInfo", bound=PreRunInfoBase)
@@ -73,19 +74,33 @@ _TPostRunInfo = TypeVar("_TPostRunInfo", bound=PostRunInfoBase)
 
 
 class MonitoringHandlerBase(ABC, Generic[_TPreRunInfo, _TPostRunInfo]):
-    def __init__(self, capture_config: CaptureConfig, monitor_config: MonitorConfig) -> None:
+    def __init__(self, *, capture_config: CaptureConfig, monitor_config: MonitorConfig) -> None:
         self.capture_config = capture_config
         self.monitor_config = monitor_config
 
     @abstractmethod
-    def setup(self, *args: Any, **kwargs: Any) -> _TPreRunInfo:
+    def setup_pre_run_info(self, *args: Any, **kwargs: Any) -> _TPreRunInfo:
         ...
+
+    def setup(self, *args: Any, **kwargs: Any) -> _TPreRunInfo:
+        """Setup the pre-run info and dump it to a file."""
+        pre_run_info = self.setup_pre_run_info(*args, **kwargs)
+        self.dump_pre_run_info(pre_run_info)
+        return pre_run_info
+
+    def dump_pre_run_info(self, pre_run_info: _TPreRunInfo) -> None:
+        with (self.capture_config.capsule / "pre-run-info.json").open("w") as f:
+            f.write(pre_run_info.model_dump_json(indent=4))
 
     @abstractmethod
-    def run(self, pre_run_info: _TPreRunInfo, items: Iterable[str]) -> _TPostRunInfo:
+    def run(self, pre_run_info: _TPreRunInfo, *, items: Iterable[str], **kwargs: Any) -> _TPostRunInfo:
         ...
 
-    def teardown(self, *, post_run_info: _TPostRunInfo, items: Iterable[str]) -> _TPostRunInfo:
+    def run_and_teardown(self, pre_run_info: _TPreRunInfo, *, items: Iterable[str], **kwargs: Any) -> _TPostRunInfo:
+        post_run_info = self.run(pre_run_info, items=items, **kwargs)
+        return self.teardown(post_run_info=post_run_info, items=items)
+
+    def teardown(self, post_run_info: _TPostRunInfo, *, items: Iterable[str]) -> _TPostRunInfo:
         post_run_info.files = {}
         for item in items:
             for path, file in self.monitor_config.items[item].files.items():
@@ -108,15 +123,10 @@ class MonitoringHandlerBase(ABC, Generic[_TPreRunInfo, _TPostRunInfo]):
 
 
 class MonitoringHandlerCli(MonitoringHandlerBase[PreRunInfoCli, PostRunInfoCli]):
-    def setup(self, args: Sequence[str]) -> PreRunInfoCli:
-        pre_run_info = PreRunInfoCli(args=list(args), cwd=Path.cwd(), timestamp=datetime.now(UTC).astimezone())
+    def setup_pre_run_info(self, args: Sequence[str]) -> PreRunInfoCli:
+        return PreRunInfoCli(args=list(args), cwd=Path.cwd(), timestamp=datetime.now(UTC).astimezone())
 
-        with (self.capture_config.capsule / "pre-run-info.json").open("w") as f:
-            f.write(pre_run_info.model_dump_json(indent=4))
-
-        return pre_run_info
-
-    def run(self, pre_run_info: PreRunInfoCli, items: Iterable[str]) -> PostRunInfoCli:
+    def run(self, pre_run_info: PreRunInfoCli, *, items: Iterable[str]) -> PostRunInfoCli:
         start_time = time.perf_counter()
         result = subprocess.run(pre_run_info.args, capture_output=True, text=True)  # noqa: S603
         end_time = time.perf_counter()
@@ -127,6 +137,33 @@ class MonitoringHandlerCli(MonitoringHandlerBase[PreRunInfoCli, PostRunInfoCli])
             stdout=result.stdout,
             stderr=result.stderr,
             exit_code=result.returncode,
+        )
+
+
+class MonitoringHandlerFunc(MonitoringHandlerBase[PreRunInfoFunc, PostRunInfoFunc]):
+    def setup_pre_run_info(self, *args: Any, **kwargs: Any) -> PreRunInfoFunc:
+        return PreRunInfoFunc(
+            cwd=Path.cwd(),
+            timestamp=datetime.now(UTC).astimezone(),
+            args=args,
+            kwargs=kwargs,
+        )
+
+    def run(
+        self,
+        pre_run_info: PreRunInfoFunc,
+        *,
+        items: Iterable[str],
+        func: Callable[..., Any],
+    ) -> PostRunInfoFunc:
+        start_time = time.perf_counter()
+        ret = func(*pre_run_info.args, **pre_run_info.kwargs)
+        end_time = time.perf_counter()
+
+        return PostRunInfoFunc(
+            timestamp=datetime.now(UTC).astimezone(),
+            run_time=timedelta(seconds=end_time - start_time),
+            return_value=ret,
         )
 
 
@@ -162,35 +199,19 @@ def monitor(
             monitor_config = MonitorConfig(**capsula_config["monitor"])
             logger.debug(f"Monitor config: {monitor_config}")
 
-            pre_run_info = PreRunInfoFunc(cwd=Path.cwd(), timestamp=datetime.now(UTC).astimezone())
-            with (capture_config.capsule / "pre-run-info.json").open("w") as f:
-                f.write(pre_run_info.model_dump_json(indent=4))
+            handler = MonitoringHandlerFunc(capture_config=capture_config, monitor_config=monitor_config)
 
-            start_time = time.perf_counter()
-            ret = func(*args, **kwargs)
-            end_time = time.perf_counter()
-
-            post_run_info = PostRunInfoFunc(
-                timestamp=datetime.now(UTC).astimezone(),
-                run_time=timedelta(seconds=end_time - start_time),
-                return_value=ret if include_return_value else None,
+            pre_run_info = handler.setup(*args, **kwargs)
+            post_run_info = handler.run_and_teardown(
+                pre_run_info=pre_run_info,
+                items=items,
+                func=func,
             )
 
-            post_run_info.files = {}
-            for item in items:
-                for path, file in monitor_config.items[item].files.items():
-                    if not path.exists():
-                        post_run_info.files[path] = None
-                        continue
-                    post_run_info.files[path] = OutputFileInfo(
-                        hash_algorithm=file.hash_algorithm,
-                        hash=compute_hash(path, file.hash_algorithm),
-                    )
-                    if file.copy_:
-                        copyfile(path, capture_config.capsule / path.name)
+            ret = post_run_info.return_value
 
-            with (capture_config.capsule / "post-run-info.json").open("w") as f:
-                f.write(post_run_info.model_dump_json(indent=4))
+            if not include_return_value:
+                post_run_info.return_value = None
 
             return ret
 
