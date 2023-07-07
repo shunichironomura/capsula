@@ -26,6 +26,7 @@ optional = true
 
 [tool.poetry.group.examples.dependencies]
 numpy = ">=1.25.0"
+matplotlib = ">=3.7.1"
 
 [tool.poetry.scripts]
 capsula = "capsula.__main__:main"
@@ -80,6 +81,7 @@ ignore = [
     "PGH003", # Use specific rule codes when ignoring type issues
     "RET505", # Unnecessary `else` after `return` statement
     "ANN401", # Dynamically typed expressions (typing.Any) are disallowed
+    "D401", # First line should be in imperative mood
     # "TD002", # Missing author in TODO
     "TD003", # add link on issue into TODO
     "PLR0913", # Too many arguments to function call
@@ -92,6 +94,9 @@ ignore = [
 ]
 "examples/*" = [
     "INP001",
+]
+"__init__.py" = [
+    "F401"
 ]
 
 [tool.tbump]

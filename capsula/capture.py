@@ -5,22 +5,18 @@ import shlex
 import subprocess
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Literal
 
 from pydantic import BaseModel, Field
 
 from capsula.context import Context
+from capsula.file import CaptureFileConfig  # noqa: TCH001 for pydantic
+from capsula.globalvars import set_capsule_dir
 
 logger = logging.getLogger(__name__)
 
 
 def to_hyphen_case(string: str) -> str:
     return string.replace("_", "-")
-
-
-class CaptureFileConfig(BaseModel):
-    hash_algorithm: Literal["md5", "sha1", "sha256", "sha3"] = "sha256"
-    copy_: bool = Field(default=True, alias="copy")
 
 
 class GitConfig(BaseModel):
@@ -42,7 +38,7 @@ class CaptureConfig(BaseModel):
 
     environment_variables: list[str] = Field(default_factory=list)
 
-    files: dict[Path, CaptureFileConfig] = Field(default_factory=list)
+    files: dict[Path, CaptureFileConfig] = Field(default_factory=dict)
 
     git: GitConfig = Field(default_factory=GitConfig)
 
@@ -85,6 +81,8 @@ def capture(*, config: CaptureConfig) -> Context:
     except FileExistsError:
         logger.exception(f"Capsule already exists: {config.capsule}")
         raise
+    else:
+        set_capsule_dir(config.capsule)
 
     ctx = Context.capture(config)
 

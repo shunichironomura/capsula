@@ -3,12 +3,16 @@ from __future__ import annotations
 import logging
 import tomllib
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import click
 
+from capsula._monitor import MonitorConfig, MonitoringHandlerCli
 from capsula.capture import CaptureConfig
 from capsula.capture import capture as capture_core
-from capsula.monitor import MonitorConfig, monitor_cli
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 
 @click.group()
@@ -64,12 +68,22 @@ def capture(ctx: click.Context) -> None:
 
 
 @main.command()
+@click.option(
+    "--item",
+    "-i",
+    "items",
+    multiple=True,
+    default=(),
+    help="The item to monitor defined in the capsula.toml file.",
+)
 @click.argument("args", nargs=-1)
 @click.pass_context
-def monitor(ctx: click.Context, args: tuple[str]) -> None:
+def monitor(ctx: click.Context, items: Iterable[str], args: tuple[str]) -> None:
     """Monitor execution."""
-    capsula_capture_config = CaptureConfig(**ctx.obj["capsula_config"]["capture"])
-    capsula_ctx = capture_core(config=capsula_capture_config)
+    capture_config = CaptureConfig(**ctx.obj["capsula_config"]["capture"])
+    capture_core(config=capture_config)
 
-    capsula_monitor_config = MonitorConfig(**ctx.obj["capsula_config"]["monitor"])
-    monitor_cli(args, config=capsula_monitor_config, context=capsula_ctx, capture_config=capsula_capture_config)
+    monitor_config = MonitorConfig(**ctx.obj["capsula_config"]["monitor"])
+    handler = MonitoringHandlerCli(capture_config=capture_config, monitor_config=monitor_config)
+    pre_run_info = handler.setup(args)
+    handler.run_and_teardown(pre_run_info=pre_run_info, items=items)

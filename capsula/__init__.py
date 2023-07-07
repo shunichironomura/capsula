@@ -1,1 +1,2 @@
-from ._version import __version__  # noqa: F401
+from ._monitor import monitor
+from ._version import __version__
