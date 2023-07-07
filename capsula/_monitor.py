@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import inspect
 import logging
 import subprocess
 import time
@@ -45,6 +46,9 @@ class PreRunInfoCli(PreRunInfoBase):
 
 
 class PreRunInfoFunc(PreRunInfoBase):
+    source_file: Path | None
+    source_line: int | None
+    function_name: str
     args: tuple[Any, ...]
     kwargs: dict[str, Any]
 
@@ -177,11 +181,30 @@ class MonitoringHandlerCli(MonitoringHandlerBase[PreRunInfoCli, PostRunInfoCli])
 
 
 class MonitoringHandlerFunc(MonitoringHandlerBase[PreRunInfoFunc, PostRunInfoFunc]):
-    def setup_pre_run_info(self, *args: Any, **kwargs: Any) -> PreRunInfoFunc:
+    def setup_pre_run_info(
+        self,
+        func: Callable[..., Any],
+        args: Sequence[Any],
+        kwargs: dict[str, Any],
+    ) -> PreRunInfoFunc:
+        try:
+            file_path = inspect.getsourcefile(func)
+        except TypeError:
+            file_path = None
+        file_path = Path(file_path) if file_path is not None else None
+
+        try:
+            _, first_line_no = inspect.getsourcelines(func)
+        except (TypeError, OSError):
+            first_line_no = None
+
         return PreRunInfoFunc(
             cwd=Path.cwd(),
             timestamp=datetime.now(UTC).astimezone(),
-            args=args,
+            source_file=file_path,
+            source_line=first_line_no,
+            function_name=func.__name__,
+            args=tuple(args),
             kwargs=kwargs,
         )
 
@@ -252,7 +275,7 @@ def monitor(
 
             handler = MonitoringHandlerFunc(capture_config=capture_config, monitor_config=monitor_config)
 
-            pre_run_info = handler.setup(*args, **kwargs)
+            pre_run_info = handler.setup(func=func, args=args, kwargs=kwargs)
             post_run_info, exc = handler.run_and_teardown(
                 pre_run_info=pre_run_info,
                 items=items,
