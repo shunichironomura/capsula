@@ -23,7 +23,7 @@ def main(n: int, seed: int | None = None) -> float:
     logger.info(f"Calculating pi with {n} samples.")
     logger.debug(f"Seed: {seed}")
 
-    rng = np.random.default_rng(seed)
+    rng = np.random.default_rng(seed=seed)
     x = rng.random(n, dtype=np.float64)
     y = rng.random(n, dtype=np.float64)
 
