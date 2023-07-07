@@ -33,10 +33,17 @@ class MonitorConfig(BaseModel):
     items: dict[str, MonitorItemConfig] = Field(default_factory=dict, alias="item")
 
 
-class PreRunInfo(BaseModel):
-    timestamp: datetime
-    cwd: Path
+class PreRunInfoBase(BaseModel):
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC).astimezone())
+    cwd: Path = Field(default_factory=Path.cwd)
+
+
+class PreRunInfoCli(PreRunInfoBase):
     args: list[str] | None = None
+
+
+class PreRunInfoFunc(PreRunInfoBase):
+    ...
 
 
 class OutputFileInfo(BaseModel):
@@ -44,14 +51,20 @@ class OutputFileInfo(BaseModel):
     file_hash: str = Field(..., alias="hash")
 
 
-class PostRunInfo(BaseModel):
-    timestamp: datetime
+class PostRunInfoBase(BaseModel):
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC).astimezone())
     run_time: timedelta
-    stdout: str | None = None
-    stderr: str | None = None
-    exit_code: int | None = None
-    return_value: Any | None = None
     files: dict[Path, OutputFileInfo | None] = Field(default_factory=dict)
+
+
+class PostRunInfoCli(PostRunInfoBase):
+    stdout: str
+    stderr: str
+    exit_code: int
+
+
+class PostRunInfoFunc(PostRunInfoBase):
+    return_value: Any | None = None
 
 
 def monitor_cli(
@@ -61,8 +74,8 @@ def monitor_cli(
     context: Context,  # noqa: ARG001
     capture_config: CaptureConfig,
     item: str | None = None,
-) -> tuple[PreRunInfo, PostRunInfo]:
-    pre_run_info = PreRunInfo(args=list(args), cwd=Path.cwd(), timestamp=datetime.now(UTC).astimezone())
+) -> tuple[PreRunInfoCli, PostRunInfoCli]:
+    pre_run_info = PreRunInfoCli(args=list(args), cwd=Path.cwd(), timestamp=datetime.now(UTC).astimezone())
 
     with (capture_config.capsule / "pre-run-info.json").open("w") as f:
         f.write(pre_run_info.model_dump_json(indent=4))
@@ -71,7 +84,7 @@ def monitor_cli(
     result = subprocess.run(args, capture_output=True, text=True)  # noqa: S603
     end_time = time.perf_counter()
 
-    post_run_info = PostRunInfo(
+    post_run_info = PostRunInfoCli(
         timestamp=datetime.now(UTC).astimezone(),
         run_time=timedelta(seconds=end_time - start_time),
         stdout=result.stdout,
@@ -123,7 +136,7 @@ def monitor(
             monitor_config = MonitorConfig(**capsula_config["monitor"])
             logger.debug(f"Monitor config: {monitor_config}")
 
-            pre_run_info = PreRunInfo(cwd=Path.cwd(), timestamp=datetime.now(UTC).astimezone())
+            pre_run_info = PreRunInfoFunc(cwd=Path.cwd(), timestamp=datetime.now(UTC).astimezone())
             with (capture_config.capsule / "pre-run-info.json").open("w") as f:
                 f.write(pre_run_info.model_dump_json(indent=4))
 
@@ -131,13 +144,11 @@ def monitor(
             ret = func(*args, **kwargs)
             end_time = time.perf_counter()
 
-            post_run_info = PostRunInfo(
+            post_run_info = PostRunInfoFunc(
                 timestamp=datetime.now(UTC).astimezone(),
                 run_time=timedelta(seconds=end_time - start_time),
+                return_value=ret if include_return_value else None,
             )
-
-            if include_return_value:
-                post_run_info.return_value = ret
 
             post_run_info.files = {}
             if item is not None:
