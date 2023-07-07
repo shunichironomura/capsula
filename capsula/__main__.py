@@ -84,7 +84,6 @@ def monitor(ctx: click.Context, items: Iterable[str], args: tuple[str]) -> None:
     capture_core(config=capture_config)
 
     monitor_config = MonitorConfig(**ctx.obj["capsula_config"]["monitor"])
-    handler = MonitoringHandlerCli(capture_config, monitor_config)
+    handler = MonitoringHandlerCli(capture_config=capture_config, monitor_config=monitor_config)
     pre_run_info = handler.setup(args)
-    post_run_info = handler.run(pre_run_info=pre_run_info, items=items)
-    post_run_info = handler.teardown(post_run_info=post_run_info, items=items)
+    handler.run_and_teardown(pre_run_info=pre_run_info, items=items)
