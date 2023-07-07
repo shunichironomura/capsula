@@ -14,5 +14,9 @@ def divide_by_zero(x: float) -> float:
     return x / 0.0
 
 
-if __name__ == "__main__":
+def main() -> None:
     divide_by_zero(1.0)
+
+
+if __name__ == "__main__":
+    main()
