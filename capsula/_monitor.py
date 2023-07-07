@@ -82,18 +82,9 @@ class MonitoringHandlerBase(ABC, Generic[_TPreRunInfo, _TPostRunInfo]):
     def setup(self) -> _TPreRunInfo:
         ...
 
-    def run(
-        self,
-        func: Callable[[_TPreRunInfo], _TPostRunInfo],
-        *,
-        pre_run_info: _TPreRunInfo,
-        items: Iterable[str],
-        teardown: bool = True,
-    ) -> _TPostRunInfo:
-        post_run_info = func(pre_run_info)
-        if teardown:
-            post_run_info = self.teardown(post_run_info=post_run_info, items=items)
-        return post_run_info
+    @abstractmethod
+    def run(self, pre_run_info: _TPreRunInfo, items: Iterable[str]) -> _TPostRunInfo:
+        ...
 
     def teardown(self, *, post_run_info: _TPostRunInfo, items: Iterable[str]) -> _TPostRunInfo:
         post_run_info.files = {}
@@ -126,19 +117,7 @@ class MonitoringHandlerCli(MonitoringHandlerBase[PreRunInfoCli, PostRunInfoCli])
 
         return pre_run_info
 
-
-def monitor_cli(
-    args: Sequence[str],
-    *,
-    monitor_config: MonitorConfig,
-    context: Context,  # noqa: ARG001
-    capture_config: CaptureConfig,
-    items: Iterable[str],
-) -> tuple[PreRunInfoCli, PostRunInfoCli]:
-    handler = MonitoringHandlerCli(capture_config, monitor_config)
-    pre_run_info = handler.setup(args)
-
-    def func(pre_run_info: PreRunInfoCli) -> PostRunInfoCli:
+    def run(self, pre_run_info: PreRunInfoCli, items: Iterable[str]) -> PostRunInfoCli:
         start_time = time.perf_counter()
         result = subprocess.run(pre_run_info.args, capture_output=True, text=True)  # noqa: S603
         end_time = time.perf_counter()
@@ -151,8 +130,19 @@ def monitor_cli(
             exit_code=result.returncode,
         )
 
-    post_run_info = handler.run(func, pre_run_info=pre_run_info, items=items)
 
+def monitor_cli(
+    args: Sequence[str],
+    *,
+    monitor_config: MonitorConfig,
+    context: Context,  # noqa: ARG001
+    capture_config: CaptureConfig,
+    items: Iterable[str],
+) -> tuple[PreRunInfoCli, PostRunInfoCli]:
+    handler = MonitoringHandlerCli(capture_config, monitor_config)
+    pre_run_info = handler.setup(args)
+    post_run_info = handler.run(pre_run_info=pre_run_info, items=items)
+    post_run_info = handler.teardown(post_run_info=post_run_info, items=items)
     return pre_run_info, post_run_info
 
 
