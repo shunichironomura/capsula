@@ -4,6 +4,7 @@ import logging
 import subprocess
 import time
 import tomllib
+import traceback
 import warnings
 from abc import ABC, abstractmethod
 from datetime import UTC, datetime, timedelta
@@ -65,8 +66,23 @@ class PostRunInfoCli(PostRunInfoBase):
     exit_code: int
 
 
+class ExceptionInfo(BaseModel):
+    error_type: str
+    error_message: str
+    error_details: str
+
+    @classmethod
+    def from_exception(cls, exc: BaseException) -> ExceptionInfo:
+        return cls(
+            error_type=type(exc).__name__,
+            error_message=str(exc),
+            error_details=traceback.format_exc(),
+        )
+
+
 class PostRunInfoFunc(PostRunInfoBase):
-    return_value: Any
+    return_value: Any | None = None
+    exception_info: ExceptionInfo | None = None
 
 
 _TPreRunInfo = TypeVar("_TPreRunInfo", bound=PreRunInfoBase)
@@ -93,12 +109,24 @@ class MonitoringHandlerBase(ABC, Generic[_TPreRunInfo, _TPostRunInfo]):
             f.write(pre_run_info.model_dump_json(indent=4))
 
     @abstractmethod
-    def run(self, pre_run_info: _TPreRunInfo, *, items: Iterable[str], **kwargs: Any) -> _TPostRunInfo:
+    def run(
+        self,
+        pre_run_info: _TPreRunInfo,
+        *,
+        items: Iterable[str],
+        **kwargs: Any,
+    ) -> tuple[_TPostRunInfo, BaseException | None]:
         ...
 
-    def run_and_teardown(self, pre_run_info: _TPreRunInfo, *, items: Iterable[str], **kwargs: Any) -> _TPostRunInfo:
-        post_run_info = self.run(pre_run_info, items=items, **kwargs)
-        return self.teardown(post_run_info=post_run_info, items=items)
+    def run_and_teardown(
+        self,
+        pre_run_info: _TPreRunInfo,
+        *,
+        items: Iterable[str],
+        **kwargs: Any,
+    ) -> tuple[_TPostRunInfo, BaseException | None]:
+        post_run_info, exc = self.run(pre_run_info, items=items, **kwargs)
+        return self.teardown(post_run_info=post_run_info, items=items), exc
 
     def teardown(self, post_run_info: _TPostRunInfo, *, items: Iterable[str]) -> _TPostRunInfo:
         post_run_info.files = {}
@@ -131,17 +159,20 @@ class MonitoringHandlerCli(MonitoringHandlerBase[PreRunInfoCli, PostRunInfoCli])
         pre_run_info: PreRunInfoCli,
         *,
         items: Iterable[str],  # noqa: ARG002
-    ) -> PostRunInfoCli:
+    ) -> tuple[PostRunInfoCli, None]:
         start_time = time.perf_counter()
         result = subprocess.run(pre_run_info.args, capture_output=True, text=True)  # noqa: S603
         end_time = time.perf_counter()
 
-        return PostRunInfoCli(
-            timestamp=datetime.now(UTC).astimezone(),
-            run_time=timedelta(seconds=end_time - start_time),
-            stdout=result.stdout,
-            stderr=result.stderr,
-            exit_code=result.returncode,
+        return (
+            PostRunInfoCli(
+                timestamp=datetime.now(UTC).astimezone(),
+                run_time=timedelta(seconds=end_time - start_time),
+                stdout=result.stdout,
+                stderr=result.stderr,
+                exit_code=result.returncode,
+            ),
+            None,
         )
 
 
@@ -160,16 +191,31 @@ class MonitoringHandlerFunc(MonitoringHandlerBase[PreRunInfoFunc, PostRunInfoFun
         *,
         items: Iterable[str],  # noqa: ARG002
         func: Callable[..., Any],
-    ) -> PostRunInfoFunc:
+    ) -> tuple[PostRunInfoFunc, BaseException | None]:
         start_time = time.perf_counter()
-        ret = func(*pre_run_info.args, **pre_run_info.kwargs)
-        end_time = time.perf_counter()
-
-        return PostRunInfoFunc(
-            timestamp=datetime.now(UTC).astimezone(),
-            run_time=timedelta(seconds=end_time - start_time),
-            return_value=ret,
-        )
+        try:
+            ret = func(*pre_run_info.args, **pre_run_info.kwargs)
+        except Exception as e:  # noqa: BLE001
+            end_time = time.perf_counter()
+            exception_info = ExceptionInfo.from_exception(e)
+            return (
+                PostRunInfoFunc(
+                    timestamp=datetime.now(UTC).astimezone(),
+                    run_time=timedelta(seconds=end_time - start_time),
+                    exception_info=exception_info,
+                ),
+                e,
+            )
+        else:
+            end_time = time.perf_counter()
+            return (
+                PostRunInfoFunc(
+                    timestamp=datetime.now(UTC).astimezone(),
+                    run_time=timedelta(seconds=end_time - start_time),
+                    return_value=ret,
+                ),
+                None,
+            )
 
 
 T = TypeVar("T")
@@ -207,18 +253,21 @@ def monitor(
             handler = MonitoringHandlerFunc(capture_config=capture_config, monitor_config=monitor_config)
 
             pre_run_info = handler.setup(*args, **kwargs)
-            post_run_info = handler.run_and_teardown(
+            post_run_info, exc = handler.run_and_teardown(
                 pre_run_info=pre_run_info,
                 items=items,
                 func=func,
             )
+            if exc is not None:
+                logger.error(f"Exception occurred: {exc!r}")
+                raise exc
 
             ret = post_run_info.return_value
 
             if not include_return_value:
                 post_run_info.return_value = None
 
-            return ret
+            return ret  # type: ignore
 
         return wrapper
 
