@@ -4,6 +4,7 @@ import logging
 import subprocess
 import time
 import tomllib
+import traceback
 import warnings
 from abc import ABC, abstractmethod
 from datetime import UTC, datetime, timedelta
@@ -65,8 +66,24 @@ class PostRunInfoCli(PostRunInfoBase):
     exit_code: int
 
 
+class ExceptionInfo(BaseModel):
+    error_type: str
+    error_message: str
+    error_details: str
+
+    @classmethod
+    def from_exception(cls, exc: BaseException) -> ExceptionInfo:
+        return cls(
+            error_type=type(exc).__name__,
+            error_message=str(exc),
+            error_details=traceback.format_exc(),
+        )
+
+
 class PostRunInfoFunc(PostRunInfoBase):
-    return_value: Any
+    return_value: Any | None = None
+    exception_info: ExceptionInfo | None = None
+    _exception: BaseException | None = None
 
 
 _TPreRunInfo = TypeVar("_TPreRunInfo", bound=PreRunInfoBase)
@@ -162,14 +179,24 @@ class MonitoringHandlerFunc(MonitoringHandlerBase[PreRunInfoFunc, PostRunInfoFun
         func: Callable[..., Any],
     ) -> PostRunInfoFunc:
         start_time = time.perf_counter()
-        ret = func(*pre_run_info.args, **pre_run_info.kwargs)
-        end_time = time.perf_counter()
-
-        return PostRunInfoFunc(
-            timestamp=datetime.now(UTC).astimezone(),
-            run_time=timedelta(seconds=end_time - start_time),
-            return_value=ret,
-        )
+        try:
+            ret = func(*pre_run_info.args, **pre_run_info.kwargs)
+        except Exception as e:  # noqa: BLE001
+            end_time = time.perf_counter()
+            exception_info = ExceptionInfo.from_exception(e)
+            return PostRunInfoFunc(
+                timestamp=datetime.now(UTC).astimezone(),
+                run_time=timedelta(seconds=end_time - start_time),
+                exception_info=exception_info,
+                _exception=e,
+            )
+        else:
+            end_time = time.perf_counter()
+            return PostRunInfoFunc(
+                timestamp=datetime.now(UTC).astimezone(),
+                run_time=timedelta(seconds=end_time - start_time),
+                return_value=ret,
+            )
 
 
 T = TypeVar("T")
@@ -212,13 +239,16 @@ def monitor(
                 items=items,
                 func=func,
             )
+            if post_run_info._exception is not None:
+                logger.error(f"Exception occurred: {post_run_info._exception!r}")
+                raise post_run_info._exception
 
             ret = post_run_info.return_value
 
             if not include_return_value:
                 post_run_info.return_value = None
 
-            return ret
+            return ret  # type: ignore
 
         return wrapper
 
