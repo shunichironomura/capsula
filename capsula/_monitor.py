@@ -126,7 +126,12 @@ class MonitoringHandlerCli(MonitoringHandlerBase[PreRunInfoCli, PostRunInfoCli])
     def setup_pre_run_info(self, args: Sequence[str]) -> PreRunInfoCli:
         return PreRunInfoCli(args=list(args), cwd=Path.cwd(), timestamp=datetime.now(UTC).astimezone())
 
-    def run(self, pre_run_info: PreRunInfoCli, *, items: Iterable[str]) -> PostRunInfoCli:
+    def run(
+        self,
+        pre_run_info: PreRunInfoCli,
+        *,
+        items: Iterable[str],  # noqa: ARG002
+    ) -> PostRunInfoCli:
         start_time = time.perf_counter()
         result = subprocess.run(pre_run_info.args, capture_output=True, text=True)  # noqa: S603
         end_time = time.perf_counter()
@@ -153,7 +158,7 @@ class MonitoringHandlerFunc(MonitoringHandlerBase[PreRunInfoFunc, PostRunInfoFun
         self,
         pre_run_info: PreRunInfoFunc,
         *,
-        items: Iterable[str],
+        items: Iterable[str],  # noqa: ARG002
         func: Callable[..., Any],
     ) -> PostRunInfoFunc:
         start_time = time.perf_counter()
