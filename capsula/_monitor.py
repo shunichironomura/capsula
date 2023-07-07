@@ -12,15 +12,15 @@ from typing import TYPE_CHECKING, Any, Literal, ParamSpec, TypeVar
 
 from pydantic import BaseModel, Field
 
+from capsula.capture import CaptureConfig
 from capsula.capture import capture as capture_core
+from capsula.file import CaptureFileConfig  # noqa: TCH001 for pydantic
+from capsula.hash import compute_hash
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
 
     from capsula.context import Context
-from capsula.capture import CaptureConfig
-from capsula.file import CaptureFileConfig  # noqa: TCH001 for pydantic
-from capsula.hash import compute_hash
 
 logger = logging.getLogger(__name__)
 
