@@ -24,7 +24,12 @@ from datetime import datetime, timedelta
 from functools import wraps
 from pathlib import Path
 from shutil import copyfile
-from typing import TYPE_CHECKING, Any, Generic, Literal, ParamSpec, TypeVar
+from typing import TYPE_CHECKING, Any, Generic, Literal, TypeVar
+
+if sys.version_info < (3, 10):
+    from typing_extensions import ParamSpec
+else:
+    from typing import ParamSpec
 
 from pydantic import BaseModel, Field
 
