@@ -21,12 +21,12 @@ mypy = ">=1.4.0"
 pre-commit = ">=3.3.3"
 pytest = ">=7.4.0"
 
-[tool.poetry.group.examples]
-optional = true
+# [tool.poetry.group.examples]
+# optional = true
 
-[tool.poetry.group.examples.dependencies]
-numpy = ">=1.25.0"
-matplotlib = ">=3.7.1"
+# [tool.poetry.group.examples.dependencies]
+# numpy = ">=1.25.0"
+# matplotlib = ">=3.7.1"
 
 [tool.poetry.scripts]
 capsula = "capsula.__main__:main"
