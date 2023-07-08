@@ -1,0 +1,44 @@
+name: Pytest
+
+on:
+  push:
+    branches:
+      - main
+      - gh-action/pytest
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: [3.8, 3.9, 3.10, 3.11]
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Set up Poetry
+      run: |
+        curl -sSL https://install.python-poetry.org | python -
+        echo "$HOME/.poetry/bin" >> $GITHUB_PATH
+
+    - name: Poetry Version
+      run: |
+        poetry --version
+
+    - name: Install dependencies
+      run: |
+        poetry install --no-interaction
+
+    - name: Test with pytest
+      run: |
+        poetry run pytest
