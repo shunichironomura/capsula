@@ -14,7 +14,7 @@ pydantic = {version = ">=2.0b3", allow-prereleases = true}
 py-cpuinfo = ">=9.0.0"
 gitpython = ">=3.1.31"
 tomli = { version = ">=2.0.1", python = "<3.11" }
-typing-extensions = { version = ">=4.7.1", python = "<3.10" }
+typing-extensions = { version = ">=4.7.1", python = "<3.11" }
 
 [tool.poetry.group.dev.dependencies]
 ruff = ">=0.0.275"
