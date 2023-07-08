@@ -15,7 +15,9 @@ import warnings
 from abc import ABC, abstractmethod
 
 if sys.version_info < (3, 11):
-    from datetime.timezone import utc as UTC  # noqa: N812
+    from datetime import timezone as _timezone
+
+    UTC = _timezone.utc
 else:
     from datetime import UTC
 from datetime import datetime, timedelta
