@@ -3,8 +3,13 @@ from __future__ import annotations
 import inspect
 import logging
 import subprocess
+import sys
 import time
-import tomllib
+
+if sys.version_info < (3, 11):
+    import tomli as tomllib
+else:
+    import tomllib
 import traceback
 import warnings
 from abc import ABC, abstractmethod
