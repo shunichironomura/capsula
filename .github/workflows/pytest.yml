@@ -27,17 +27,9 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     - name: Set up Poetry
-      run: |
-        if [ "$RUNNER_OS" == "Windows" ]; then
-          (Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | py -
-          echo "$env:APPDATA\Python\Scripts" >> $env:PATH
-        elif [ "$RUNNER_OS" == "Linux" ]; then
-          curl -sSL https://install.python-poetry.org | python -
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
-        else
-          curl -sSL https://install.python-poetry.org | python -
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
-        fi
+      uses: abatilo/actions-poetry@v2
+      with:
+        poetry-version: "1.5.1"
 
     - name: Poetry Version
       run: |
