@@ -3,7 +3,14 @@ from __future__ import annotations
 import logging
 import shlex
 import subprocess
-from datetime import UTC, datetime
+import sys
+from datetime import datetime
+
+if sys.version_info < (3, 11):
+    import datetime.timezone.utc as UTC  # noqa: N812
+else:
+    from datetime import UTC
+
 from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict, Field

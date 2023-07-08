@@ -13,7 +13,12 @@ else:
 import traceback
 import warnings
 from abc import ABC, abstractmethod
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta
+
+if sys.version_info < (3, 11):
+    import datetime.timezone.utc as UTC  # noqa: N812
+else:
+    from datetime import UTC
 from functools import wraps
 from pathlib import Path
 from shutil import copyfile
