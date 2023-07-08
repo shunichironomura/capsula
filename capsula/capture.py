@@ -6,7 +6,7 @@ import subprocess
 from datetime import UTC, datetime
 from pathlib import Path
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from capsula.context import Context
 from capsula.file import CaptureFileConfig  # noqa: TCH001 for pydantic
@@ -26,6 +26,12 @@ class GitConfig(BaseModel):
 class CaptureConfig(BaseModel):
     """Configuration for the capture command."""
 
+    model_config = ConfigDict(
+        alias_generator=to_hyphen_case,
+        populate_by_name=True,
+        extra="forbid",
+    )
+
     vault_directory: Path
     capsule_template: str
 
@@ -41,11 +47,6 @@ class CaptureConfig(BaseModel):
     files: dict[Path, CaptureFileConfig] = Field(default_factory=dict)
 
     git: GitConfig = Field(default_factory=GitConfig)
-
-    class Config:  # noqa: D106
-        alias_generator = to_hyphen_case
-        populate_by_name = False
-        extra = "forbid"
 
     _capsule_directory: Path | None = None
 
