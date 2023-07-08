@@ -8,7 +8,7 @@ readme = "README.md"
 packages = [{include = "capsula"}]
 
 [tool.poetry.dependencies]
-python = ">=3.8"
+python = ">=3.11"
 click = ">=8.1.3"
 pydantic = {version = ">=2.0b3", allow-prereleases = true}
 py-cpuinfo = ">=9.0.0"
