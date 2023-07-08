@@ -3,7 +3,16 @@ from __future__ import annotations
 import logging
 import shlex
 import subprocess
-from datetime import UTC, datetime
+import sys
+
+if sys.version_info < (3, 11):
+    from datetime import timezone as _timezone
+
+    UTC = _timezone.utc
+
+else:
+    from datetime import UTC
+from datetime import datetime
 from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict, Field

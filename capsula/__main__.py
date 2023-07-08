@@ -1,7 +1,12 @@
 from __future__ import annotations
 
 import logging
-import tomllib
+import sys
+
+if sys.version_info < (3, 11):
+    import tomli as tomllib
+else:
+    import tomllib
 from pathlib import Path
 from typing import TYPE_CHECKING
 

@@ -2,10 +2,16 @@ from __future__ import annotations
 
 import os
 import platform as pf
+import sys
 from abc import ABC, abstractmethod
 from pathlib import Path
 from shutil import copyfile
-from typing import TYPE_CHECKING, Any, Literal, Self
+from typing import TYPE_CHECKING, Any, Literal
+
+if sys.version_info < (3, 11):
+    from typing_extensions import Self
+else:
+    from typing import Self
 
 from cpuinfo import get_cpu_info
 from git.repo import Repo
