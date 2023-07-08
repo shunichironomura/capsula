@@ -61,6 +61,7 @@ exclude = '''
 '''
 
 [tool.ruff]
+target-version = "py38"
 # Same as Black.
 line-length = 120
 select = ["ALL"]
