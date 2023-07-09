@@ -1,4 +1,4 @@
-name: Bump version, commit, create release and publish
+name: Bump version & create release draft
 
 on:
   workflow_dispatch:
