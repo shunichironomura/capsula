@@ -27,6 +27,8 @@ jobs:
 
     - name: Publish to PyPI
       run: |
+        git fetch --tags
+        git checkout ${{ github.event.release.target_commitish }}
         poetry publish --build
       env:
         POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_API_TOKEN }}
@@ -35,4 +37,5 @@ jobs:
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
-        gh pr merge ${{ github.event.release.target_commitish }} -R ${{ github.repository }} --squash --auto
+        gh pr create --title "Merge ${{ github.event.release.target_commitish }} to main" --body "Merging ${{ github.event.release.target_commitish }} to main" --repo ${{ github.repository }} --base main --head ${{ github.event.release.target_commitish }}
+        gh pr merge ${{ github.event.release.target_commitish }} --repo ${{ github.repository }} --squash --auto --delete-branch
