@@ -1,0 +1,38 @@
+name: Publish to PyPI and merge to main
+run-name: Publish to PyPI and merge to main (${{ github.event.release.tag_name }})
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  merge_and_publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      # with:
+        # python-version: '3.9'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install poetry
+
+    - name: Publish to PyPI
+      run: |
+        poetry publish --build
+      env:
+        POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_API_TOKEN }}
+
+    - name: Merge to main
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        gh pr merge ${{ github.event.release.target_commitish }} -R ${{ github.repository }} --squash --auto
