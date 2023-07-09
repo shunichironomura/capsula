@@ -3,7 +3,7 @@ run-name: Publish to PyPI and merge to main (${{ github.event.release.tag_name }
 
 on:
   release:
-    types: [published]
+    types: [released]
 
 jobs:
   merge_and_publish:
