@@ -154,10 +154,10 @@ search = '__version__ = "{current_version}"'
 # name = "GitHub PR merge"
 # cmd = "gh pr merge --auto --rebase --delete-branch"
 
-[[tool.tbump.after_push]]
-name = "GitHub release"
-cmd = "gh release create v{new_version} --generate-notes"
+# [[tool.tbump.after_push]]
+# name = "GitHub release"
+# cmd = "gh release create v{new_version} --generate-notes"
 
-[[tool.tbump.after_push]]
-name = "PyPI release"
-cmd = "poetry publish --build"
+# [[tool.tbump.after_push]]
+# name = "PyPI release"
+# cmd = "poetry publish --build"

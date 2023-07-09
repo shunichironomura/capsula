@@ -1,0 +1,51 @@
+name: Bump version, commit, create release and publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'New version'
+        required: true
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install tbump poetry
+
+    - name: Bump version
+      run: tbump --non-interactive --only-patch ${{ github.event.inputs.version }}
+
+    - name: Commit and push
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git commit -m "Bump version to ${{ github.event.inputs.version }}" --all
+        git push
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.event.inputs.version }}
+        release_name: Release ${{ github.event.inputs.version }}
+
+    - name: Publish to PyPI
+      run: |
+        poetry publish --build
+      env:
+        POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_API_TOKEN }}
