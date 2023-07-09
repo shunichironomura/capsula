@@ -1,4 +1,5 @@
 name: Bump version & create release draft
+run-name: Bump version & create release draft (v${{ github.event.inputs.version }})
 
 on:
   workflow_dispatch:
