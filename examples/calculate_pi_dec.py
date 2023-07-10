@@ -44,8 +44,8 @@ def main(n: int, seed: int | None = None) -> float:
     theta = np.linspace(0, 2 * np.pi, 100)
     ax.plot(np.cos(theta), np.sin(theta), c="k")
 
-    # capsule_dir = Path(os.environ["CAPSULE_DIR"])  # noqa: ERA001
-    # logger.info(f"Saving plot to {capsule_dir / 'pi.png'}")  # noqa: ERA001
+    # capsule_dir = Path(os.environ["CAPSULE_DIR"])
+    # logger.info(f"Saving plot to {capsule_dir / 'pi.png'}")
 
     output_path = Path(__file__).parent / "pi_dec.png"
     fig.savefig(str(output_path), dpi=300)

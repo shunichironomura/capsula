@@ -88,9 +88,13 @@ ignore = [
     "TD003", # add link on issue into TODO
     "PLR0913", # Too many arguments to function call
     "D407", # Missing dashed underline after section
+    "ERA001", # Commented out code
 ]
 
 [tool.ruff.per-file-ignores]
+"capsula/*" = [
+    "PT017"
+]
 "tests/*" = [
     # "ANN201",
 ]
