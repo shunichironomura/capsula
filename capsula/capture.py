@@ -45,7 +45,7 @@ class CaptureConfig(BaseModel):
     capsule_template: str
 
     # Whether to include the Capsula version in the output file.
-    # include_capsula_version: bool = True # noqa: ERA001
+    # include_capsula_version: bool = True
 
     include_cpu: bool = True
 
