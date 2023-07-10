@@ -30,3 +30,32 @@ class SlackNotifier(NotifierBase):
         except SlackApiError as e:
             logger.exception(f"Got an error: {e.response['error']}")
 
+
+if __name__ == "__main__":
+    # slack = SlackNotifier(channel="capsula-notification")
+    # slack.notify("Hello, world!")
+    from pathlib import Path
+    from textwrap import dedent
+
+    message = """\
+    Initial comment: This is a file upload test.
+    Is *markdown* _supported_?
+
+    This is a new paragraph.
+
+    This is a list:
+
+    * Item 1
+    * Item 2
+    * Item 3
+    """
+    message = dedent(message)
+    print(message)
+
+    client = WebClient(SLACK_BOT_TOKEN)
+    client.files_upload_v2(
+        file=str(Path(__file__).parents[2] / "examples" / "pi_dec.png"),
+        title="Title: This is a file upload test.",
+        channel="CHANNEL_ID",
+        initial_comment=message,
+    )
