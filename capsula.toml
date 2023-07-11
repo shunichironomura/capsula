@@ -7,7 +7,8 @@ capsule-template = '%Y%m%d_%H%M%S'
 include-cpu = false
 
 pre-capture-commands = [
-    'poetry lock --check'
+    'poetry lock --check',
+    'pip freeze --exclude-editable > requirements.txt',
 ]
 
 environment-variables = [
@@ -17,7 +18,7 @@ environment-variables = [
 [capture.files]
 "pyproject.toml" = { hash = "sha256", copy = true }
 "poetry.lock" = { hash = "sha256", copy = true }
-
+"requirements.txt" = { hash = "sha256", copy = true }
 
 [capture.git.repositories]
 capsula = '.'

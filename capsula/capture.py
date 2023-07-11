@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-import shlex
 import subprocess
 import sys
 
@@ -72,17 +71,16 @@ def capture(*, config: CaptureConfig) -> Context:
     """Capture the context."""
     logger.debug(f"Capture config: {config}")
 
-    logger.debug(f"CWD: {Path.cwd()}")
+    logger.info(f"CWD: {Path.cwd()}")
     for command in config.pre_capture_commands:
-        logger.debug(f"Running pre-capture command: {command}")
-        result = subprocess.run(shlex.split(command), capture_output=True, text=True)  # noqa: S603
-        logger.debug(f"Pre-capture command result: {result}")
-        if result.returncode != 0:
-            logger.error(f"Pre-capture command failed: {command}")
-            logger.error(f"Pre-capture command stdout: {result.stdout}")
-            logger.error(f"Pre-capture command stderr: {result.stderr}")
-            msg = f"Pre-capture command failed: {command}"
-            raise RuntimeError(msg)
+        logger.info(f"Running pre-capture command: {command!r}")
+        try:
+            result = subprocess.run(command, shell=True, text=True, capture_output=True, check=True)  # noqa: S602
+        except subprocess.CalledProcessError:  # noqa: PERF203
+            logger.exception(f"Pre-capture command failed: {command}")
+            raise
+        else:
+            logger.info(f"Pre-capture command result: {result}")
 
     logger.info("Capturing the context.")
 
