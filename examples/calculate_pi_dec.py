@@ -54,4 +54,5 @@ def main(n: int, seed: int | None = None) -> float:
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     main(1_000_000)
