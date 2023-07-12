@@ -8,21 +8,21 @@ on:
         description: 'New version (e.g. `1.2.3`)'
         required: true
 
+env:
+  PYTHON_VERSION: "3.11"
+
 jobs:
-  release:
+  bump-version:
+    name: Bump version
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      pull-requests: write
 
     steps:
-    - name: Check out code
-      uses: actions/checkout@v3
-
-    - name: Set up Python
-      uses: actions/setup-python@v4
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v4
       with:
-        python-version: '3.11'
+        python-version: ${{ env.PYTHON_VERSION }}
 
     - name: Install dependencies
       run: |
@@ -39,8 +39,18 @@ jobs:
         message: "Bump version to ${{ github.event.inputs.version }}"
         new_branch: "bump-version/v${{ github.event.inputs.version }}"
 
+  create-pull-request:
+    name: Create pull request if on main
+    runs-on: ubuntu-latest
+    needs: bump-version
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      pull-requests: write
+
+    steps:
+    - uses: actions/checkout@v3
+
     - name: Create pull request if on main
-      if: github.ref == 'refs/heads/main'
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
