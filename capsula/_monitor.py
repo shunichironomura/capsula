@@ -54,8 +54,9 @@ class MonitorConfig(BaseModel):
 
 
 class PreRunInfoBase(BaseModel):
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC).astimezone())
+    root_directory: Path
     cwd: Path = Field(default_factory=Path.cwd)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC).astimezone())
 
 
 class PreRunInfoCli(PreRunInfoBase):
@@ -76,6 +77,7 @@ class OutputFileInfo(BaseModel):
 
 
 class PostRunInfoBase(BaseModel):
+    root_directory: Path
     timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC).astimezone())
     run_time: timedelta
     files: dict[Path, OutputFileInfo | None] = Field(default_factory=dict)
@@ -152,13 +154,14 @@ class MonitoringHandlerBase(ABC, Generic[_TPreRunInfo, _TPostRunInfo]):
     def teardown(self, post_run_info: _TPostRunInfo, *, items: Iterable[str]) -> _TPostRunInfo:
         post_run_info.files = {}
         for item in items:
-            for path, file in self.monitor_config.items[item].files.items():
-                logger.debug(f"Capturing file {path}...")
+            for relative_path, file in self.monitor_config.items[item].files.items():
+                logger.debug(f"Capturing file {relative_path}...")
+                path = self.capture_config.root_directory / relative_path
                 if not path.exists():
-                    logger.warning(f"File {path} does not exist.")
-                    post_run_info.files[path] = None
+                    logger.warning(f"File {relative_path} does not exist.")
+                    post_run_info.files[relative_path] = None
                     continue
-                post_run_info.files[path] = OutputFileInfo(
+                post_run_info.files[relative_path] = OutputFileInfo(
                     hash_algorithm=file.hash_algorithm,
                     hash=compute_hash(path, file.hash_algorithm) if file.hash_algorithm else None,
                 )
@@ -175,7 +178,12 @@ class MonitoringHandlerBase(ABC, Generic[_TPreRunInfo, _TPostRunInfo]):
 
 class MonitoringHandlerCli(MonitoringHandlerBase[PreRunInfoCli, PostRunInfoCli]):
     def setup_pre_run_info(self, args: Sequence[str]) -> PreRunInfoCli:
-        return PreRunInfoCli(args=list(args), cwd=Path.cwd(), timestamp=datetime.now(UTC).astimezone())
+        return PreRunInfoCli(
+            root_directory=self.capture_config.root_directory,
+            args=list(args),
+            cwd=Path.cwd(),
+            timestamp=datetime.now(UTC).astimezone(),
+        )
 
     def run(
         self,
@@ -189,6 +197,7 @@ class MonitoringHandlerCli(MonitoringHandlerBase[PreRunInfoCli, PostRunInfoCli])
 
         return (
             PostRunInfoCli(
+                root_directory=self.capture_config.root_directory,
                 timestamp=datetime.now(UTC).astimezone(),
                 run_time=timedelta(seconds=end_time - start_time),
                 stdout=result.stdout,
@@ -218,6 +227,7 @@ class MonitoringHandlerFunc(MonitoringHandlerBase[PreRunInfoFunc, PostRunInfoFun
             first_line_no = None
 
         return PreRunInfoFunc(
+            root_directory=self.capture_config.root_directory,
             cwd=Path.cwd(),
             timestamp=datetime.now(UTC).astimezone(),
             source_file=file_path,
@@ -242,6 +252,7 @@ class MonitoringHandlerFunc(MonitoringHandlerBase[PreRunInfoFunc, PostRunInfoFun
             exception_info = ExceptionInfo.from_exception(e)
             return (
                 PostRunInfoFunc(
+                    root_directory=self.capture_config.root_directory,
                     timestamp=datetime.now(UTC).astimezone(),
                     run_time=timedelta(seconds=end_time - start_time),
                     exception_info=exception_info,
@@ -252,6 +263,7 @@ class MonitoringHandlerFunc(MonitoringHandlerBase[PreRunInfoFunc, PostRunInfoFun
             end_time = time.perf_counter()
             return (
                 PostRunInfoFunc(
+                    root_directory=self.capture_config.root_directory,
                     timestamp=datetime.now(UTC).astimezone(),
                     run_time=timedelta(seconds=end_time - start_time),
                     return_value=ret,
@@ -286,6 +298,7 @@ def monitor(
         @wraps(func)
         def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
             capture_config = CaptureConfig(**capsula_config["capture"])
+            capture_config.root_directory = directory
             captured_ctx = capture_core(config=capture_config)
             logger.debug(f"Captured context: {captured_ctx}")
 

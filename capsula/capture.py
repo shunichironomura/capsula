@@ -12,7 +12,7 @@ if sys.version_info < (3, 11):
 else:
     from datetime import UTC
 from datetime import datetime
-from pathlib import Path
+from pathlib import Path  # noqa: TCH003
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -57,25 +57,49 @@ class CaptureConfig(BaseModel):
     git: GitConfig = Field(default_factory=GitConfig)
 
     _capsule_directory: Path | None = None
+    _root_directory: Path | None = None
 
     @property
     def capsule(self) -> Path:
         if self._capsule_directory is None:
-            self._capsule_directory = self.vault_directory / datetime.now(UTC).astimezone().strftime(
-                self.capsule_template,
+            self._capsule_directory = (
+                self.root_directory
+                / self.vault_directory
+                / datetime.now(UTC)
+                .astimezone()
+                .strftime(
+                    self.capsule_template,
+                )
             )
         return self._capsule_directory
+
+    @property
+    def root_directory(self) -> Path:
+        if self._root_directory is None:
+            msg = "Project root is not set"
+            raise ValueError(msg)
+        return self._root_directory
+
+    @root_directory.setter
+    def root_directory(self, value: Path) -> None:
+        self._root_directory = value
 
 
 def capture(*, config: CaptureConfig) -> Context:
     """Capture the context."""
     logger.debug(f"Capture config: {config}")
 
-    logger.info(f"CWD: {Path.cwd()}")
     for command in config.pre_capture_commands:
         logger.info(f"Running pre-capture command: {command!r}")
         try:
-            result = subprocess.run(command, shell=True, text=True, capture_output=True, check=True)  # noqa: S602
+            result = subprocess.run(
+                command,
+                shell=True,  # noqa: S602
+                text=True,
+                capture_output=True,
+                check=True,
+                cwd=config.root_directory,
+            )
         except subprocess.CalledProcessError:  # noqa: PERF203
             logger.exception(f"Pre-capture command failed: {command}")
             raise

@@ -108,7 +108,7 @@ class GitInfo(ContextItem):
     def capture(cls, config: CaptureConfig) -> dict[str, Self]:
         git_infos = {}
         for name, path in config.git.repositories.items():
-            repo = Repo(path)
+            repo = Repo(config.root_directory / path)
             git_infos[name] = cls(
                 path=path,
                 sha=repo.head.object.hexsha,
@@ -130,8 +130,9 @@ class FileContext(ContextItem):
     @classmethod
     def capture(cls, config: CaptureConfig) -> dict[Path, Self]:
         files = {}
-        for path, file_config in config.files.items():
-            files[path] = cls(
+        for relative_path, file_config in config.files.items():
+            path = config.root_directory / relative_path
+            files[relative_path] = cls(
                 hash=compute_hash(path, file_config.hash_algorithm) if file_config.hash_algorithm else None,
                 hash_algorithm=file_config.hash_algorithm,
             )
@@ -146,11 +147,13 @@ class FileContext(ContextItem):
 class Context(ContextItem):
     """Execution context to be stored and used later."""
 
+    root_directory: Path
+
+    cwd: Path
+
     platform: Platform
 
     environment_variables: dict[str, str]
-
-    cwd: Path
 
     git: dict[str, GitInfo]
 
@@ -164,6 +167,7 @@ class Context(ContextItem):
     @classmethod
     def capture(cls, config: CaptureConfig) -> Self:
         return cls(
+            root_directory=config.root_directory,
             platform=Platform.capture(config),
             cpu=get_cpu_info() if config.include_cpu else None,
             environment_variables={name: os.environ[name] for name in config.environment_variables},
