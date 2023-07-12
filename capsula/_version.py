@@ -1,1 +1,3 @@
-__version__ = "0.0.15"
+import importlib.metadata
+
+__version__ = importlib.metadata.version("capsula")
