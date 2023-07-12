@@ -1,11 +1,32 @@
-name: Publish to PyPI and GitHub
-run-name: Publish to PyPI and GitHub (${{ github.event.release.tag_name }})
+name: Release
+run-name: Release (v${{ github.event.release.tag_name }})
 
 on:
-  release:
-    types: [released]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release, without the `v` prefix (e.g. `1.2.3`)'
+        required: true
+
+env:
+  PYTHON_VERSION: "3.11"
 
 jobs:
+  check-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install poetry
+
+
+
   merge_and_publish:
     runs-on: ubuntu-latest
     permissions:
