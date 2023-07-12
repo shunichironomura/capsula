@@ -1,18 +1,14 @@
 name: Release
-run-name: Release (v${{ github.event.release.tag_name }})
+run-name: Release (`${{ github.sha }}`)
 
 on:
   workflow_dispatch:
-    inputs:
-      version:
-        description: 'Version to release, without the `v` prefix (e.g. `1.2.3`)'
-        required: true
 
 env:
   PYTHON_VERSION: "3.11"
 
 jobs:
-  check-version:
+  check-existing-tag:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -25,7 +21,16 @@ jobs:
           python -m pip install --upgrade pip
           pip install poetry
 
+      - name: Get the version
+        id: get-version
+        run: |
+          echo "version=$(poetry version --short)" >> "$GITHUB_OUTPUT"
 
+      - name: Make sure the tag doesn't already exist
+        id: check-tag
+        run: |
+          git fetch --tags
+          ! git rev-parse --verify "refs/tags/${{ steps.get-version.outputs.version }}" > /dev/null
 
   merge_and_publish:
     runs-on: ubuntu-latest
