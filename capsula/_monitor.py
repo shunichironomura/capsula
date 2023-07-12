@@ -152,13 +152,14 @@ class MonitoringHandlerBase(ABC, Generic[_TPreRunInfo, _TPostRunInfo]):
     def teardown(self, post_run_info: _TPostRunInfo, *, items: Iterable[str]) -> _TPostRunInfo:
         post_run_info.files = {}
         for item in items:
-            for path, file in self.monitor_config.items[item].files.items():
-                logger.debug(f"Capturing file {path}...")
+            for relative_path, file in self.monitor_config.items[item].files.items():
+                logger.debug(f"Capturing file {relative_path}...")
+                path = self.capture_config.root_directory / relative_path
                 if not path.exists():
-                    logger.warning(f"File {path} does not exist.")
-                    post_run_info.files[path] = None
+                    logger.warning(f"File {relative_path} does not exist.")
+                    post_run_info.files[relative_path] = None
                     continue
-                post_run_info.files[path] = OutputFileInfo(
+                post_run_info.files[relative_path] = OutputFileInfo(
                     hash_algorithm=file.hash_algorithm,
                     hash=compute_hash(path, file.hash_algorithm) if file.hash_algorithm else None,
                 )
@@ -286,6 +287,7 @@ def monitor(
         @wraps(func)
         def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
             capture_config = CaptureConfig(**capsula_config["capture"])
+            capture_config.root_directory = directory
             captured_ctx = capture_core(config=capture_config)
             logger.debug(f"Captured context: {captured_ctx}")
 

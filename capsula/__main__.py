@@ -69,6 +69,7 @@ def main(
 def capture(ctx: click.Context) -> None:
     """Capture the context."""
     capsula_capture_config = CaptureConfig(**ctx.obj["capsula_config"]["capture"])
+    capsula_capture_config.root_directory = ctx.obj["directory"]
     capture_core(config=capsula_capture_config)
 
 
