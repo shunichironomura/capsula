@@ -54,4 +54,4 @@ jobs:
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
-        gh pr create --fill --repo ${{ github.repository }} --base main
+        gh pr create --repo ${{ github.repository }} --base main --head "bump-version/v${{ github.event.inputs.version }}" --title "Bump version to v${{ github.event.inputs.version }}" --body "Bump version to v${{ github.event.inputs.version }}"
