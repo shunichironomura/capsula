@@ -1,5 +1,5 @@
-name: Publish to PyPI and merge to main
-run-name: Publish to PyPI and merge to main (${{ github.event.release.tag_name }})
+name: Publish to PyPI and GitHub
+run-name: Publish to PyPI and GitHub (${{ github.event.release.tag_name }})
 
 on:
   release:
