@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field, model_validator
 
 
 class CaptureFileConfig(BaseModel):
-    hash_algorithm: Literal["md5", "sha1", "sha256", "sha3"] | None = None
+    hash_algorithm: Literal["md5", "sha1", "sha256", "sha3"] | None = Field(default=None, alias="hash")
     copy_: bool = Field(default=False, alias="copy")
     move: bool = False
 
