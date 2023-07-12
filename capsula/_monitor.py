@@ -54,8 +54,9 @@ class MonitorConfig(BaseModel):
 
 
 class PreRunInfoBase(BaseModel):
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC).astimezone())
+    root_directory: Path
     cwd: Path = Field(default_factory=Path.cwd)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC).astimezone())
 
 
 class PreRunInfoCli(PreRunInfoBase):
@@ -76,6 +77,7 @@ class OutputFileInfo(BaseModel):
 
 
 class PostRunInfoBase(BaseModel):
+    root_directory: Path
     timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC).astimezone())
     run_time: timedelta
     files: dict[Path, OutputFileInfo | None] = Field(default_factory=dict)
@@ -176,7 +178,12 @@ class MonitoringHandlerBase(ABC, Generic[_TPreRunInfo, _TPostRunInfo]):
 
 class MonitoringHandlerCli(MonitoringHandlerBase[PreRunInfoCli, PostRunInfoCli]):
     def setup_pre_run_info(self, args: Sequence[str]) -> PreRunInfoCli:
-        return PreRunInfoCli(args=list(args), cwd=Path.cwd(), timestamp=datetime.now(UTC).astimezone())
+        return PreRunInfoCli(
+            root_directory=self.capture_config.root_directory,
+            args=list(args),
+            cwd=Path.cwd(),
+            timestamp=datetime.now(UTC).astimezone(),
+        )
 
     def run(
         self,
@@ -190,6 +197,7 @@ class MonitoringHandlerCli(MonitoringHandlerBase[PreRunInfoCli, PostRunInfoCli])
 
         return (
             PostRunInfoCli(
+                root_directory=self.capture_config.root_directory,
                 timestamp=datetime.now(UTC).astimezone(),
                 run_time=timedelta(seconds=end_time - start_time),
                 stdout=result.stdout,
@@ -219,6 +227,7 @@ class MonitoringHandlerFunc(MonitoringHandlerBase[PreRunInfoFunc, PostRunInfoFun
             first_line_no = None
 
         return PreRunInfoFunc(
+            root_directory=self.capture_config.root_directory,
             cwd=Path.cwd(),
             timestamp=datetime.now(UTC).astimezone(),
             source_file=file_path,
@@ -243,6 +252,7 @@ class MonitoringHandlerFunc(MonitoringHandlerBase[PreRunInfoFunc, PostRunInfoFun
             exception_info = ExceptionInfo.from_exception(e)
             return (
                 PostRunInfoFunc(
+                    root_directory=self.capture_config.root_directory,
                     timestamp=datetime.now(UTC).astimezone(),
                     run_time=timedelta(seconds=end_time - start_time),
                     exception_info=exception_info,
@@ -253,6 +263,7 @@ class MonitoringHandlerFunc(MonitoringHandlerBase[PreRunInfoFunc, PostRunInfoFun
             end_time = time.perf_counter()
             return (
                 PostRunInfoFunc(
+                    root_directory=self.capture_config.root_directory,
                     timestamp=datetime.now(UTC).astimezone(),
                     run_time=timedelta(seconds=end_time - start_time),
                     return_value=ret,

@@ -87,6 +87,7 @@ def capture(ctx: click.Context) -> None:
 def monitor(ctx: click.Context, items: Iterable[str], args: tuple[str]) -> None:
     """Monitor execution."""
     capture_config = CaptureConfig(**ctx.obj["capsula_config"]["capture"])
+    capture_config.root_directory = ctx.obj["directory"]
     capture_core(config=capture_config)
 
     monitor_config = MonitorConfig(**ctx.obj["capsula_config"]["monitor"])
