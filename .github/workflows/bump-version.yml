@@ -1,5 +1,5 @@
 name: Bump version
-run-name: Bump version to v${{ github.event.inputs.version }}
+run-name: Bump version (${{ github.event.inputs.bump_rule }})
 
 on:
   workflow_dispatch:
