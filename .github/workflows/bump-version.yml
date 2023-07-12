@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'New version (e.g. `1.2.3`)'
+        description: 'New version, without the `v` prefix (e.g. `1.2.3`)'
         required: true
 
 env:
