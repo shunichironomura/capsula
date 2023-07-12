@@ -7,6 +7,14 @@ authors = ["Shunichiro Nomura <nomura@space.t.u-tokyo.ac.jp>"]
 readme = "README.md"
 repository = "https://github.com/shunichironomura/capsula"
 keywords = ["reproducibility", "cli"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering",
+]
 packages = [{include = "capsula"}]
 
 [tool.poetry.dependencies]
