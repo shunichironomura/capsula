@@ -33,6 +33,8 @@ jobs:
 
       - name: Create a Git tag
         run: |
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions"
           git fetch --tags
           git tag --annotate "v${{ steps.get-version.outputs.version }}" --message="v${{ steps.get-version.outputs.version }}"
           git push origin "v${{ steps.get-version.outputs.version }}"
