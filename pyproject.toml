@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "capsula"
-version = "0.0.15"
+version = "0.0.16"
 description = "A Python package to capture and reproduce command execution context"
 authors = ["Shunichiro Nomura <nomura@space.t.u-tokyo.ac.jp>"]
 license = "MIT"
