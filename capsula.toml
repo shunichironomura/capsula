@@ -18,7 +18,7 @@ environment-variables = [
 [capture.files]
 "pyproject.toml" = { hash = "sha256", copy = true }
 "poetry.lock" = { hash = "sha256", copy = true }
-"requirements.txt" = { hash = "sha256", copy = true }
+"requirements.txt" = { hash = "sha256", move = true }
 
 [capture.git.repositories]
 capsula = '.'
