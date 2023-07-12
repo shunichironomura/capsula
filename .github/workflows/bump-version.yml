@@ -4,9 +4,15 @@ run-name: Bump version to v${{ github.event.inputs.version }}
 on:
   workflow_dispatch:
     inputs:
-      version:
-        description: 'New version, without the `v` prefix (e.g. `1.2.3`)'
+      bump_rule:
+        description: 'Bump rule'
         required: true
+        default: 'patch'
+        type: choice
+        options:
+          - 'patch'
+          - 'minor'
+          - 'major'
 
 env:
   PYTHON_VERSION: "3.11"
@@ -17,6 +23,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    outputs:
+      new_version: ${{ steps.bump-version.outputs.new_version }}
 
     steps:
     - uses: actions/checkout@v3
@@ -30,15 +38,18 @@ jobs:
         pip install poetry
 
     - name: Bump version
+      id: bump-version
       run: |
-        poetry version ${{ github.event.inputs.version }}
+        new_version=$(poetry version --short ${{ github.event.inputs.bump_rule }})
+        echo "new_version=$new_version" >> "$GITHUB_OUTPUT"
+        echo "Bumped version to v$new_version" >> $GITHUB_STEP_SUMMARY
 
     - name: Commit and push
       uses: EndBug/add-and-commit@v9
       with:
         default_author: github_actions
-        message: "Bump version to ${{ github.event.inputs.version }}"
-        new_branch: "bump-version/v${{ github.event.inputs.version }}"
+        message: "Bump version to v${{ steps.bump-version.outputs.new_version }}"
+        new_branch: "bump-version/v${{ steps.bump-version.outputs.new_version }}"
 
   create-pull-request:
     name: Create pull request if on main
@@ -55,4 +66,4 @@ jobs:
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
-        gh pr create --repo ${{ github.repository }} --base main --head "bump-version/v${{ github.event.inputs.version }}" --title "Bump version to v${{ github.event.inputs.version }}" --body "Bump version to v${{ github.event.inputs.version }}"
+        gh pr create --repo ${{ github.repository }} --base main --head "bump-version/v${{ needs.bump-version.outputs.new_version }}" --title "Bump version to v${{ needs.bump-version.outputs.new_version }}" --body "Bump version to v${{ needs.bump-version.outputs.new_version }}"
