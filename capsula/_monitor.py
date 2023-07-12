@@ -23,7 +23,7 @@ else:
 from datetime import datetime, timedelta
 from functools import wraps
 from pathlib import Path
-from shutil import copyfile
+from shutil import copyfile, move
 from typing import TYPE_CHECKING, Any, Generic, Literal, TypeVar
 
 if sys.version_info < (3, 10):
@@ -71,8 +71,8 @@ class PreRunInfoFunc(PreRunInfoBase):
 
 
 class OutputFileInfo(BaseModel):
-    hash_algorithm: Literal["md5", "sha1", "sha256", "sha3"]
-    file_hash: str = Field(..., alias="hash")
+    hash_algorithm: Literal["md5", "sha1", "sha256", "sha3"] | None
+    file_hash: str | None = Field(..., alias="hash")
 
 
 class PostRunInfoBase(BaseModel):
@@ -160,10 +160,12 @@ class MonitoringHandlerBase(ABC, Generic[_TPreRunInfo, _TPostRunInfo]):
                     continue
                 post_run_info.files[path] = OutputFileInfo(
                     hash_algorithm=file.hash_algorithm,
-                    hash=compute_hash(path, file.hash_algorithm),
+                    hash=compute_hash(path, file.hash_algorithm) if file.hash_algorithm else None,
                 )
                 if file.copy_:
                     copyfile(path, self.capture_config.capsule / path.name)
+                elif file.move:
+                    move(path, self.capture_config.capsule / path.name)
 
         with (self.capture_config.capsule / "post-run-info.json").open("w") as f:
             f.write(post_run_info.model_dump_json(indent=4))

@@ -25,7 +25,7 @@ capsula = '.'
 
 [monitor]
 [monitor.item.calculate-pi-cli.files]
-"examples/pi_cli.png" = { hash = "sha256" }
+"examples/pi_cli.png" = { hash = "sha256", move = true }
 
 [monitor.item.calculate-pi-dec.files]
-"examples/pi_dec.png" = { hash = "sha256" }
+"examples/pi_dec.png" = { hash = "sha256", move = true }
