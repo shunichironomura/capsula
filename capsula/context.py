@@ -148,11 +148,6 @@ class Context(ContextItem):
 
     platform: Platform
 
-    # There are many duplicates between the platform and cpu info.
-    # We could remove the duplicates, but it's not worth the effort.
-    # We use the default factory to avoid the overhead of getting the CPU info, which is slow.
-    cpu: dict | None
-
     environment_variables: dict[str, str]
 
     cwd: Path
@@ -160,6 +155,11 @@ class Context(ContextItem):
     git: dict[str, GitInfo]
 
     files: dict[Path, FileContext]
+
+    # There are many duplicates between the platform and cpu info.
+    # We could remove the duplicates, but it's not worth the effort.
+    # We use the default factory to avoid the overhead of getting the CPU info, which is slow.
+    cpu: dict | None
 
     @classmethod
     def capture(cls, config: CaptureConfig) -> Self:
