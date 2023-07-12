@@ -18,14 +18,14 @@ environment-variables = [
 [capture.files]
 "pyproject.toml" = { hash = "sha256", copy = true }
 "poetry.lock" = { hash = "sha256", copy = true }
-"requirements.txt" = { hash = "sha256", copy = true }
+"requirements.txt" = { hash = "sha256", move = true }
 
 [capture.git.repositories]
 capsula = '.'
 
 [monitor]
 [monitor.item.calculate-pi-cli.files]
-"examples/pi_cli.png" = { hash = "sha256" }
+"examples/pi_cli.png" = { hash = "sha256", move = true }
 
 [monitor.item.calculate-pi-dec.files]
-"examples/pi_dec.png" = { hash = "sha256" }
+"examples/pi_dec.png" = { hash = "sha256", move = true }

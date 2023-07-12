@@ -5,7 +5,7 @@ import platform as pf
 import sys
 from abc import ABC, abstractmethod
 from pathlib import Path
-from shutil import copyfile
+from shutil import copyfile, move
 from typing import TYPE_CHECKING, Any, Literal
 
 if sys.version_info < (3, 11):
@@ -124,19 +124,21 @@ class GitInfo(ContextItem):
 
 
 class FileContext(ContextItem):
-    hash_algorithm: Literal["md5", "sha1", "sha256", "sha3"]
-    file_hash: str = Field(..., alias="hash")
+    hash_algorithm: Literal["md5", "sha1", "sha256", "sha3"] | None
+    file_hash: str | None = Field(..., alias="hash")
 
     @classmethod
     def capture(cls, config: CaptureConfig) -> dict[Path, Self]:
         files = {}
         for path, file_config in config.files.items():
             files[path] = cls(
-                hash=compute_hash(path, file_config.hash_algorithm),
+                hash=compute_hash(path, file_config.hash_algorithm) if file_config.hash_algorithm else None,
                 hash_algorithm=file_config.hash_algorithm,
             )
             if file_config.copy_:
                 copyfile(path, config.capsule / path.name)
+            elif file_config.move:
+                move(path, config.capsule / path.name)
 
         return files
 
