@@ -44,9 +44,3 @@ jobs:
         GH_TOKEN: ${{ github.token }}
       run: |
         gh release create v${{ github.event.inputs.version }} --generate-notes --draft --verify-tag --target "bump-version/v${{ github.event.inputs.version }}"
-
-    # - name: Publish to PyPI
-    #   run: |
-    #     poetry publish --build
-    #   env:
-    #     POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_API_TOKEN }}
