@@ -39,7 +39,7 @@ capsula = '.'
 
 [monitor]
 # Whether to capture the context before running the command using the `capture` configuration.
-# capture = true
+capture = true
 
 # You can configure the monitoring behavior for each "item" (e.g., Python function, CLI command).
 [monitor.item.calculate-pi-cli.files]
