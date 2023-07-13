@@ -5,7 +5,7 @@ from pathlib import Path
 from pydantic import BaseModel, ConfigDict, Field
 
 from capsula.file import CaptureFileConfig
-from capsula.globalvars import set_capsule_dir
+from capsula.globalvars import set_capsule_dir, set_capsule_name
 
 if sys.version_info < (3, 11):
     from datetime import timezone as _timezone
@@ -75,19 +75,19 @@ class CapsulaConfig(BaseModel):
     @property
     def capsule(self) -> Path:
         if self._capsule_directory is None:
-            self._capsule_directory = (
-                self.root_directory
-                / self.vault_directory
-                / datetime.now(UTC)
+            capsule_name = (
+                datetime.now(UTC)
                 .astimezone()
                 .strftime(
                     self.capsule_template,
                 )
             )
+            self._capsule_directory = self.root_directory / self.vault_directory / capsule_name
             if self._capsule_directory.exists():
                 msg = f"Directory {self._capsule_directory} already exists"
                 raise ValueError(msg)
             set_capsule_dir(self._capsule_directory)
+            set_capsule_name(capsule_name)
 
         return self._capsule_directory
 
