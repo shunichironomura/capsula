@@ -288,8 +288,10 @@ def monitor(
 
         @wraps(func)
         def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
-            captured_ctx = capture_core(config=config)
-            logger.debug(f"Captured context: {captured_ctx}")
+            config.ensure_capsule_directory_exists()
+            if config.monitor.capture:
+                captured_ctx = capture_core(config=config)
+                logger.debug(f"Captured context: {captured_ctx}")
 
             handler = MonitoringHandlerFunc(config=config)
 

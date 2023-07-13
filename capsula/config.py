@@ -5,6 +5,7 @@ from pathlib import Path
 from pydantic import BaseModel, ConfigDict, Field
 
 from capsula.file import CaptureFileConfig
+from capsula.globalvars import set_capsule_dir
 
 if sys.version_info < (3, 11):
     from datetime import timezone as _timezone
@@ -51,6 +52,7 @@ class MonitorItemConfig(BaseModel):
 
 
 class MonitorConfig(BaseModel):
+    capture: bool = True
     items: dict[str, MonitorItemConfig] = Field(default_factory=dict, alias="item")
 
 
@@ -82,6 +84,11 @@ class CapsulaConfig(BaseModel):
                     self.capsule_template,
                 )
             )
+            if self._capsule_directory.exists():
+                msg = f"Directory {self._capsule_directory} already exists"
+                raise ValueError(msg)
+            set_capsule_dir(self._capsule_directory)
+
         return self._capsule_directory
 
     @property
@@ -94,3 +101,6 @@ class CapsulaConfig(BaseModel):
     @root_directory.setter
     def root_directory(self, value: Path) -> None:
         self._root_directory = value
+
+    def ensure_capsule_directory_exists(self) -> None:
+        self.capsule.mkdir(parents=True, exist_ok=True)

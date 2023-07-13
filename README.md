@@ -67,6 +67,9 @@ environment-variables = [
 "some/git/repository" = '.'
 
 [monitor]
+# Whether to capture the context before running the command using the `capture` configuration.
+capture = true
+
 # You can configure the monitoring behavior for each "item" (e.g., Python function, CLI command).
 [monitor.item.calculate-pi-cli.files]
 # List of files (relative to the root directory) to include after the execution of the command.
