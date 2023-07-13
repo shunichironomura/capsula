@@ -280,7 +280,7 @@ Running `capsula capture` outputs the following files in the capsule directory:
 Running `capsula monitor <commands>` in the project root (the directory where `capsula.toml` is located) monitors the execution of the specified commands. The context is logged in the `context.json` file in the capsule directory, and the command execution is logged in the `pre-run-info.json` and `post-run-info.json` files in the capsule directory.
 
 <details>
-<summary>Example of <code>pre-run-info.json</code> (CLI)</summary>
+<summary>Example of <code>pre-run-info.json</code></summary>
 
 ```json
 {
@@ -296,7 +296,7 @@ Running `capsula monitor <commands>` in the project root (the directory where `c
 
 </details>
 <details>
-<summary>Example of <code>post-run-info.json</code> (CLI)</summary>
+<summary>Example of <code>post-run-info.json</code></summary>
 
 ```json
 {
@@ -346,7 +346,7 @@ def main(n: int, seed: int | None = None) -> float:
 Let's say you call the above function with `main(1000000)`. Then, the following files will be created in the capsule directory:
 
 <details>
-<summary>Example of <code>pre-run-info.json</code> (CLI)</summary>
+<summary>Example of <code>pre-run-info.json</code></summary>
 
 ```json
 {
@@ -364,7 +364,7 @@ Let's say you call the above function with `main(1000000)`. Then, the following 
 ```
 </details>
 <details>
-<summary>Example of <code>post-run-info.json</code> (CLI)</summary>
+<summary>Example of <code>post-run-info.json</code></summary>
 
 ```json
 {
