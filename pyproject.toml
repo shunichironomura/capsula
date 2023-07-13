@@ -54,7 +54,7 @@ ignore_missing_imports = true
 [tool.black]
 line-length = 120
 include = '\.pyi?$'
-target-version = ['py38', 'py39', 'py310', 'py311']
+target-version = ['py310', 'py311']
 
 exclude = '''
 /(
@@ -71,7 +71,7 @@ exclude = '''
 '''
 
 [tool.ruff]
-target-version = "py38"
+target-version = "py310"
 # Same as Black.
 line-length = 120
 select = ["ALL"]
