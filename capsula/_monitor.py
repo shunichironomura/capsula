@@ -33,9 +33,8 @@ else:
 
 from pydantic import BaseModel, Field
 
-from capsula.capture import CaptureConfig
 from capsula.capture import capture as capture_core
-from capsula.file import CaptureFileConfig  # noqa: TCH001 for pydantic
+from capsula.config import CapsulaConfig
 from capsula.hash import compute_hash
 
 if TYPE_CHECKING:
@@ -43,14 +42,6 @@ if TYPE_CHECKING:
 
 
 logger = logging.getLogger(__name__)
-
-
-class MonitorItemConfig(BaseModel):
-    files: dict[Path, CaptureFileConfig] = Field(default_factory=dict)
-
-
-class MonitorConfig(BaseModel):
-    items: dict[str, MonitorItemConfig] = Field(default_factory=dict, alias="item")
 
 
 class PreRunInfoBase(BaseModel):
@@ -113,9 +104,8 @@ _TPostRunInfo = TypeVar("_TPostRunInfo", bound=PostRunInfoBase)
 
 
 class MonitoringHandlerBase(ABC, Generic[_TPreRunInfo, _TPostRunInfo]):
-    def __init__(self, *, capture_config: CaptureConfig, monitor_config: MonitorConfig) -> None:
-        self.capture_config = capture_config
-        self.monitor_config = monitor_config
+    def __init__(self, *, config: CapsulaConfig) -> None:
+        self.config = config
 
     @abstractmethod
     def setup_pre_run_info(self, *args: Any, **kwargs: Any) -> _TPreRunInfo:
@@ -128,7 +118,7 @@ class MonitoringHandlerBase(ABC, Generic[_TPreRunInfo, _TPostRunInfo]):
         return pre_run_info
 
     def dump_pre_run_info(self, pre_run_info: _TPreRunInfo) -> None:
-        with (self.capture_config.capsule / "pre-run-info.json").open("w") as f:
+        with (self.config.capsule / "pre-run-info.json").open("w") as f:
             f.write(pre_run_info.model_dump_json(indent=4))
 
     @abstractmethod
@@ -154,9 +144,9 @@ class MonitoringHandlerBase(ABC, Generic[_TPreRunInfo, _TPostRunInfo]):
     def teardown(self, post_run_info: _TPostRunInfo, *, items: Iterable[str]) -> _TPostRunInfo:
         post_run_info.files = {}
         for item in items:
-            for relative_path, file in self.monitor_config.items[item].files.items():
+            for relative_path, file in self.config.monitor.items[item].files.items():
                 logger.debug(f"Capturing file {relative_path}...")
-                path = self.capture_config.root_directory / relative_path
+                path = self.config.root_directory / relative_path
                 if not path.exists():
                     logger.warning(f"File {relative_path} does not exist.")
                     post_run_info.files[relative_path] = None
@@ -166,11 +156,11 @@ class MonitoringHandlerBase(ABC, Generic[_TPreRunInfo, _TPostRunInfo]):
                     hash=compute_hash(path, file.hash_algorithm) if file.hash_algorithm else None,
                 )
                 if file.copy_:
-                    copyfile(path, self.capture_config.capsule / path.name)
+                    copyfile(path, self.config.capsule / path.name)
                 elif file.move:
-                    move(path, self.capture_config.capsule / path.name)
+                    move(path, self.config.capsule / path.name)
 
-        with (self.capture_config.capsule / "post-run-info.json").open("w") as f:
+        with (self.config.capsule / "post-run-info.json").open("w") as f:
             f.write(post_run_info.model_dump_json(indent=4))
 
         return post_run_info
@@ -179,7 +169,7 @@ class MonitoringHandlerBase(ABC, Generic[_TPreRunInfo, _TPostRunInfo]):
 class MonitoringHandlerCli(MonitoringHandlerBase[PreRunInfoCli, PostRunInfoCli]):
     def setup_pre_run_info(self, args: Sequence[str]) -> PreRunInfoCli:
         return PreRunInfoCli(
-            root_directory=self.capture_config.root_directory,
+            root_directory=self.config.root_directory,
             args=list(args),
             cwd=Path.cwd(),
             timestamp=datetime.now(UTC).astimezone(),
@@ -197,7 +187,7 @@ class MonitoringHandlerCli(MonitoringHandlerBase[PreRunInfoCli, PostRunInfoCli])
 
         return (
             PostRunInfoCli(
-                root_directory=self.capture_config.root_directory,
+                root_directory=self.config.root_directory,
                 timestamp=datetime.now(UTC).astimezone(),
                 run_time=timedelta(seconds=end_time - start_time),
                 stdout=result.stdout,
@@ -227,7 +217,7 @@ class MonitoringHandlerFunc(MonitoringHandlerBase[PreRunInfoFunc, PostRunInfoFun
             first_line_no = None
 
         return PreRunInfoFunc(
-            root_directory=self.capture_config.root_directory,
+            root_directory=self.config.root_directory,
             cwd=Path.cwd(),
             timestamp=datetime.now(UTC).astimezone(),
             source_file=file_path,
@@ -252,7 +242,7 @@ class MonitoringHandlerFunc(MonitoringHandlerBase[PreRunInfoFunc, PostRunInfoFun
             exception_info = ExceptionInfo.from_exception(e)
             return (
                 PostRunInfoFunc(
-                    root_directory=self.capture_config.root_directory,
+                    root_directory=self.config.root_directory,
                     timestamp=datetime.now(UTC).astimezone(),
                     run_time=timedelta(seconds=end_time - start_time),
                     exception_info=exception_info,
@@ -263,7 +253,7 @@ class MonitoringHandlerFunc(MonitoringHandlerBase[PreRunInfoFunc, PostRunInfoFun
             end_time = time.perf_counter()
             return (
                 PostRunInfoFunc(
-                    root_directory=self.capture_config.root_directory,
+                    root_directory=self.config.root_directory,
                     timestamp=datetime.now(UTC).astimezone(),
                     run_time=timedelta(seconds=end_time - start_time),
                     return_value=ret,
@@ -293,19 +283,15 @@ def monitor(
     def decorator(func: Callable[P, T]) -> Callable[P, T]:
         capsula_config_path = directory / "capsula.toml"
         with capsula_config_path.open("rb") as capsula_config_file:
-            capsula_config = tomllib.load(capsula_config_file)
+            config = CapsulaConfig(**tomllib.load(capsula_config_file))
+        config.root_directory = directory
 
         @wraps(func)
         def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
-            capture_config = CaptureConfig(**capsula_config["capture"])
-            capture_config.root_directory = directory
-            captured_ctx = capture_core(config=capture_config)
+            captured_ctx = capture_core(config=config)
             logger.debug(f"Captured context: {captured_ctx}")
 
-            monitor_config = MonitorConfig(**capsula_config["monitor"])
-            logger.debug(f"Monitor config: {monitor_config}")
-
-            handler = MonitoringHandlerFunc(capture_config=capture_config, monitor_config=monitor_config)
+            handler = MonitoringHandlerFunc(config=config)
 
             pre_run_info = handler.setup(func=func, args=args, kwargs=kwargs)
             post_run_info, exc = handler.run_and_teardown(

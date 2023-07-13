@@ -27,7 +27,6 @@ pip install capsula
 At the root of your project, create a `capsula.toml` file. The following is an example of a `capsula.toml` file. Note that the root directory is the directory where `capsula.toml` is located.
 
 ```toml
-[capture]
 # The directory where the captured context is stored.
 vault-directory = 'vault'
 
@@ -35,6 +34,7 @@ vault-directory = 'vault'
 # It will be formatted by `datetime.now(UTC).astimezone().strftime(capsule_template)`.
 capsule-template = '%Y%m%d_%H%M%S'
 
+[capture]
 # Whether to include CPU information in the captured context.
 # Note that this may take a relatively long time to capture.
 include-cpu = true

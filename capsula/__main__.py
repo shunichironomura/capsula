@@ -12,9 +12,9 @@ from typing import TYPE_CHECKING
 
 import click
 
-from capsula._monitor import MonitorConfig, MonitoringHandlerCli
-from capsula.capture import CaptureConfig
+from capsula._monitor import MonitoringHandlerCli
 from capsula.capture import capture as capture_core
+from capsula.config import CapsulaConfig
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -55,11 +55,11 @@ def main(
     ctx.ensure_object(dict)
     logging.basicConfig(level=logging.getLevelNamesMapping()[log_level])
 
-    ctx.obj["directory"] = directory
-    click.echo(f"directory: {ctx.obj['directory']}")
-    capsula_config_path: Path = ctx.obj["directory"] / "capsula.toml"
+    click.echo(f"Root directory: {directory}")
+    capsula_config_path: Path = directory / "capsula.toml"
     with capsula_config_path.open("rb") as capsula_config_file:
-        capsula_config = tomllib.load(capsula_config_file)
+        capsula_config = CapsulaConfig(**tomllib.load(capsula_config_file))
+    capsula_config.root_directory = directory
 
     ctx.obj["capsula_config"] = capsula_config
 
@@ -68,9 +68,7 @@ def main(
 @click.pass_context
 def capture(ctx: click.Context) -> None:
     """Capture the context."""
-    capsula_capture_config = CaptureConfig(**ctx.obj["capsula_config"]["capture"])
-    capsula_capture_config.root_directory = ctx.obj["directory"]
-    capture_core(config=capsula_capture_config)
+    capture_core(config=ctx.obj["capsula_config"])
 
 
 @main.command()
@@ -86,11 +84,9 @@ def capture(ctx: click.Context) -> None:
 @click.pass_context
 def monitor(ctx: click.Context, items: Iterable[str], args: tuple[str]) -> None:
     """Monitor execution."""
-    capture_config = CaptureConfig(**ctx.obj["capsula_config"]["capture"])
-    capture_config.root_directory = ctx.obj["directory"]
-    capture_core(config=capture_config)
+    config: CapsulaConfig = ctx.obj["capsula_config"]
+    capture_core(config=config)
 
-    monitor_config = MonitorConfig(**ctx.obj["capsula_config"]["monitor"])
-    handler = MonitoringHandlerCli(capture_config=capture_config, monitor_config=monitor_config)
+    handler = MonitoringHandlerCli(config=config)
     pre_run_info = handler.setup(args)
     handler.run_and_teardown(pre_run_info=pre_run_info, items=items)

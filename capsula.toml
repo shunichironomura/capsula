@@ -1,4 +1,3 @@
-[capture]
 # The directory where the captured context is stored.
 vault-directory = 'vault'
 
@@ -6,6 +5,7 @@ vault-directory = 'vault'
 # It will be formatted by `datetime.now(UTC).astimezone().strftime(capsule_template)`.
 capsule-template = '%Y%m%d_%H%M%S'
 
+[capture]
 # Whether to include CPU information in the captured context.
 # Note that this may take a relatively long time to capture.
 include-cpu = true
@@ -38,6 +38,9 @@ environment-variables = [
 capsula = '.'
 
 [monitor]
+# Whether to capture the context before running the command using the `capture` configuration.
+# capture = true
+
 # You can configure the monitoring behavior for each "item" (e.g., Python function, CLI command).
 [monitor.item.calculate-pi-cli.files]
 # List of files (relative to the root directory) to include after the execution of the command.

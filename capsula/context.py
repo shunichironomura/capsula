@@ -20,7 +20,7 @@ from pydantic import BaseModel, Field
 from capsula.hash import compute_hash
 
 if TYPE_CHECKING:
-    from capsula.capture import CaptureConfig
+    from capsula.config import CapsulaConfig, CaptureConfig
 
 
 class ContextItem(BaseModel, ABC):
@@ -105,9 +105,9 @@ class GitInfo(ContextItem):
     remotes: list[GitRemote]
 
     @classmethod
-    def capture(cls, config: CaptureConfig) -> dict[str, Self]:
+    def capture(cls, config: CapsulaConfig) -> dict[str, Self]:
         git_infos = {}
-        for name, path in config.git.repositories.items():
+        for name, path in config.capture.git.repositories.items():
             repo = Repo(config.root_directory / path)
             git_infos[name] = cls(
                 path=path,
@@ -128,9 +128,9 @@ class FileContext(ContextItem):
     file_hash: str | None = Field(..., alias="hash")
 
     @classmethod
-    def capture(cls, config: CaptureConfig) -> dict[Path, Self]:
+    def capture(cls, config: CapsulaConfig) -> dict[Path, Self]:
         files = {}
-        for relative_path, file_config in config.files.items():
+        for relative_path, file_config in config.capture.files.items():
             path = config.root_directory / relative_path
             files[relative_path] = cls(
                 hash=compute_hash(path, file_config.hash_algorithm) if file_config.hash_algorithm else None,
@@ -165,12 +165,12 @@ class Context(ContextItem):
     cpu: dict | None
 
     @classmethod
-    def capture(cls, config: CaptureConfig) -> Self:
+    def capture(cls, config: CapsulaConfig) -> Self:
         return cls(
             root_directory=config.root_directory,
-            platform=Platform.capture(config),
-            cpu=get_cpu_info() if config.include_cpu else None,
-            environment_variables={name: os.environ[name] for name in config.environment_variables},
+            platform=Platform.capture(config.capture),
+            cpu=get_cpu_info() if config.capture.include_cpu else None,
+            environment_variables={name: os.environ[name] for name in config.capture.environment_variables},
             git=GitInfo.capture(config),
             cwd=Path.cwd(),
             files=FileContext.capture(config),
