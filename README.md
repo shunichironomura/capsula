@@ -279,7 +279,9 @@ Running `capsula capture` outputs the following files in the capsule directory:
 
 Running `capsula monitor <commands>` in the project root (the directory where `capsula.toml` is located) monitors the execution of the specified commands. The context is logged in the `context.json` file in the capsule directory, and the command execution is logged in the `pre-run-info.json` and `post-run-info.json` files in the capsule directory.
 
-Example of `pre-run-info.json`:
+For example, if you run `capsula monitor python examples/calculate_pi_cli.py` in the root directory, you will get the following `pre-run-info.json` and `post-run-info.json` as output:
+
+`pre-run-info.json`:
 
 ```json
 {
@@ -288,12 +290,12 @@ Example of `pre-run-info.json`:
     "timestamp": "2023-07-12T18:09:29.490877+09:00",
     "args": [
         "python",
-        "calculate_pi_cli.py"
+        "examples/calculate_pi_cli.py"
     ]
 }
 ```
 
-Example of `post-run-info.json`:
+`post-run-info.json`:
 
 ```json
 {
@@ -316,7 +318,7 @@ Example of `post-run-info.json`:
 
 The `capsula.monitor` decorator can be used to monitor the execution of a Python function. The context is logged in the `context.json` file in the capsule directory, and the function execution is logged in the `pre-run-info.json` and `post-run-info.json` files in the capsule directory.
 
-Usage:
+Example usage:
 
 ```python
 from pathlib import Path
@@ -339,9 +341,9 @@ def main(n: int, seed: int | None = None) -> float:
     return pi
 ```
 
-Let's say you call the above function with `main(1000000)`. Then, the following files will be created in the capsule directory:
+If you call the above function with `main(1000000)`, the following files will be created in the capsule directory:
 
-Example of `pre-run-info.json`:
+`pre-run-info.json`:
 
 ```json
 {
@@ -357,7 +359,8 @@ Example of `pre-run-info.json`:
     "kwargs": {}
 }
 ```
-Example of `post-run-info.json`:
+
+`post-run-info.json`:
 
 ```json
 {
