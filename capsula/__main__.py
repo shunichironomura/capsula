@@ -56,7 +56,7 @@ def main(
     logging.basicConfig(level=logging.getLevelNamesMapping()[log_level])
 
     click.echo(f"Root directory: {directory}")
-    capsula_config_path: Path = ctx.obj["directory"] / "capsula.toml"
+    capsula_config_path: Path = directory / "capsula.toml"
     with capsula_config_path.open("rb") as capsula_config_file:
         capsula_config = CapsulaConfig(**tomllib.load(capsula_config_file))
     capsula_config.root_directory = directory
