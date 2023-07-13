@@ -1,4 +1,5 @@
 import logging
+import os
 import sys
 from pathlib import Path
 
@@ -46,14 +47,12 @@ def main(n: int, seed: int | None = None) -> None:
     ax.set_aspect("equal")
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
-    ax.set_title(f"Approximation of pi: {pi:.6f}")
+    capsule_name = os.environ["CAPSULA_CAPSULE_NAME"]
+    ax.set_title(f"Approximation of pi: {pi:.6f} ({capsule_name})")
 
     # Plot the circle
     theta = np.linspace(0, 2 * np.pi, 100)
     ax.plot(np.cos(theta), np.sin(theta), c="k")
-
-    # capsule_dir = Path(os.environ["CAPSULE_DIR"])
-    # logger.info(f"Saving plot to {capsule_dir / 'pi.png'}")
 
     output_path = Path(__file__).parent / "pi_cli.png"
     fig.savefig(str(output_path), dpi=300)
