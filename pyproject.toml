@@ -101,6 +101,10 @@ ignore = [
     "ERA001", # Commented out code
 ]
 
+[tool.ruff.pep8-naming]
+# Allow Pydantic's `@model_validator` decorator to trigger class method treatment.
+classmethod-decorators = ["classmethod", "pydantic.model_validator"]
+
 [tool.ruff.per-file-ignores]
 "capsula/*" = [
     "PT017"
