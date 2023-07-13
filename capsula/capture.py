@@ -9,7 +9,6 @@ import subprocess
 from typing import TYPE_CHECKING
 
 from capsula.context import Context
-from capsula.globalvars import set_capsule_dir
 
 if TYPE_CHECKING:
     from capsula.config import CapsulaConfig
@@ -40,13 +39,7 @@ def capture(*, config: CapsulaConfig) -> Context:
 
     logger.info("Capturing the context.")
 
-    try:
-        config.capsule.mkdir(parents=True, exist_ok=False)
-    except FileExistsError:
-        logger.exception(f"Capsule already exists: {config.capsule}")
-        raise
-    else:
-        set_capsule_dir(config.capsule)
+    config.ensure_capsule_directory_exists()
 
     ctx = Context.capture(config)
 
