@@ -11,7 +11,7 @@ class CaptureFileConfig(BaseModel):
     move: bool = False
 
     @model_validator(mode="after")  # type: ignore
-    def exclusive_copy_move(cls, model: CaptureFileConfig) -> CaptureFileConfig:  # noqa: N805
+    def exclusive_copy_move(cls, model: CaptureFileConfig) -> CaptureFileConfig:
         if model.copy_ and model.move:
             msg = "Only one of copy or move can be true"
             raise ValueError(msg)
