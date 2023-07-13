@@ -15,19 +15,19 @@ else:
     from datetime import UTC
 
 
+def _to_hyphen_case(string: str) -> str:
+    return string.replace("_", "-")
+
+
 class GitConfig(BaseModel):
     repositories: dict[str, Path] = Field(default_factory=dict)
-
-
-def to_hyphen_case(string: str) -> str:
-    return string.replace("_", "-")
 
 
 class CaptureConfig(BaseModel):
     """Configuration for the capture command."""
 
     model_config = ConfigDict(
-        alias_generator=to_hyphen_case,
+        alias_generator=_to_hyphen_case,
         populate_by_name=True,
         extra="forbid",
     )
@@ -55,6 +55,12 @@ class MonitorConfig(BaseModel):
 
 
 class CapsulaConfig(BaseModel):
+    model_config = ConfigDict(
+        alias_generator=_to_hyphen_case,
+        populate_by_name=True,
+        extra="forbid",
+    )
+
     vault_directory: Path
     capsule_template: str
 
