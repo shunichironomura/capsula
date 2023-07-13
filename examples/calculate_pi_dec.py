@@ -38,7 +38,8 @@ def main(n: int, seed: int | None = None) -> float:
     ax.set_aspect("equal")
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
-    ax.set_title(f"Approximation of pi: {pi:.6f}")
+    capsule_name = capsula.get_capsule_name()
+    ax.set_title(f"Approximation of pi: {pi:.6f} ({capsule_name})")
 
     # Plot the circle
     theta = np.linspace(0, 2 * np.pi, 100)
