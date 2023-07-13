@@ -279,7 +279,7 @@ Running `capsula capture` outputs the following files in the capsule directory:
 
 Running `capsula monitor <commands>` in the project root (the directory where `capsula.toml` is located) monitors the execution of the specified commands. The context is logged in the `context.json` file in the capsule directory, and the command execution is logged in the `pre-run-info.json` and `post-run-info.json` files in the capsule directory.
 
-For example, if you run `capsula monitor python examples/calculate_pi_cli.py` in the root directory, you will get the following `pre-run-info.json` and `post-run-info.json` as output:
+For example, if you run `capsula monitor -i calculate-pi-cli python examples/calculate_pi_cli.py` in the root directory, you will get the following `pre-run-info.json` and `post-run-info.json` as output:
 
 `pre-run-info.json`:
 
