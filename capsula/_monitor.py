@@ -180,6 +180,7 @@ class MonitoringHandlerCli(MonitoringHandlerBase[PreRunInfoCli, PostRunInfoCli])
         pre_run_info: PreRunInfoCli,
         *,
         items: Iterable[str],  # noqa: ARG002
+        **_: Any,  # to be compatible with the base class
     ) -> tuple[PostRunInfoCli, None]:
         start_time = time.perf_counter()
         result = subprocess.run(pre_run_info.args, capture_output=True, text=True)  # noqa: S603
@@ -206,10 +207,10 @@ class MonitoringHandlerFunc(MonitoringHandlerBase[PreRunInfoFunc, PostRunInfoFun
         kwargs: dict[str, Any],
     ) -> PreRunInfoFunc:
         try:
-            file_path = inspect.getsourcefile(func)
+            _file_path_str = inspect.getsourcefile(func)
         except TypeError:
-            file_path = None
-        file_path = Path(file_path) if file_path is not None else None
+            _file_path_str = None
+        file_path: Path | None = Path(_file_path_str) if _file_path_str is not None else None
 
         try:
             _, first_line_no = inspect.getsourcelines(func)
