@@ -234,6 +234,7 @@ class MonitoringHandlerFunc(MonitoringHandlerBase[PreRunInfoFunc, PostRunInfoFun
         *,
         items: Iterable[str],  # noqa: ARG002
         func: Callable[..., Any],
+        **_: Any,  # to be compatible with the base class
     ) -> tuple[PostRunInfoFunc, BaseException | None]:
         start_time = time.perf_counter()
         try:
