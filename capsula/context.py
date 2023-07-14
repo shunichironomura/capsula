@@ -20,7 +20,7 @@ from pydantic import BaseModel, Field
 from capsula.hash import compute_hash
 
 if TYPE_CHECKING:
-    from capsula.config import CapsulaConfig, CaptureConfig
+    from capsula.config import CapsulaConfig
 
 
 class ContextItem(BaseModel, ABC):
@@ -28,7 +28,7 @@ class ContextItem(BaseModel, ABC):
 
     @classmethod
     @abstractmethod
-    def capture(cls, config: CaptureConfig) -> Self | dict[Any, Self]:
+    def capture(cls, config: CapsulaConfig) -> Self | dict[Any, Self]:
         """Capture the context item."""
         raise NotImplementedError
 
@@ -38,7 +38,7 @@ class Architecture(ContextItem):
     linkage: str
 
     @classmethod
-    def capture(cls, _: CaptureConfig) -> Self:
+    def capture(cls, _: CapsulaConfig) -> Self:
         return cls(
             bits=pf.architecture()[0],
             linkage=pf.architecture()[1],
@@ -55,7 +55,7 @@ class PythonInfo(ContextItem):
     version: str
 
     @classmethod
-    def capture(cls, config: CaptureConfig) -> Self:
+    def capture(cls, config: CapsulaConfig) -> Self:
         return cls(
             executable_architecture=Architecture.capture(config),
             build_no=pf.python_build()[0],
@@ -80,7 +80,7 @@ class Platform(ContextItem):
     python: PythonInfo
 
     @classmethod
-    def capture(cls, config: CaptureConfig) -> Self:
+    def capture(cls, config: CapsulaConfig) -> Self:
         return cls(
             machine=pf.machine(),
             node=pf.node(),
@@ -168,7 +168,7 @@ class Context(ContextItem):
     def capture(cls, config: CapsulaConfig) -> Self:
         return cls(
             root_directory=config.root_directory,
-            platform=Platform.capture(config.capture),
+            platform=Platform.capture(config),
             cpu=get_cpu_info() if config.capture.include_cpu else None,
             environment_variables={name: os.environ[name] for name in config.capture.environment_variables},
             git=GitInfo.capture(config),
