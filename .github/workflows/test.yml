@@ -4,19 +4,23 @@ on:
   push:
     branches:
       - main
-    paths-ignore:
-      - "reports/**"
-      - ".vscode/**"
-      - "LICENSE"
-      - "README.md"
+    paths:
+      - ".github/workflows/test.yml"
+      - "capsula/**"
+      - "examples/**"
+      - "tests/**"
+      - "pyproject.toml"
+      - "capsula.toml"
   pull_request:
     branches:
       - main
-    paths-ignore:
-      - "reports/**"
-      - ".vscode/**"
-      - "LICENSE"
-      - "README.md"
+    paths:
+      - ".github/workflows/test.yml"
+      - "capsula/**"
+      - "examples/**"
+      - "tests/**"
+      - "pyproject.toml"
+      - "capsula.toml"
 
 env:
   PYTHON_VERSION: "3.11"
@@ -115,20 +119,4 @@ jobs:
         with:
           default_author: github_actions
           message: "Update coverage report"
-          # new_branch: "coverage-${{ github.sha }}"
           push: "origin HEAD:${{ github.head_ref }} --force"
-
-  # create-pull-request:
-  #   needs: coverage
-  #   runs-on: ubuntu-latest
-  #   # Only run on pushes to main
-  #   if: github.ref == 'refs/heads/main'
-  #   permissions:
-  #     pull-requests: write
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - name: Create Pull Request
-  #       env:
-  #         GH_TOKEN: ${{ github.token }}
-  #       run: |
-  #         gh pr create --repo ${{ github.repository }} --base main --head "coverage-${{ github.sha }}" --title "Coverage Report" --body "Coverage report for commit ${{ github.sha }}" --label "coverage"
