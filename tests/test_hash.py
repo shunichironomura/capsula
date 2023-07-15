@@ -29,7 +29,10 @@ _HELLO_WORLD_HASH = {
     list(HashAlgorithm),
 )
 def test_compute_hash(algorithm: HashAlgorithm) -> None:
-    with tempfile.NamedTemporaryFile() as f:
-        f.write(b"Hello world!")
-        f.flush()
-        assert compute_hash(Path(f.name), algorithm) == _HELLO_WORLD_HASH[algorithm]
+    # In Windows, we cannot open a NamedTemporaryFile twice
+    # Ref: https://docs.python.org/3/library/tempfile.html#tempfile.NamedTemporaryFile
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpfile_path = Path(tmpdir) / "test.txt"
+        with tmpfile_path.open("wb") as f:
+            f.write(b"Hello world!")
+        assert compute_hash(tmpfile_path, algorithm) == _HELLO_WORLD_HASH[algorithm]
