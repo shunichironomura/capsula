@@ -22,6 +22,10 @@ if TYPE_CHECKING:
 
 
 @click.group()
+@click.version_option(
+    prog_name="Capsula",
+    message="%(prog)s %(version)s",
+)
 @click.option(
     "--directory",
     "-C",
