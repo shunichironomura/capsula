@@ -1,10 +1,12 @@
+from __future__ import annotations
+
 import sys
 from datetime import datetime
-from pathlib import Path
+from pathlib import Path  # noqa: TCH003
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from capsula.file import CaptureFileConfig
+from capsula.file import CaptureFileConfig  # noqa: TCH001
 from capsula.globalvars import set_capsule_dir, set_capsule_name
 
 if sys.version_info < (3, 11):
