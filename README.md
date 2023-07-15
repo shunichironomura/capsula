@@ -1,10 +1,9 @@
 # Capsula
 
+![Test Statue](https://github.com/shunichironomura/capsula/workflows/Test/badge.svg?event=push&branch=main)
 [![PyPI](https://img.shields.io/pypi/v/capsula)](https://pypi.org/project/capsula/)
 ![PyPI - License](https://img.shields.io/pypi/l/capsula)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/capsula)
-![GitHub Workflow Status (Ruff)](https://img.shields.io/github/actions/workflow/status/shunichironomura/capsula/ruff.yml?label=Ruff)
-![GitHub Workflow Status (pytest)](https://img.shields.io/github/actions/workflow/status/shunichironomura/capsula/pytest.yml?label=pytest)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/capsula)
 
 > ⚠️ **NOTE**: This project is still work in progress. Consider pinning the version to avoid breaking changes.
