@@ -116,7 +116,7 @@ jobs:
           default_author: github_actions
           message: "Update coverage report"
           # new_branch: "coverage-${{ github.sha }}"
-          push: true
+          push: "origin ${{ github.head_ref }} --force"
 
   # create-pull-request:
   #   needs: coverage
