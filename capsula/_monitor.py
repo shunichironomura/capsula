@@ -228,7 +228,7 @@ class MonitoringHandlerFunc(MonitoringHandlerBase[PreRunInfoFunc, PostRunInfoFun
             kwargs=kwargs,
         )
 
-    def run(
+    def run(  # type: ignore[override]  # `func` is added to the signature
         self,
         pre_run_info: PreRunInfoFunc,
         *,
