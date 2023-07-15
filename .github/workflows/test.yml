@@ -97,6 +97,7 @@ jobs:
           poetry run --no-interaction coverage report -m
           poetry run --no-interaction coverage xml -o reports/coverage/coverage.xml
           poetry run --no-interaction coverage html --directory reports/coverage/
+          poetry run --no-interaction genbadge coverage -i reports/coverage/coverage.xml -o reports/coverage/coverage-badge.svg
 
       - name: Commit and push
         # Only run on pushes to main
