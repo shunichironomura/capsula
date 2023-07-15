@@ -161,3 +161,5 @@ cython_debug/
 
 
 /vault
+/reports/coverage/
+!reports/coverage/coverage-badge.svg
