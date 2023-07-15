@@ -23,6 +23,7 @@
         "HHMMSS",
         "pydantic",
         "pyproject",
+        "pytest",
         "savefig",
         "xlim"
     ]
