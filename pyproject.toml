@@ -116,6 +116,10 @@ classmethod-decorators = ["classmethod", "pydantic.model_validator"]
 [tool.ruff.flake8-type-checking]
 runtime-evaluated-base-classes = ["pydantic.BaseModel"]
 
+[tool.ruff.pyupgrade]
+# Keep runtime typing for Pydantic.
+keep-runtime-typing = true
+
 [tool.ruff.per-file-ignores]
 "capsula/*" = [
     "PT017"
