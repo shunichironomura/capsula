@@ -104,6 +104,7 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install coverage genbadge[coverage]
         coverage combine
+        coverage report -m
         coverage xml -o reports/coverage/coverage.xml --ignore-errors
         coverage html -d reports/coverage/html --ignore-errors
         genbadge coverage -i reports/coverage/coverage.xml -o reports/coverage/badge.svg
