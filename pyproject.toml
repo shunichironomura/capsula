@@ -113,6 +113,9 @@ ignore = [
 # Allow Pydantic's `@model_validator` decorator to trigger class method treatment.
 classmethod-decorators = ["classmethod", "pydantic.model_validator"]
 
+[tool.ruff.flake8-type-checking]
+runtime-evaluated-base-classes = ["pydantic.BaseModel"]
+
 [tool.ruff.per-file-ignores]
 "capsula/*" = [
     "PT017"
