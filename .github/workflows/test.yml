@@ -4,9 +4,19 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - "reports/**"
+      - ".vscode/**"
+      - "LICENSE"
+      - "README.md"
   pull_request:
     branches:
       - main
+    paths-ignore:
+      - "reports/**"
+      - ".vscode/**"
+      - "LICENSE"
+      - "README.md"
 
 env:
   PYTHON_VERSION: "3.11"
