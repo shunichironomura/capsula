@@ -3,7 +3,7 @@
 [![PyPI](https://img.shields.io/pypi/v/capsula)](https://pypi.org/project/capsula/)
 ![PyPI - License](https://img.shields.io/pypi/l/capsula)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/capsula)
-![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/shunichironomura/capsula/ruff.yaml?label=Ruff)
+![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/shunichironomura/capsula/ruff.yml?label=Ruff)
 ![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/shunichironomura/capsula/pytest.yml?label=pytest)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/capsula)
 
