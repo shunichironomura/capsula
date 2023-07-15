@@ -85,6 +85,8 @@ jobs:
 
   combine-coverage-reports:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     needs: tox
     steps:
     - uses: actions/checkout@v3
