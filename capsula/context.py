@@ -4,7 +4,7 @@ import sys
 from abc import ABC, abstractmethod
 from pathlib import Path
 from shutil import copyfile, move
-from typing import Any, Dict, List, Literal, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 if sys.version_info < (3, 11):
     from typing_extensions import Self
@@ -16,7 +16,7 @@ from git.repo import Repo
 from pydantic import BaseModel, Field
 
 from capsula.config import CapsulaConfig
-from capsula.hash import compute_hash
+from capsula.hash import HashAlgorithm, compute_hash
 
 
 class ContextItem(BaseModel, ABC):
@@ -120,7 +120,7 @@ class GitInfo(ContextItem):
 
 
 class FileContext(ContextItem):
-    hash_algorithm: Optional[Literal["md5", "sha1", "sha256", "sha3"]]
+    hash_algorithm: Optional[HashAlgorithm]
     file_hash: Optional[str] = Field(..., alias="hash")
 
     @classmethod
