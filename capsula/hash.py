@@ -6,7 +6,7 @@ from typing import Literal
 logger = logging.getLogger(__name__)
 
 
-def compute_hash(file_path: Path, algorithm: Literal["md5", "sha1", "sha256", "sha3"]) -> str:
+def compute_hash(file_path: Path, algorithm: Literal["md5", "sha1", "sha256", "sha3-256"]) -> str:
     buf_size = 65536  # lets read stuff in 64kb chunks!
 
     if algorithm == "md5":
@@ -15,7 +15,7 @@ def compute_hash(file_path: Path, algorithm: Literal["md5", "sha1", "sha256", "s
         hash_algo = hashlib.sha1()  # noqa: S324
     elif algorithm == "sha256":
         hash_algo = hashlib.sha256()
-    elif algorithm == "sha3":
+    elif algorithm == "sha3-256":
         hash_algo = hashlib.sha3_256()
     else:
         msg = "Unknown algorithm"

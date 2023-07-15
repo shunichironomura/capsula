@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field, model_validator
 
 
 class CaptureFileConfig(BaseModel):
-    hash_algorithm: Optional[Literal["md5", "sha1", "sha256", "sha3"]] = Field(
+    hash_algorithm: Optional[Literal["md5", "sha1", "sha256", "sha3-256"]] = Field(
         default=None,
         alias="hash",
     )

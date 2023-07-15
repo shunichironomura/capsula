@@ -29,7 +29,7 @@ environment-variables = [
 # If `move` is set to true, the file will be moved to the vault directory. (default: false)
 # If `copy` is set to true, the file will be copied to the vault directory. (default: false)
 # You cannot set both `move` and `copy` to true.
-"pyproject.toml" = { hash = "sha256", copy = true }
+"pyproject.toml" = { hash = "sha3-256", copy = true }
 "poetry.lock" = { hash = "sha256", copy = true }
 "requirements.txt" = { hash = "sha256", move = true }
 

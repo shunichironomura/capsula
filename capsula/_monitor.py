@@ -57,7 +57,7 @@ class PreRunInfoFunc(PreRunInfoBase):
 
 
 class OutputFileInfo(BaseModel):
-    hash_algorithm: Optional[Literal["md5", "sha1", "sha256", "sha3"]]
+    hash_algorithm: Optional[Literal["md5", "sha1", "sha256", "sha3-256"]]
     file_hash: Optional[str] = Field(..., alias="hash")
 
 
