@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import logging
 import sys
 
@@ -7,17 +5,14 @@ if sys.version_info < (3, 11):
     import tomli as tomllib
 else:
     import tomllib
+from collections.abc import Iterable
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 import click
 
 from capsula._monitor import MonitoringHandlerCli
 from capsula.capture import capture as capture_core
 from capsula.config import CapsulaConfig
-
-if TYPE_CHECKING:
-    from collections.abc import Iterable
 
 
 @click.group()

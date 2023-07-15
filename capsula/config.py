@@ -1,8 +1,7 @@
-from __future__ import annotations
-
 import sys
 from datetime import datetime
 from pathlib import Path
+from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -71,8 +70,8 @@ class CapsulaConfig(BaseModel):
     capture: CaptureConfig
     monitor: MonitorConfig
 
-    _capsule_directory: Path | None = None
-    _root_directory: Path | None = None
+    _capsule_directory: Optional[Path] = None
+    _root_directory: Optional[Path] = None
 
     @property
     def capsule(self) -> Path:
