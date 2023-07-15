@@ -4,7 +4,7 @@ import sys
 from abc import ABC, abstractmethod
 from pathlib import Path
 from shutil import copyfile, move
-from typing import Any, Literal, Optional, Union
+from typing import Any, Dict, List, Literal, Optional, Union
 
 if sys.version_info < (3, 11):
     from typing_extensions import Self
@@ -24,7 +24,7 @@ class ContextItem(BaseModel, ABC):
 
     @classmethod
     @abstractmethod
-    def capture(cls, config: CapsulaConfig) -> Union[Self, dict[Any, Self]]:
+    def capture(cls, config: CapsulaConfig) -> Union[Self, Dict[Any, Self]]:
         """Capture the context item."""
         raise NotImplementedError
 
@@ -98,10 +98,10 @@ class GitInfo(ContextItem):
     path: Path
     sha: str
     branch: str
-    remotes: list[GitRemote]
+    remotes: List[GitRemote]
 
     @classmethod
-    def capture(cls, config: CapsulaConfig) -> dict[str, Self]:
+    def capture(cls, config: CapsulaConfig) -> Dict[str, Self]:
         git_infos = {}
         for name, path in config.capture.git.repositories.items():
             repo = Repo(config.root_directory / path)
@@ -124,7 +124,7 @@ class FileContext(ContextItem):
     file_hash: Optional[str] = Field(..., alias="hash")
 
     @classmethod
-    def capture(cls, config: CapsulaConfig) -> dict[Path, Self]:
+    def capture(cls, config: CapsulaConfig) -> Dict[Path, Self]:
         files = {}
         for relative_path, file_config in config.capture.files.items():
             path = config.root_directory / relative_path
@@ -149,16 +149,16 @@ class Context(ContextItem):
 
     platform: Platform
 
-    environment_variables: dict[str, str]
+    environment_variables: Dict[str, str]
 
-    git: dict[str, GitInfo]
+    git: Dict[str, GitInfo]
 
-    files: dict[Path, FileContext]
+    files: Dict[Path, FileContext]
 
     # There are many duplicates between the platform and cpu info.
     # We could remove the duplicates, but it's not worth the effort.
     # We use the default factory to avoid the overhead of getting the CPU info, which is slow.
-    cpu: Optional[dict]
+    cpu: Optional[Dict]
 
     @classmethod
     def capture(cls, config: CapsulaConfig) -> Self:

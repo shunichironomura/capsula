@@ -10,7 +10,7 @@ from collections.abc import Callable, Iterable, Sequence
 from functools import wraps
 from pathlib import Path
 from shutil import copyfile, move
-from typing import Any, Generic, Literal, Optional, TypeVar
+from typing import Any, Dict, Generic, List, Literal, Mapping, Optional, Tuple, TypeVar
 
 if sys.version_info < (3, 11):
     import tomli as tomllib
@@ -46,15 +46,15 @@ class PreRunInfoBase(BaseModel):
 
 
 class PreRunInfoCli(PreRunInfoBase):
-    args: list[str]
+    args: List[str]
 
 
 class PreRunInfoFunc(PreRunInfoBase):
     source_file: Optional[Path]
     source_line: Optional[int]
     function_name: str
-    args: tuple[Any, ...]
-    kwargs: dict[str, Any]
+    args: Tuple[Any, ...]
+    kwargs: Dict[str, Any]
 
 
 class OutputFileInfo(BaseModel):
@@ -66,7 +66,7 @@ class PostRunInfoBase(BaseModel):
     root_directory: Path
     timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC).astimezone())
     run_time: timedelta
-    files: dict[Path, Optional[OutputFileInfo]] = Field(default_factory=dict)
+    files: Dict[Path, Optional[OutputFileInfo]] = Field(default_factory=dict)
 
 
 class PostRunInfoCli(PostRunInfoBase):
@@ -123,7 +123,7 @@ class MonitoringHandlerBase(ABC, Generic[_TPreRunInfo, _TPostRunInfo]):
         *,
         items: Iterable[str],
         **kwargs: Any,
-    ) -> tuple[_TPostRunInfo, Optional[BaseException]]:
+    ) -> Tuple[_TPostRunInfo, Optional[BaseException]]:
         ...
 
     def run_and_teardown(
@@ -132,7 +132,7 @@ class MonitoringHandlerBase(ABC, Generic[_TPreRunInfo, _TPostRunInfo]):
         *,
         items: Iterable[str],
         **kwargs: Any,
-    ) -> tuple[_TPostRunInfo, Optional[BaseException]]:
+    ) -> Tuple[_TPostRunInfo, Optional[BaseException]]:
         post_run_info, exc = self.run(pre_run_info, items=items, **kwargs)
         return self.teardown(post_run_info=post_run_info, items=items), exc
 
@@ -176,7 +176,7 @@ class MonitoringHandlerCli(MonitoringHandlerBase[PreRunInfoCli, PostRunInfoCli])
         *,
         items: Iterable[str],  # noqa: ARG002
         **_: Any,  # to be compatible with the base class
-    ) -> tuple[PostRunInfoCli, None]:
+    ) -> Tuple[PostRunInfoCli, None]:
         start_time = time.perf_counter()
         result = subprocess.run(pre_run_info.args, capture_output=True, text=True)  # noqa: S603
         end_time = time.perf_counter()
@@ -199,7 +199,7 @@ class MonitoringHandlerFunc(MonitoringHandlerBase[PreRunInfoFunc, PostRunInfoFun
         self,
         func: Callable[..., Any],
         args: Sequence[Any],
-        kwargs: dict[str, Any],
+        kwargs: Mapping[str, Any],
     ) -> PreRunInfoFunc:
         try:
             _file_path_str = inspect.getsourcefile(func)
@@ -220,7 +220,7 @@ class MonitoringHandlerFunc(MonitoringHandlerBase[PreRunInfoFunc, PostRunInfoFun
             source_line=first_line_no,
             function_name=func.__name__,
             args=tuple(args),
-            kwargs=kwargs,
+            kwargs=dict(kwargs),
         )
 
     def run(  # type: ignore[override]  # `func` is added to the signature
@@ -230,7 +230,7 @@ class MonitoringHandlerFunc(MonitoringHandlerBase[PreRunInfoFunc, PostRunInfoFun
         items: Iterable[str],  # noqa: ARG002
         func: Callable[..., Any],
         **_: Any,  # to be compatible with the base class
-    ) -> tuple[PostRunInfoFunc, Optional[BaseException]]:
+    ) -> Tuple[PostRunInfoFunc, Optional[BaseException]]:
         start_time = time.perf_counter()
         try:
             ret = func(*pre_run_info.args, **pre_run_info.kwargs)

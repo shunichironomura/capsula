@@ -1,7 +1,7 @@
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
+from typing import Dict, List, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -22,7 +22,7 @@ def _to_hyphen_case(string: str) -> str:
 
 
 class GitConfig(BaseModel):
-    repositories: dict[str, Path] = Field(default_factory=dict)
+    repositories: Dict[str, Path] = Field(default_factory=dict)
 
 
 class CaptureConfig(BaseModel):
@@ -39,22 +39,22 @@ class CaptureConfig(BaseModel):
 
     include_cpu: bool = True
 
-    pre_capture_commands: list[str] = Field(default_factory=list)
+    pre_capture_commands: List[str] = Field(default_factory=list)
 
-    environment_variables: list[str] = Field(default_factory=list)
+    environment_variables: List[str] = Field(default_factory=list)
 
-    files: dict[Path, CaptureFileConfig] = Field(default_factory=dict)
+    files: Dict[Path, CaptureFileConfig] = Field(default_factory=dict)
 
     git: GitConfig = Field(default_factory=GitConfig)
 
 
 class MonitorItemConfig(BaseModel):
-    files: dict[Path, CaptureFileConfig] = Field(default_factory=dict)
+    files: Dict[Path, CaptureFileConfig] = Field(default_factory=dict)
 
 
 class MonitorConfig(BaseModel):
     capture: bool = True
-    items: dict[str, MonitorItemConfig] = Field(default_factory=dict, alias="item")
+    items: Dict[str, MonitorItemConfig] = Field(default_factory=dict, alias="item")
 
 
 class CapsulaConfig(BaseModel):
