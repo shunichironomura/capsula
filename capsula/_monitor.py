@@ -9,7 +9,7 @@ from abc import ABC, abstractmethod
 from functools import wraps
 from pathlib import Path
 from shutil import copyfile, move
-from typing import Any, Callable, Dict, Generic, Iterable, List, Literal, Mapping, Optional, Sequence, Tuple, TypeVar
+from typing import Any, Callable, Dict, Generic, Iterable, List, Mapping, Optional, Sequence, Tuple, TypeVar
 
 if sys.version_info < (3, 11):
     import tomli as tomllib
@@ -33,7 +33,7 @@ from pydantic import BaseModel, Field
 
 from capsula.capture import capture as capture_core
 from capsula.config import CapsulaConfig
-from capsula.hash import compute_hash
+from capsula.hash import HashAlgorithm, compute_hash
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +57,7 @@ class PreRunInfoFunc(PreRunInfoBase):
 
 
 class OutputFileInfo(BaseModel):
-    hash_algorithm: Optional[Literal["md5", "sha1", "sha256", "sha3-256"]]
+    hash_algorithm: Optional[HashAlgorithm]
     file_hash: Optional[str] = Field(..., alias="hash")
 
 
