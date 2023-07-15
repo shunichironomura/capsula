@@ -78,7 +78,7 @@ jobs:
         PLATFORM: ${{ matrix.os }}
 
     - name: Upload coverage
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: covdata
         path: .coverage.*
@@ -90,7 +90,7 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: Download coverage reports from all jobs
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: covdata
 
