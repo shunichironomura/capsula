@@ -1,12 +1,10 @@
-from __future__ import annotations
-
 import os
 import platform as pf
 import sys
 from abc import ABC, abstractmethod
 from pathlib import Path
 from shutil import copyfile, move
-from typing import TYPE_CHECKING, Any, Literal
+from typing import Any, Literal, Optional, Union
 
 if sys.version_info < (3, 11):
     from typing_extensions import Self
@@ -17,10 +15,8 @@ from cpuinfo import get_cpu_info
 from git.repo import Repo
 from pydantic import BaseModel, Field
 
+from capsula.config import CapsulaConfig
 from capsula.hash import compute_hash
-
-if TYPE_CHECKING:
-    from capsula.config import CapsulaConfig
 
 
 class ContextItem(BaseModel, ABC):
@@ -28,7 +24,7 @@ class ContextItem(BaseModel, ABC):
 
     @classmethod
     @abstractmethod
-    def capture(cls, config: CapsulaConfig) -> Self | dict[Any, Self]:
+    def capture(cls, config: CapsulaConfig) -> Union[Self, dict[Any, Self]]:
         """Capture the context item."""
         raise NotImplementedError
 
@@ -124,8 +120,8 @@ class GitInfo(ContextItem):
 
 
 class FileContext(ContextItem):
-    hash_algorithm: Literal["md5", "sha1", "sha256", "sha3"] | None
-    file_hash: str | None = Field(..., alias="hash")
+    hash_algorithm: Optional[Literal["md5", "sha1", "sha256", "sha3"]]
+    file_hash: Optional[str] = Field(..., alias="hash")
 
     @classmethod
     def capture(cls, config: CapsulaConfig) -> dict[Path, Self]:
@@ -162,7 +158,7 @@ class Context(ContextItem):
     # There are many duplicates between the platform and cpu info.
     # We could remove the duplicates, but it's not worth the effort.
     # We use the default factory to avoid the overhead of getting the CPU info, which is slow.
-    cpu: dict | None
+    cpu: Optional[dict]
 
     @classmethod
     def capture(cls, config: CapsulaConfig) -> Self:

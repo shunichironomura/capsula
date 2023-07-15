@@ -1,8 +1,9 @@
 import os
 from pathlib import Path
+from typing import Union
 
 
-def set_capsule_dir(path: Path | str) -> None:
+def set_capsule_dir(path: Union[Path, str]) -> None:
     """Set the capsule directory used by the CLI."""
     os.environ["CAPSULA_CAPSULE_DIR"] = str(path)
 

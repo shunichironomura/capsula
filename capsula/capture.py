@@ -1,17 +1,12 @@
-from __future__ import annotations
-
 __all__ = [
     "capture",
 ]
 
 import logging
 import subprocess
-from typing import TYPE_CHECKING
 
+from capsula.config import CapsulaConfig
 from capsula.context import Context
-
-if TYPE_CHECKING:
-    from capsula.config import CapsulaConfig
 
 logger = logging.getLogger(__name__)
 

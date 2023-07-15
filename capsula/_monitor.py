@@ -1,30 +1,29 @@
-from __future__ import annotations
-
 import inspect
 import logging
 import subprocess
 import sys
 import time
+import traceback
+import warnings
+from abc import ABC, abstractmethod
+from collections.abc import Callable, Iterable, Sequence
+from functools import wraps
+from pathlib import Path
+from shutil import copyfile, move
+from typing import Any, Generic, Literal, Optional, TypeVar
 
 if sys.version_info < (3, 11):
     import tomli as tomllib
 else:
     import tomllib
-import traceback
-import warnings
-from abc import ABC, abstractmethod
 
 if sys.version_info < (3, 11):
+    from datetime import datetime, timedelta
     from datetime import timezone as _timezone
 
     UTC = _timezone.utc
 else:
-    from datetime import UTC
-from datetime import datetime, timedelta
-from functools import wraps
-from pathlib import Path
-from shutil import copyfile, move
-from typing import TYPE_CHECKING, Any, Generic, Literal, TypeVar
+    from datetime import UTC, datetime, timedelta
 
 if sys.version_info < (3, 10):
     from typing_extensions import ParamSpec
@@ -36,10 +35,6 @@ from pydantic import BaseModel, Field
 from capsula.capture import capture as capture_core
 from capsula.config import CapsulaConfig
 from capsula.hash import compute_hash
-
-if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable, Sequence
-
 
 logger = logging.getLogger(__name__)
 
@@ -55,23 +50,23 @@ class PreRunInfoCli(PreRunInfoBase):
 
 
 class PreRunInfoFunc(PreRunInfoBase):
-    source_file: Path | None
-    source_line: int | None
+    source_file: Optional[Path]
+    source_line: Optional[int]
     function_name: str
     args: tuple[Any, ...]
     kwargs: dict[str, Any]
 
 
 class OutputFileInfo(BaseModel):
-    hash_algorithm: Literal["md5", "sha1", "sha256", "sha3"] | None
-    file_hash: str | None = Field(..., alias="hash")
+    hash_algorithm: Optional[Literal["md5", "sha1", "sha256", "sha3"]]
+    file_hash: Optional[str] = Field(..., alias="hash")
 
 
 class PostRunInfoBase(BaseModel):
     root_directory: Path
     timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC).astimezone())
     run_time: timedelta
-    files: dict[Path, OutputFileInfo | None] = Field(default_factory=dict)
+    files: dict[Path, Optional[OutputFileInfo]] = Field(default_factory=dict)
 
 
 class PostRunInfoCli(PostRunInfoBase):
@@ -86,7 +81,7 @@ class ExceptionInfo(BaseModel):
     error_details: str
 
     @classmethod
-    def from_exception(cls, exc: BaseException) -> ExceptionInfo:
+    def from_exception(cls, exc: BaseException) -> "ExceptionInfo":
         return cls(
             error_type=type(exc).__name__,
             error_message=str(exc),
@@ -95,8 +90,8 @@ class ExceptionInfo(BaseModel):
 
 
 class PostRunInfoFunc(PostRunInfoBase):
-    return_value: Any | None = None
-    exception_info: ExceptionInfo | None = None
+    return_value: Optional[Any] = None
+    exception_info: Optional[ExceptionInfo] = None
 
 
 _TPreRunInfo = TypeVar("_TPreRunInfo", bound=PreRunInfoBase)
@@ -128,7 +123,7 @@ class MonitoringHandlerBase(ABC, Generic[_TPreRunInfo, _TPostRunInfo]):
         *,
         items: Iterable[str],
         **kwargs: Any,
-    ) -> tuple[_TPostRunInfo, BaseException | None]:
+    ) -> tuple[_TPostRunInfo, Optional[BaseException]]:
         ...
 
     def run_and_teardown(
@@ -137,7 +132,7 @@ class MonitoringHandlerBase(ABC, Generic[_TPreRunInfo, _TPostRunInfo]):
         *,
         items: Iterable[str],
         **kwargs: Any,
-    ) -> tuple[_TPostRunInfo, BaseException | None]:
+    ) -> tuple[_TPostRunInfo, Optional[BaseException]]:
         post_run_info, exc = self.run(pre_run_info, items=items, **kwargs)
         return self.teardown(post_run_info=post_run_info, items=items), exc
 
@@ -210,7 +205,7 @@ class MonitoringHandlerFunc(MonitoringHandlerBase[PreRunInfoFunc, PostRunInfoFun
             _file_path_str = inspect.getsourcefile(func)
         except TypeError:
             _file_path_str = None
-        file_path: Path | None = Path(_file_path_str) if _file_path_str is not None else None
+        file_path = Path(_file_path_str) if _file_path_str is not None else None
 
         try:
             _, first_line_no = inspect.getsourcelines(func)
@@ -235,7 +230,7 @@ class MonitoringHandlerFunc(MonitoringHandlerBase[PreRunInfoFunc, PostRunInfoFun
         items: Iterable[str],  # noqa: ARG002
         func: Callable[..., Any],
         **_: Any,  # to be compatible with the base class
-    ) -> tuple[PostRunInfoFunc, BaseException | None]:
+    ) -> tuple[PostRunInfoFunc, Optional[BaseException]]:
         start_time = time.perf_counter()
         try:
             ret = func(*pre_run_info.args, **pre_run_info.kwargs)

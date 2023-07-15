@@ -1,5 +1,6 @@
 import logging
 from pathlib import Path
+from typing import Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -14,7 +15,7 @@ logger = logging.getLogger(__name__)
     include_return_value=True,
     items=("calculate-pi-dec",),
 )
-def main(n: int, seed: int | None = None) -> float:
+def main(n: int, seed: Optional[int] = None) -> float:
     """Calculate pi using the Monte Carlo method."""
     if n < 1:
         msg = "n must be greater than or equal to 1."
