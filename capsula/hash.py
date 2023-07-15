@@ -25,15 +25,13 @@ _HASH_CONSTRUCTOR: Dict[HashAlgorithm, Callable[..., "hashlib._Hash"]] = {  # no
     HashAlgorithm.SHA3_512: hashlib.sha3_512,
 }
 
+assert set(_HASH_CONSTRUCTOR.keys()) == set(HashAlgorithm)
+
 
 def compute_hash(file_path: Path, algorithm: HashAlgorithm) -> str:
     buf_size = 65536  # lets read stuff in 64kb chunks!
 
-    try:
-        hash_value = _HASH_CONSTRUCTOR[algorithm]()
-    except KeyError as e:
-        msg = "Unknown algorithm"
-        raise ValueError(msg) from e
+    hash_value = _HASH_CONSTRUCTOR[algorithm]()
 
     with file_path.open("rb") as f:
         while True:

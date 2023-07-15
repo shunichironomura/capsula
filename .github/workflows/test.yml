@@ -52,7 +52,7 @@ jobs:
       - name: Run mypy
         run: poetry run --no-interaction mypy .
 
-  pytest:
+  tox:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -67,56 +67,54 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: Set up Poetry
-      uses: abatilo/actions-poetry@v2
-      with:
-        poetry-version: ${{ env.POETRY_VERSION }}
-
-    - name: Poetry Version
-      run: |
-        poetry --version
-
     - name: Install dependencies
       run: |
-        poetry install --no-interaction
+        python -m pip install --upgrade pip
+        python -m pip install tox tox-gh-actions
 
-    - name: Test with pytest
-      run: |
-        poetry run --no-interaction pytest tests/
+    - name: Test with tox
+      run: tox
+      env:
+        PLATFORM: ${{ matrix.os }}
 
-  coverage:
-    needs: pytest
+    - name: Upload coverage
+      uses: actions/upload-artifact@v3
+      with:
+        name: covdata
+        path: .coverage.*
+
+  combine-coverage-reports:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    needs: tox
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
+    - uses: actions/checkout@v3
 
-      - name: Set up Poetry
-        uses: abatilo/actions-poetry@v2
-        with:
-          poetry-version: ${{ env.POETRY_VERSION }}
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Install dependencies
-        run: |
-          poetry install --no-interaction
+    - name: Download coverage reports from all jobs
+      uses: actions/download-artifact@v3
+      with:
+        name: covdata
 
-      - name: Test with pytest and coverage
-        run: |
-          poetry run --no-interaction coverage erase
-          poetry run --no-interaction coverage run -m pytest tests/
-          poetry run --no-interaction coverage report -m
-          poetry run --no-interaction coverage xml -o reports/coverage/coverage.xml
-          poetry run --no-interaction coverage html --directory reports/coverage/
-          poetry run --no-interaction genbadge coverage -i reports/coverage/coverage.xml -o reports/coverage/coverage-badge.svg
+    - name: Combine coverage reports
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install coverage genbadge[coverage]
+        coverage combine
+        coverage report -m
+        coverage xml -o reports/coverage/coverage.xml
+        coverage html -d reports/coverage/html
+        genbadge coverage -i reports/coverage/coverage.xml -o reports/coverage/badge.svg
 
-      - name: Commit and push
-        if: github.event_name == 'pull_request'
-        uses: EndBug/add-and-commit@v9
-        with:
-          default_author: github_actions
-          message: "Update coverage report"
-          push: "origin HEAD:${{ github.head_ref }} --force"
+    - name: Commit and push
+      if: github.event_name == 'pull_request'
+      uses: EndBug/add-and-commit@v9
+      with:
+        default_author: github_actions
+        message: "Update tox report"
+        push: "origin HEAD:${{ github.head_ref }} --force"
