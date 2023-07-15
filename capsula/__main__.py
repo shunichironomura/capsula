@@ -1,12 +1,12 @@
 import logging
 import sys
+from collections.abc import Iterable
+from pathlib import Path
 
 if sys.version_info < (3, 11):
     import tomli as tomllib
 else:
     import tomllib
-from collections.abc import Iterable
-from pathlib import Path
 
 import click
 
