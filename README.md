@@ -5,6 +5,7 @@
 ![PyPI - License](https://img.shields.io/pypi/l/capsula)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/capsula)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/capsula)
+[![Coverage Status](./reports/coverage/coverage-badge.svg?dummy=8484744)](./reports/coverage/index.html)
 
 > ⚠️ **NOTE**: This project is still work in progress. Consider pinning the version to avoid breaking changes.
 
