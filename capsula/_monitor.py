@@ -6,11 +6,10 @@ import time
 import traceback
 import warnings
 from abc import ABC, abstractmethod
-from collections.abc import Callable, Iterable, Sequence
 from functools import wraps
 from pathlib import Path
 from shutil import copyfile, move
-from typing import Any, Dict, Generic, List, Literal, Mapping, Optional, Tuple, TypeVar
+from typing import Any, Callable, Dict, Generic, Iterable, List, Literal, Mapping, Optional, Sequence, Tuple, TypeVar
 
 if sys.version_info < (3, 11):
     import tomli as tomllib
