@@ -3,11 +3,9 @@ on:
   push:
     branches:
       - main
-      - develop
   pull_request:
     branches:
       - main
-      - develop
 jobs:
   ruff:
     runs-on: ubuntu-latest
