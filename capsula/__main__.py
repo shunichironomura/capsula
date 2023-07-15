@@ -22,6 +22,10 @@ if TYPE_CHECKING:
 
 
 @click.group()
+@click.version_option(
+    prog_name="Capsula",
+    message="%(prog)s %(version)s",
+)
 @click.option(
     "--directory",
     "-C",
@@ -65,14 +69,14 @@ def main(
     ctx.obj["capsula_config"] = capsula_config
 
 
-@main.command()  # type: ignore # Ref: https://github.com/pallets/click/issues/2558#issuecomment-1634555016
+@main.command()  # type: ignore [attr-defined] # Ref: https://github.com/pallets/click/issues/2558#issuecomment-1634555016
 @click.pass_context
 def capture(ctx: click.Context) -> None:
     """Capture the context."""
     capture_core(config=ctx.obj["capsula_config"])
 
 
-@main.command()  # type: ignore # Ref: https://github.com/pallets/click/issues/2558#issuecomment-1634555016
+@main.command()  # type: ignore [attr-defined] # Ref: https://github.com/pallets/click/issues/2558#issuecomment-1634555016
 @click.option(
     "--item",
     "-i",
