@@ -162,6 +162,6 @@ cython_debug/
 
 /vault
 
-/reports/coverage/
+/reports/coverage/*
 !/reports/coverage/badge.svg
 !/reports/coverage/update_report.sh
