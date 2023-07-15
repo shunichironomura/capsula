@@ -107,8 +107,8 @@ jobs:
         python -m pip install coverage genbadge[coverage]
         coverage combine
         coverage report -m
-        coverage xml -o reports/coverage/coverage.xml --ignore-errors
-        coverage html -d reports/coverage/html --ignore-errors
+        coverage xml -o reports/coverage/coverage.xml
+        coverage html -d reports/coverage/html
         genbadge coverage -i reports/coverage/coverage.xml -o reports/coverage/badge.svg
 
     - name: Commit and push
