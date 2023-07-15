@@ -71,7 +71,7 @@ environment-variables = [
 
 [capture.git.repositories]
 # Git repositories to include in the captured context, relative to the root directory.
-"some/git/repository" = '.'
+"repository-name" = '.'
 
 [monitor]
 # Whether to capture the context before running the command using the `capture` configuration.
