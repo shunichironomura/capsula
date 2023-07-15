@@ -51,6 +51,14 @@ build-backend = "poetry.core.masonry.api"
 module = "cpuinfo"
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+module = "matplotlib"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "matplotlib.pyplot"
+ignore_missing_imports = true
+
 [tool.black]
 line-length = 120
 include = '\.pyi?$'

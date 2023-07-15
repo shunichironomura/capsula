@@ -64,14 +64,14 @@ def main(
     ctx.obj["capsula_config"] = capsula_config
 
 
-@main.command()
+@main.command()  # type: ignore # Ref: https://github.com/pallets/click/issues/2558#issuecomment-1634555016
 @click.pass_context
 def capture(ctx: click.Context) -> None:
     """Capture the context."""
     capture_core(config=ctx.obj["capsula_config"])
 
 
-@main.command()
+@main.command()  # type: ignore # Ref: https://github.com/pallets/click/issues/2558#issuecomment-1634555016
 @click.option(
     "--item",
     "-i",
