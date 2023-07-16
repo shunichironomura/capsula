@@ -16,6 +16,7 @@
     "python.languageServer": "Pylance",
     "python.linting.enabled": false,
     "cSpell.words": [
+        "autouse",
         "capsula",
         "dgst",
         "figsize",
