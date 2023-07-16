@@ -27,5 +27,6 @@
         "pytest",
         "savefig",
         "xlim"
-    ]
+    ],
+    "python.linting.mypyEnabled": true
 }
