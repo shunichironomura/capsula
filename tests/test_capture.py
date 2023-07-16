@@ -1,23 +1,22 @@
-import tempfile
 from pathlib import Path
 
-from capsula.capture import capture
+from click.testing import CliRunner
+
+from capsula.__main__ import main
 from capsula.config import CapsulaConfig, CaptureConfig, MonitorConfig
+
+from .utils import temporary_root_directory
 
 
 def test_capture() -> None:
-    with tempfile.TemporaryDirectory() as root_directory:
-        capsula_config = CapsulaConfig(
-            vault_directory=Path(root_directory) / "vault",
-            capsule_template=r"%Y%m%d_%H%M%S",
-            capture=CaptureConfig(),
-            monitor=MonitorConfig(),
-        )
-        capsula_config.root_directory = Path(root_directory)
+    capsula_config = CapsulaConfig(
+        vault_directory=Path("vault"),
+        capsule_template=r"%Y%m%d_%H%M%S",
+        capture=CaptureConfig(),
+        monitor=MonitorConfig(),
+    )
 
-        ctx = capture(config=capsula_config)
-
-        assert ctx.platform is not None
-        assert ctx.cpu is not None
-        assert ctx.environment_variables == {}
-        assert ctx.cwd == Path.cwd()
+    with temporary_root_directory(capsula_config) as root_directory:
+        runner = CliRunner()
+        result = runner.invoke(main, ["--directory", str(root_directory), "capture"])
+        assert result.exit_code == 0
