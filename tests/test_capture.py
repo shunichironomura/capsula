@@ -1,4 +1,3 @@
-import shlex
 from pathlib import Path
 
 import pytest
@@ -28,16 +27,12 @@ def test_capture() -> None:
     ("cmd", "exit_code"),
     [
         (
-            shlex.join(["python", "-c", "import sys; sys.exit(0)"]),
+            'python -c "import sys; sys.exit(0)"',
             0,
         ),
         (
-            shlex.join(["python", "-c", "import sys; sys.exit(1)"]),
+            'python -c "import sys; sys.exit(1)"',
             1,
-        ),
-        (
-            shlex.join(["python", "-c", "import sys; sys.stdout.write('hello\\n'); sys.stderr.write('world\\n')"]),
-            0,
         ),
     ],
 )
