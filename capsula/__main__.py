@@ -58,9 +58,8 @@ def main(
     log_level: str,
 ) -> None:
     ctx.ensure_object(dict)
-    logging.basicConfig(level=logging.getLevelNamesMapping()[log_level])
+    logging.basicConfig(level=log_level)
 
-    click.echo(f"Root directory: {directory}")
     capsula_config_path: Path = directory / "capsula.toml"
     with capsula_config_path.open("rb") as capsula_config_file:
         capsula_config = CapsulaConfig(**tomllib.load(capsula_config_file))
@@ -94,4 +93,7 @@ def monitor(ctx: click.Context, items: Iterable[str], args: tuple[str]) -> None:
 
     handler = MonitoringHandlerCli(config=config)
     pre_run_info = handler.setup(args)
-    handler.run_and_teardown(pre_run_info=pre_run_info, items=items)
+    post_run_info, exc = handler.run_and_teardown(pre_run_info=pre_run_info, items=items)
+
+    # propagate the exit code
+    ctx.exit(post_run_info.exit_code)
