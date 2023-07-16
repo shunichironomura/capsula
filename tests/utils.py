@@ -13,6 +13,6 @@ from capsula.config import CapsulaConfig
 def temporary_root_directory(capsula_config: CapsulaConfig) -> Iterator[Path]:
     with tempfile.TemporaryDirectory() as root_directory:
         with (Path(root_directory) / "capsula.toml").open("wb") as f:
-            json_str = capsula_config.model_dump_json()
+            json_str = capsula_config.model_dump_json(by_alias=True, exclude_unset=True, exclude_none=True)
             tomli_w.dump(json.loads(json_str), f)
         yield Path(root_directory)
