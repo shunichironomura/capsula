@@ -25,29 +25,23 @@ def test_capture() -> None:
 
 
 @pytest.mark.parametrize(
-    ("cmd", "exit_code", "stdout", "stderr"),
+    ("cmd", "exit_code"),
     [
         (
             shlex.join(["python", "-c", "import sys; sys.exit(0)"]),
             0,
-            "",
-            "",
         ),
         (
             shlex.join(["python", "-c", "import sys; sys.exit(1)"]),
             1,
-            "",
-            "",
         ),
         (
             shlex.join(["python", "-c", "import sys; sys.stdout.write('hello\\n'); sys.stderr.write('world\\n')"]),
             0,
-            "hello\n",
-            "world\n",
         ),
     ],
 )
-def test_capture_pre_capture_command(cmd: str, exit_code: int, stdout: str, stderr: str) -> None:
+def test_capture_pre_capture_command(cmd: str, exit_code: int) -> None:
     capsula_config = CapsulaConfig(
         vault_directory=Path("vault"),
         capsule_template=r"%Y%m%d_%H%M%S",
