@@ -94,4 +94,7 @@ def monitor(ctx: click.Context, items: Iterable[str], args: tuple[str]) -> None:
 
     handler = MonitoringHandlerCli(config=config)
     pre_run_info = handler.setup(args)
-    handler.run_and_teardown(pre_run_info=pre_run_info, items=items)
+    post_run_info, exc = handler.run_and_teardown(pre_run_info=pre_run_info, items=items)
+
+    # propagate the exit code
+    ctx.exit(post_run_info.exit_code)
