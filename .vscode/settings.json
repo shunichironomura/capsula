@@ -16,6 +16,7 @@
     "python.languageServer": "Pylance",
     "python.linting.enabled": false,
     "cSpell.words": [
+        "autouse",
         "capsula",
         "dgst",
         "figsize",
@@ -27,5 +28,6 @@
         "pytest",
         "savefig",
         "xlim"
-    ]
+    ],
+    "python.linting.mypyEnabled": true
 }
