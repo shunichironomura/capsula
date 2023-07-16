@@ -58,7 +58,7 @@ def main(
     log_level: str,
 ) -> None:
     ctx.ensure_object(dict)
-    logging.basicConfig(level=logging.getLevelNamesMapping()[log_level])
+    logging.basicConfig(level=log_level)
 
     click.echo(f"Root directory: {directory}")
     capsula_config_path: Path = directory / "capsula.toml"
