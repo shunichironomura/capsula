@@ -55,11 +55,7 @@ module = "cpuinfo"
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
-module = "matplotlib"
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = "matplotlib.pyplot"
+module = "matplotlib.*"
 ignore_missing_imports = true
 
 [tool.black]
