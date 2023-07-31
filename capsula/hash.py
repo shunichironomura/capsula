@@ -1,3 +1,7 @@
+__all__ = [
+    "HashAlgorithm",
+    "compute_hash",
+]
 import hashlib
 import logging
 from enum import Enum

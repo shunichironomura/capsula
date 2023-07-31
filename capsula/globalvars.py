@@ -1,3 +1,9 @@
+__all__ = [
+    "set_capsule_dir",
+    "get_capsule_dir",
+    "set_capsule_name",
+    "get_capsule_name",
+]
 import os
 from pathlib import Path
 from typing import Union
@@ -8,7 +14,6 @@ from .exceptions import CapsulaConfigurationError
 def set_capsule_dir(path: Union[Path, str]) -> None:
     """Set the capsule directory used by the CLI."""
     os.environ["CAPSULA_CAPSULE_DIR"] = str(path)
-
 
 
 def get_capsule_dir() -> Path:

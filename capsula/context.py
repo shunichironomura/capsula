@@ -1,3 +1,13 @@
+__all__ = [
+    "ContextItem",
+    "Architecture",
+    "PythonInfo",
+    "Platform",
+    "GitRemote",
+    "GitInfo",
+    "FileContext",
+    "Context",
+]
 import os
 import platform as pf
 import sys
