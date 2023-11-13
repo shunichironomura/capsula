@@ -26,7 +26,7 @@ def capture(*, config: CapsulaConfig) -> Context:
                 check=True,
                 cwd=config.root_directory,
             )
-        except subprocess.CalledProcessError:  # noqa: PERF203
+        except subprocess.CalledProcessError:
             logger.exception(f"Pre-capture command failed: {command}")
             raise
         else:
