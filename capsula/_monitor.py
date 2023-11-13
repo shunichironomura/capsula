@@ -192,7 +192,7 @@ class MonitoringHandlerCli(MonitoringHandlerBase[PreRunInfoCli, PostRunInfoCli])
         **_: Any,  # to be compatible with the base class
     ) -> Tuple[PostRunInfoCli, None]:
         start_time = time.perf_counter()
-        result = subprocess.run(pre_run_info.args, capture_output=True, text=True)  # noqa: S603
+        result = subprocess.run(pre_run_info.args, capture_output=True, text=True, check=False)  # noqa: S603
         end_time = time.perf_counter()
 
         return (
