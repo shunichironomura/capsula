@@ -71,11 +71,11 @@ class CapsulaConfig(BaseModel):
         extra="forbid",
     )
 
-    vault_directory: Path
-    capsule_template: str
+    vault_directory: Path = Field(default_factory=lambda: Path("vault"))
+    capsule_template: str = r"%Y%m%d_%H%M%S"
 
-    capture: CaptureConfig
-    monitor: MonitorConfig
+    capture: CaptureConfig = Field(default_factory=CaptureConfig)
+    monitor: MonitorConfig = Field(default_factory=MonitorConfig)
 
     _capsule_directory: Optional[Path] = None
     _root_directory: Optional[Path] = None
