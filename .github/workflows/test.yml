@@ -80,7 +80,7 @@ jobs:
         PLATFORM: ${{ matrix.os }}
 
     - name: Upload coverage
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: covdata
         path: .coverage.*
