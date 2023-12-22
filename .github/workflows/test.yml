@@ -80,9 +80,9 @@ jobs:
         PLATFORM: ${{ matrix.os }}
 
     - name: Upload coverage
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
-        name: covdata
+        name: covdata-${{ matrix.os }}-${{ matrix.python-version }}
         path: .coverage.*
 
   combine-coverage-reports:
@@ -99,9 +99,18 @@ jobs:
         python-version: ${{ env.PYTHON_VERSION }}
 
     - name: Download coverage reports from all jobs
-      uses: actions/download-artifact@v3
-      with:
-        name: covdata
+      uses: actions/download-artifact@v4
+
+    - name: Flatten directory structure
+      run: |
+        shopt -s dotglob
+        for dir in ./covdata-*; do
+          if [ -d "$dir" ]; then
+            mv "$dir"/* ./
+            rm -rf "$dir"
+          fi
+        done
+        shopt -u dotglob
 
     - name: Combine coverage reports
       run: |
