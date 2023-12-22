@@ -109,9 +109,9 @@ jobs:
         python -m pip install coverage genbadge[coverage]
         coverage combine
         coverage report -m
-        coverage xml -o reports/coverage/coverage.xml
-        coverage html -d reports/coverage/html
-        genbadge coverage -i reports/coverage/coverage.xml -o reports/coverage/badge.svg
+        coverage xml -o coverage/coverage.xml
+        coverage html -d coverage/html
+        genbadge coverage -i coverage/coverage.xml -o coverage/badge.svg
 
     - name: Commit and push
       if: github.event_name == 'pull_request'
