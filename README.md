@@ -1,11 +1,11 @@
 # Capsula
 
-![Test Statue](https://github.com/shunichironomura/capsula/workflows/Test/badge.svg?event=push&branch=main)
+![Test Status](https://github.com/shunichironomura/capsula/workflows/Test/badge.svg?event=push&branch=main)
 [![PyPI](https://img.shields.io/pypi/v/capsula)](https://pypi.org/project/capsula/)
 ![PyPI - License](https://img.shields.io/pypi/l/capsula)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/capsula)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/capsula)
-![Coverage Status](reports/coverage/badge.svg?dummy=8484744)
+![Coverage Status](coverage/badge.svg?dummy=8484744)
 
 > ⚠️ **NOTE**: This project is still work in progress. Consider pinning the version to avoid breaking changes.
 
@@ -85,7 +85,6 @@ capture = true
 [monitor.item.calculate-pi-dec.files]
 "examples/pi_dec.png" = { hash = "sha256", move = true }
 ```
-
 
 ## Usage
 
@@ -280,8 +279,8 @@ Running `capsula capture` outputs the following files in the capsule directory:
     }
 }
 ```
-</details>
 
+</details>
 
 ### Execution Monitoring
 
