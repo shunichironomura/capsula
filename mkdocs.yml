@@ -1,0 +1,14 @@
+site_name: Capsula Docs
+
+theme:
+  name: material
+  palette:
+    scheme: slate
+    primary: blue grey
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+plugins:
+  - mkdocstrings
+  - search
+  - offline
