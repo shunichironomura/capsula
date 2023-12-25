@@ -1,12 +1,11 @@
 {
     "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
     "python.terminal.activateEnvironment": true,
-    "python.formatting.provider": "black",
     "python.analysis.diagnosticMode": "workspace",
     "python.analysis.typeCheckingMode": "basic",
-    "python.formatting.blackPath": "${workspaceFolder}/.venv/bin/black",
     "[python]": {
         "editor.formatOnSave": true,
+        "editor.defaultFormatter": "charliermarsh.ruff",
         "editor.codeActionsOnSave": {
             "source.fixAll": "explicit"
         },
@@ -14,7 +13,6 @@
         "editor.insertSpaces": true
     },
     "python.languageServer": "Pylance",
-    "python.linting.enabled": false,
     "cSpell.words": [
         "autouse",
         "capsula",
@@ -29,5 +27,15 @@
         "savefig",
         "xlim"
     ],
-    "python.linting.mypyEnabled": true
+    "yaml.schemas": {
+        "https://squidfunk.github.io/mkdocs-material/schema.json": "mkdocs.yml"
+    },
+    "yaml.customTags": [
+        "!ENV scalar",
+        "!ENV sequence",
+        "!relative scalar",
+        "tag:yaml.org,2002:python/name:material.extensions.emoji.to_svg",
+        "tag:yaml.org,2002:python/name:material.extensions.emoji.twemoji",
+        "tag:yaml.org,2002:python/name:pymdownx.superfences.fence_code_format"
+    ]
 }
