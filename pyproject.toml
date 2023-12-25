@@ -43,6 +43,12 @@ optional = true
 numpy = ">=1.24.0"
 matplotlib = ">=3.7.1"
 
+
+[tool.poetry.group.docs.dependencies]
+mkdocs = ">=1.5.3"
+mkdocstrings = { extras = ["python"], version = ">=0.24.0" }
+mkdocs-material = ">=9.5.3"
+
 [tool.poetry.scripts]
 capsula = "capsula.__main__:main"
 
