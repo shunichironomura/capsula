@@ -33,9 +33,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Extract Ruff version from pyproject.toml
+        id: extract-ruff-version
+        run: |
+          echo "ruff_version=$(python -c "import tomllib;f=open('pyproject.toml', 'rb');print(tomllib.load(f)['tool']['poetry']['group']['dev']['dependencies']['ruff']);f.close()")" >> "$GITHUB_OUTPUT"
       - uses: chartboost/ruff-action@v1
         with:
-          version: 0.1.5
+          version: ${{ steps.extract-ruff-version.outputs.ruff_version }}
 
   mypy:
     runs-on: ubuntu-latest
