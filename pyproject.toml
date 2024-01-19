@@ -27,13 +27,12 @@ tomli = { version = ">=2.0.1", python = "<3.11" }
 typing-extensions = { version = ">=4.7.1", python = "<3.11" }
 
 [tool.poetry.group.dev.dependencies]
-ruff = ">=0.0.275"
-mypy = ">=1.4.0"
-pre-commit = ">=3.3.3"
-pytest = ">=7.4.0"
-coverage = ">=7.2.7"
-genbadge = { extras = ["coverage"], version = ">=1.1.0" }
-tomli-w = ">=1.0.0"
+ruff = "0.1.14"
+mypy = "1.8.0"
+pytest = "7.4.4"
+coverage = "7.4.0"
+genbadge = { extras = ["coverage"], version = "1.1.1" }
+tomli-w = "1.0.0"
 
 [tool.poetry.group.examples]
 optional = true
@@ -87,9 +86,6 @@ ignore = [
     "ERA001",  # Commented out code
 ]
 
-[tool.ruff.pep8-naming]
-# Allow Pydantic's `@model_validator` decorator to trigger class method treatment.
-classmethod-decorators = ["classmethod", "pydantic.model_validator"]
 
 [tool.ruff.flake8-type-checking]
 runtime-evaluated-base-classes = ["pydantic.BaseModel"]
