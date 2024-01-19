@@ -20,7 +20,7 @@ class HashAlgorithm(Enum):
     SHA3_512 = "sha3-512"
 
 
-_HASH_CONSTRUCTOR: Dict[HashAlgorithm, Callable[..., "hashlib._Hash"]] = {  # noqa: SLF001
+_HASH_CONSTRUCTOR: Dict[HashAlgorithm, Callable[..., "hashlib._Hash"]] = {
     HashAlgorithm.MD5: hashlib.md5,
     HashAlgorithm.SHA1: hashlib.sha1,
     HashAlgorithm.SHA256: hashlib.sha256,
