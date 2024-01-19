@@ -30,6 +30,7 @@ env:
 
 jobs:
   ruff:
+    if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -45,6 +46,7 @@ jobs:
           version: ${{ steps.extract-ruff-version.outputs.ruff_version }}
 
   mypy:
+    if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -64,6 +66,7 @@ jobs:
         run: poetry run --no-interaction mypy .
 
   tox:
+    if: github.event.pull_request.draft == false
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -95,6 +98,7 @@ jobs:
         path: .coverage.*
 
   combine-coverage-reports:
+    if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     permissions:
       contents: write
