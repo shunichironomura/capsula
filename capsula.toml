@@ -42,7 +42,7 @@ capture = true
 # You can configure the monitoring behavior for each "item" (e.g., Python function, CLI command).
 [monitor.item.calculate-pi-cli.files]
 # List of files (relative to the root directory) to include after the execution of the command.
-"examples/pi_cli.png" = { hash = "sha256", move = true }
+"examples/pi_cli.txt" = { hash = "sha256", move = true }
 
 [monitor.item.calculate-pi-dec.files]
-"examples/pi.txt" = { hash = "sha256", move = true }
+"examples/pi_dec.txt" = { hash = "sha256", move = true }
