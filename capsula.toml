@@ -19,9 +19,7 @@ pre-capture-commands = [
 ]
 
 # List of environment variables to include in the captured context.
-environment-variables = [
-    'HOME',
-]
+environment-variables = ['HOME']
 
 [capture.files]
 # List of files (relative to the root directory) to include in the captured context.
@@ -47,4 +45,4 @@ capture = true
 "examples/pi_cli.png" = { hash = "sha256", move = true }
 
 [monitor.item.calculate-pi-dec.files]
-"examples/pi_dec.png" = { hash = "sha256", move = true }
+"examples/pi.txt" = { hash = "sha256", move = true }
