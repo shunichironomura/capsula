@@ -1,12 +1,10 @@
 import logging
-import os
+import random
 import sys
 from pathlib import Path
 from typing import Optional
 
 import click
-import matplotlib.pyplot as plt
-import numpy as np
 
 logger = logging.getLogger(__name__)
 
@@ -33,31 +31,18 @@ def main(n: int, seed: Optional[int] = None) -> None:
         sys.exit(1)
     logger.info(f"Calculating pi with {n} samples.")
     logger.debug(f"Seed: {seed}")
-    rng = np.random.default_rng(seed)
-    x = rng.random(n, dtype=np.float64)
-    y = rng.random(n, dtype=np.float64)
-    pi = float(4 * np.sum(x**2 + y**2 <= 1) / n)
-    sys.stdout.write(f"{pi}\n")
+    random.seed(seed)
+    xs = (random.random() for _ in range(n))  # noqa: S311
+    ys = (random.random() for _ in range(n))  # noqa: S311
+    inside = sum(x * x + y * y <= 1.0 for x, y in zip(xs, ys))
 
-    # Plot the results
-    fig = plt.figure(figsize=(8, 8))
+    pi_estimate = (4.0 * inside) / n
+    logger.info(f"Pi estimate: {pi_estimate}")
 
-    # Plot the points
-    ax = fig.add_subplot(1, 1, 1)
-    ax.scatter(x, y, s=0.01, c="k")
-    ax.set_aspect("equal")
-    ax.set_xlim(0, 1)
-    ax.set_ylim(0, 1)
-    capsule_name = os.environ["CAPSULA_CAPSULE_NAME"]
-    ax.set_title(f"Approximation of pi: {pi:.6f} ({capsule_name})")
-
-    # Plot the circle
-    theta = np.linspace(0, 2 * np.pi, 100)
-    ax.plot(np.cos(theta), np.sin(theta), c="k")
-
-    output_path = Path(__file__).parent / "pi_cli.png"
-    fig.savefig(str(output_path), dpi=300)
+    with (Path(__file__).parent / "pi_cli.txt").open("w") as output_file:
+        output_file.write(str(pi_estimate))
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     main()
