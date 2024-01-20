@@ -34,7 +34,9 @@ class Encapsulator:
     def __init__(self) -> None:
         self.contexts: OrderedDict[_ContextKey, Context] = OrderedDict()
 
-    def add_context(self, context: Context, key: _ContextKey) -> None:
+    def add_context(self, context: Context, key: _ContextKey | None = None) -> None:
+        if key is None:
+            key = context.default_key()
         if key in self.contexts:
             raise KeyConflictError(key)
         self.contexts[key] = context
