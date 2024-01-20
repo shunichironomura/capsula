@@ -3,7 +3,7 @@ import random
 import sys
 from pathlib import Path
 
-from capsula import Encapsulator
+from capsula import Encapsulator, JsonReporter
 
 logger = logging.getLogger(__name__)
 
@@ -12,6 +12,9 @@ logging.basicConfig(level=logging.INFO)
 # Set N_SAMPLES to 0 to raise an exception.
 N_SAMPLES = 1_000_000
 SEED = 0
+
+# Create a reporter
+reporter =
 
 # Create an encapsulator
 pre_run_enc = Encapsulator()
@@ -30,7 +33,8 @@ pre_run_enc.add_context(FlieContext(Path(__file__).parents[1] / "requirements.tx
 pre_run_enc.add_context(FlieContext(Path(__file__).parents[1] / "pyproject.toml"), hash_algorithm="sha256", copy=True)
 pre_run_enc.add_context(FlieContext(Path(__file__).parents[1] / "poetry.lock"), hash_algorithm="sha256", copy=True)
 
-capsule = pre_run_enc.encapsulate()
+pre_run_capsule = pre_run_enc.encapsulate()
+
 
 # Actual calculation
 in_run_enc = Encapsulator()
@@ -49,8 +53,16 @@ with in_run_enc.watch():
     ys = (random.random() for _ in range(N_SAMPLES))  # noqa: S311
     inside = sum(x * x + y * y <= 1.0 for x, y in zip(xs, ys))
 
+    in_run_enc.record("inside", inside)
+
     pi_estimate = (4.0 * inside) / N_SAMPLES
     logger.info(f"Pi estimate: {pi_estimate}")
 
     with (Path(__file__).parent / "pi_cli.txt").open("w") as output_file:
         output_file.write(str(pi_estimate))
+
+post_run_enc = Encapsulator()
+
+post_run_enc.add_context(FileContext(Path(__file__).parent / "pi.txt", hash_algorithm="sha256", move=True))
+
+post_run_capsule = post_run_enc.encapsulate()
