@@ -23,6 +23,7 @@ on:
       - "pyproject.toml"
       - "capsula.toml"
       - "tox.ini"
+    types: [opened, synchronize, reopened, ready_for_review]
 
 env:
   PYTHON_VERSION: "3.11"
