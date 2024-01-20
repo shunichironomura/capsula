@@ -1,9 +1,10 @@
 import logging
 import random
 import sys
+from datetime import UTC, datetime
 from pathlib import Path
 
-from capsula import Encapsulator, JsonReporter
+from capsula import Encapsulator, JsonDumpReporter
 
 logger = logging.getLogger(__name__)
 
@@ -13,13 +14,19 @@ logging.basicConfig(level=logging.INFO)
 N_SAMPLES = 1_000_000
 SEED = 0
 
-# Create a reporter
-reporter =
+# Define the run name and create the capsule directory
+run_name = datetime.now(UTC).astimezone().strftime(r"%Y%m%d_%H%M%S")
+capsule_directory = Path(__file__).parents[1] / "vault" / run_name
+capsule_directory.mkdir(parents=True, exist_ok=True)
 
 # Create an encapsulator
-pre_run_enc = Encapsulator()
+pre_run_enc = ContextEncapsulator()
+
+# Create a reporter
+pre_run_reporter = JsonDumpReporter(capsule_directory / "pre_run_report.json")
 
 # The order of the contexts is important.
+pre_run_enc.record("run_name", run_name)
 pre_run_enc.add_context(("git", "capsula"), GitRepositoryContext(name="capsula", path=Path(__file__).parents[1]))
 pre_run_enc.add_context("cpu", CpuInfoContext())
 pre_run_enc.add_context("platform", PlatformContext())
@@ -34,10 +41,10 @@ pre_run_enc.add_context(FlieContext(Path(__file__).parents[1] / "pyproject.toml"
 pre_run_enc.add_context(FlieContext(Path(__file__).parents[1] / "poetry.lock"), hash_algorithm="sha256", copy=True)
 
 pre_run_capsule = pre_run_enc.encapsulate()
-
+pre_run_reporter.report(pre_run_capsule)
 
 # Actual calculation
-in_run_enc = Encapsulator()
+in_run_enc = ExecutionEncapsulator()
 
 # Catch the exception raised by the encapsulated function.
 in_run_enc.add_watcher(UncaughtExceptionWatcher(base=Exception, reraise=False))
@@ -45,7 +52,7 @@ in_run_enc.add_watcher(UncaughtExceptionWatcher(base=Exception, reraise=False))
 # Record the time it takes to run the function.
 in_run_enc.add_watcher(TimeWatcher(name="pi"))
 
-with in_run_enc.watch():
+with in_run_enc.encapsulate():
     logger.info(f"Calculating pi with {N_SAMPLES} samples.")
     logger.debug(f"Seed: {SEED}")
     random.seed(SEED)
@@ -65,4 +72,5 @@ post_run_enc = Encapsulator()
 
 post_run_enc.add_context(FileContext(Path(__file__).parent / "pi.txt", hash_algorithm="sha256", move=True))
 
+post_run_capsule = post_run_enc.encapsulate()
 post_run_capsule = post_run_enc.encapsulate()
