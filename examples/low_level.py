@@ -4,7 +4,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from capsula import Encapsulator
-from capsula.context import CwdContext
+from capsula.context import CwdContext, EnvVarContext
 from capsula.reporter import JsonDumpReporter
 
 logger = logging.getLogger(__name__)
@@ -36,9 +36,9 @@ pre_run_enc.record("run_name", run_name)
 # pre_run_enc.add_context(GitRepositoryContext(name="capsula", path=Path(__file__).parents[1]), key=("git", "capsula"))
 # pre_run_enc.add_context(CpuInfoContext(), key="cpu")
 # pre_run_enc.add_context(PlatformContext(), key="platform")
-pre_run_enc.add_context(CwdContext(), key="cwd")
-# pre_run_enc.add_context(EnvVarContext("HOME"), key=("env", "HOME"))
-# pre_run_enc.add_context(EnvVarContext("PATH"))  # Default key will be used
+pre_run_enc.add_context(CwdContext())
+pre_run_enc.add_context(EnvVarContext("HOME"), key=("env", "HOME"))
+pre_run_enc.add_context(EnvVarContext("PATH"))  # Default key will be used
 # pre_run_enc.add_context(CommandContext("poetry lock --check"))
 # # This will have a side effect
 # pre_run_enc.add_context(CommandContext("pip freeze --exclude-editable > requirements.txt"))
