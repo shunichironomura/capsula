@@ -1,12 +1,31 @@
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
-from typing import Any, Hashable, TypeVar
-
-_T = TypeVar("_T")
+from typing import Any, Hashable
 
 
-def to_nested_dict(flat_dict: Mapping[Sequence[Hashable], _T]) -> dict[Hashable, Any]:
+def to_flat_dict(
+    nested_dict: Mapping[Hashable, Any],
+    *,
+    _preceding_keys: Sequence[Hashable] = (),
+) -> dict[Sequence[Hashable], Any]:
+    """Convert a nested dictionary to a flat dictionary.
+
+    For example:
+    >>> d = {"a": 1, "b": {"c": 2, "d": 3}, "e": {"f": {"g": 4}}}
+    >>> to_flat_dict(d)
+    {("a",): 1, ("b", "c"): 2, ("b", "d"): 3, ("e", "f", "g"): 4}
+    """
+    flat_dict: dict[Sequence[Hashable], Any] = {}
+    for key, value in nested_dict.items():
+        if isinstance(value, Mapping):
+            flat_dict.update(to_flat_dict(value, _preceding_keys=(*tuple(_preceding_keys), key)))
+        else:
+            flat_dict[(*tuple(_preceding_keys), key)] = value
+    return flat_dict
+
+
+def to_nested_dict(flat_dict: Mapping[Sequence[Hashable], Any]) -> dict[Hashable, Any]:
     """Convert a flat dictionary to a nested dictionary.
 
     For example:
@@ -17,7 +36,17 @@ def to_nested_dict(flat_dict: Mapping[Sequence[Hashable], _T]) -> dict[Hashable,
     nested_dict: dict[Hashable, Any] = {}
     for key, value in flat_dict.items():
         if len(key) == 1:
+            if key[0] in nested_dict:
+                conflicting_value_as_fd = next(iter(to_flat_dict(nested_dict[key[0]])))
+                conflicting_key = (key[0], *conflicting_value_as_fd)
+                msg = f"Key conflicted: {key[0]} and {conflicting_key}"
+                raise ValueError(msg)
             nested_dict[key[0]] = value
+        elif key[0] in nested_dict:
+            if not isinstance(nested_dict[key[0]], Mapping):
+                msg = f"Key conflicted: {key[0]}"
+                raise ValueError(msg)
+            nested_dict[key[0]].update(to_nested_dict({key[1:]: value}))
         else:
             nested_dict[key[0]] = to_nested_dict({key[1:]: value})
     return nested_dict
