@@ -20,19 +20,24 @@ capsule_directory = Path(__file__).parents[1] / "vault" / run_name
 capsule_directory.mkdir(parents=True, exist_ok=True)
 
 # Create an encapsulator
-pre_run_enc = ContextEncapsulator()
+pre_run_enc = Encapsulator()
 
 # Create a reporter
 pre_run_reporter = JsonDumpReporter(capsule_directory / "pre_run_report.json")
+slack_reporter = SlackReporter(
+    webhook_url="https://hooks.slack.com/services/T01JZQZQZQZ/B01JZQZQZQZ/QQZQZQZQZQZQZQZQZQZQZQZ",
+    channel="test",
+    username="test",
+)
 
 # The order of the contexts is important.
 pre_run_enc.record("run_name", run_name)
-pre_run_enc.add_context(("git", "capsula"), GitRepositoryContext(name="capsula", path=Path(__file__).parents[1]))
-pre_run_enc.add_context("cpu", CpuInfoContext())
-pre_run_enc.add_context("platform", PlatformContext())
-pre_run_enc.add_context("cwd", CwdContext())
-pre_run_enc.add_context(("env", "HOME"), EnvVarContext("HOME"))
-pre_run_enc.add_context(EnvVarContext("PATH"))  # Default context name will be used
+pre_run_enc.add_context(GitRepositoryContext(name="capsula", path=Path(__file__).parents[1]), key=("git", "capsula"))
+pre_run_enc.add_context(CpuInfoContext(), key="cpu")
+pre_run_enc.add_context(PlatformContext(), key="platform")
+pre_run_enc.add_context(CwdContext(), key="cwd")
+pre_run_enc.add_context(EnvVarContext("HOME"), key=("env", "HOME"))
+pre_run_enc.add_context(EnvVarContext("PATH"))  # Default key will be used
 pre_run_enc.add_context(CommandContext("poetry lock --check"))
 # This will have a side effect
 pre_run_enc.add_context(CommandContext("pip freeze --exclude-editable > requirements.txt"))
@@ -42,17 +47,20 @@ pre_run_enc.add_context(FlieContext(Path(__file__).parents[1] / "poetry.lock"), 
 
 pre_run_capsule = pre_run_enc.encapsulate()
 pre_run_reporter.report(pre_run_capsule)
+slack_reporter.report(pre_run_capsule)
 
 # Actual calculation
-in_run_enc = ExecutionEncapsulator()
+in_run_enc = Encapsulator()
+in_run_reporter = JsonDumpReporter(capsule_directory / "in_run_report.json")
+
+# The order matters. The first watcher will be the innermost.
+# Record the time it takes to run the function.
+in_run_enc.add_watcher(TimeWatcher(name="pi"))
 
 # Catch the exception raised by the encapsulated function.
 in_run_enc.add_watcher(UncaughtExceptionWatcher(base=Exception, reraise=False))
 
-# Record the time it takes to run the function.
-in_run_enc.add_watcher(TimeWatcher(name="pi"))
-
-with in_run_enc.encapsulate():
+with in_run_enc:
     logger.info(f"Calculating pi with {N_SAMPLES} samples.")
     logger.debug(f"Seed: {SEED}")
     random.seed(SEED)
@@ -68,9 +76,8 @@ with in_run_enc.encapsulate():
     with (Path(__file__).parent / "pi_cli.txt").open("w") as output_file:
         output_file.write(str(pi_estimate))
 
-post_run_enc = Encapsulator()
+in_run_enc.add_context(FileContext(Path(__file__).parent / "pi.txt", hash_algorithm="sha256", move=True))
 
-post_run_enc.add_context(FileContext(Path(__file__).parent / "pi.txt", hash_algorithm="sha256", move=True))
-
-post_run_capsule = post_run_enc.encapsulate()
-post_run_capsule = post_run_enc.encapsulate()
+in_run_capsule = in_run_enc.encapsulate()
+in_run_reporter.report(in_run_capsule)
+slack_reporter.report(in_run_capsule)
