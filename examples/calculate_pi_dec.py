@@ -1,4 +1,5 @@
 import logging
+import random
 from pathlib import Path
 from typing import Optional
 
@@ -21,9 +22,20 @@ def main(n: int, seed: Optional[int] = None) -> float:
     logger.info(f"Calculating pi with {n} samples.")
     logger.debug(f"Seed: {seed}")
 
-    return 3.1415926535897932384626433832795028841971
+    random.seed(seed)
+    xs = (random.random() for _ in range(n))  # noqa: S311
+    ys = (random.random() for _ in range(n))  # noqa: S311
+    inside = sum(x * x + y * y <= 1.0 for x, y in zip(xs, ys))
+
+    pi_estimate = (4.0 * inside) / n
+
+    with (Path(__file__).parent / "pi.txt").open("w") as output_file:
+        output_file.write(str(pi_estimate))
+
+    return pi_estimate
 
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    main(1_000_000)
+    pi_estimate = main(1_000_000)
+    logger.info(f"Pi estimate: {pi_estimate}")
