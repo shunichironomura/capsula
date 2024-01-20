@@ -29,7 +29,7 @@ def main(n: int, seed: Optional[int] = None) -> float:
 
     pi_estimate = (4.0 * inside) / n
 
-    with (Path(__file__).parent / "pi.txt").open("w") as output_file:
+    with (Path(__file__).parent / "pi_dec.txt").open("w") as output_file:
         output_file.write(str(pi_estimate))
 
     return pi_estimate
