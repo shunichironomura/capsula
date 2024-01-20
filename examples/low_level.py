@@ -24,7 +24,7 @@ capsule_directory.mkdir(parents=True, exist_ok=True)
 pre_run_enc = Encapsulator()
 
 # Create a reporter
-pre_run_reporter = JsonDumpReporter(capsule_directory / "pre_run_report.json")
+pre_run_reporter = JsonDumpReporter(capsule_directory / "pre_run_report.json", indent=2)
 # slack_reporter = SlackReporter(
 #     webhook_url="https://hooks.slack.com/services/T01JZQZQZQZ/B01JZQZQZQZ/QQZQZQZQZQZQZQZQZQZQZQZ",
 #     channel="test",
@@ -52,7 +52,7 @@ pre_run_reporter.report(pre_run_capsule)
 
 # Actual calculation
 in_run_enc = Encapsulator()
-in_run_reporter = JsonDumpReporter(capsule_directory / "in_run_report.json")
+in_run_reporter = JsonDumpReporter(capsule_directory / "in_run_report.json", indent=2)
 
 # The order matters. The first watcher will be the innermost.
 # Record the time it takes to run the function.
