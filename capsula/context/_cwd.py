@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Any
 
 from ._base import Context
@@ -5,4 +6,4 @@ from ._base import Context
 
 class CwdContext(Context):
     def encapsulate(self) -> Any:
-        return super().encapsulate()
+        return str(Path.cwd())
