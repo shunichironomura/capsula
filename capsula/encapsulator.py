@@ -26,8 +26,8 @@ class ObjectContext(Context):
 
 
 class Capsule:
-    def __init__(self, value: Mapping[_ContextKey, _JsonValue]) -> None:
-        self.value = value
+    def __init__(self, data: Mapping[_ContextKey, _JsonValue]) -> None:
+        self.data = dict(data)
 
 
 class Encapsulator:
@@ -49,6 +49,9 @@ class Encapsulator:
         return self
 
     def __exit__(
-        self, exc_type: type[BaseException] | None, exc_value: BaseException | None, traceback: TracebackType | None
+        self,
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: TracebackType | None,
     ) -> None:
         pass
