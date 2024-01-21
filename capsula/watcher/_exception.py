@@ -6,6 +6,8 @@ from collections.abc import Iterator
 from contextlib import contextmanager
 from datetime import timedelta
 
+from capsula.utils import ExceptionInfo
+
 from ._base import Watcher
 
 logger = logging.getLogger(__name__)
@@ -18,12 +20,8 @@ class UncaughtExceptionWatcher(Watcher):
         self.reraise = reraise
         self.exception: BaseException | None = None
 
-    def encapsulate(self) -> dict:
-        return {
-            "exc_type": type(self.exception).__name__ if self.exception is not None else None,
-            "exc_value": self.exception,
-            "traceback": self.exception.__traceback__ if self.exception is not None else None,
-        }
+    def encapsulate(self) -> ExceptionInfo:
+        return ExceptionInfo.from_exception(self.exception)
 
     @contextmanager
     def watch(self) -> Iterator[None]:
