@@ -16,7 +16,9 @@ logger = logging.getLogger(__name__)
     capsule_directory=Path(__file__).parents[1] / "vault" / datetime.now(UTC).astimezone().strftime(r"%Y%m%d_%H%M%S"),
     pre_run_contexts=(
         lambda capdir, _: FileContext(
-            Path(__file__).parents[1] / "pyproject.toml", hash_algorithm="sha256", copy_to=capdir
+            Path(__file__).parents[1] / "pyproject.toml",
+            hash_algorithm="sha256",
+            copy_to=capdir,
         ),
         GitRepositoryContext.default(),
     ),

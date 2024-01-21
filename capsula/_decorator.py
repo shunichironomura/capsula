@@ -1,31 +1,39 @@
 from __future__ import annotations
 
-from collections.abc import Callable, Sequence
 from functools import wraps
 from pathlib import Path
-from typing import ParamSpec, TypeVar
+from typing import TYPE_CHECKING, Callable, Tuple, TypeVar, Union
 
 from capsula.encapsulator import Encapsulator
 from capsula.reporter import Reporter
 
-from ._backport import TypeAlias
+from ._backport import ParamSpec
 from .context import Context
 from .watcher import Watcher
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from ._backport import TypeAlias
 
 _P = ParamSpec("_P")
 _T = TypeVar("_T")
 
 
-_ContextInput: TypeAlias = (
-    Context | tuple[Context, tuple[str, ...]] | Callable[[Path, Callable], Context | tuple[Context, tuple[str, ...]]]
-)
-_WatcherInput: TypeAlias = (
-    Watcher | tuple[Watcher, tuple[str, ...]] | Callable[[Path, Callable], Watcher | tuple[Watcher, tuple[str, ...]]]
-)
-_ReporterInput: TypeAlias = Reporter | Callable[[Path, Callable], Reporter]
+_ContextInput: TypeAlias = Union[
+    Context,
+    Tuple[Context, Tuple[str, ...]],
+    Callable[[Path, Callable], Union[Context, Tuple[Context, Tuple[str, ...]]]],
+]
+_WatcherInput: TypeAlias = Union[
+    Watcher,
+    Tuple[Watcher, Tuple[str, ...]],
+    Callable[[Path, Callable], Union[Watcher, Tuple[Watcher, Tuple[str, ...]]]],
+]
+_ReporterInput: TypeAlias = Union[Reporter, Callable[[Path, Callable], Reporter]]
 
 
-def capsule(
+def capsule(  # noqa: C901
     capsule_directory: Path | str | None = None,
     pre_run_contexts: Sequence[_ContextInput] | None = None,
     pre_run_reporters: Sequence[_ReporterInput] | None = None,
