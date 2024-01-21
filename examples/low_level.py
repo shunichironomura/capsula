@@ -4,7 +4,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from capsula import Encapsulator
-from capsula.context import CwdContext, EnvVarContext
+from capsula.context import CwdContext, EnvVarContext, GitRepositoryContext
 from capsula.reporter import JsonDumpReporter
 from capsula.watcher import TimeWatcher
 
@@ -34,7 +34,15 @@ pre_run_reporter = JsonDumpReporter(capsule_directory / "pre_run_report.json", i
 
 # The order of the contexts is important.
 pre_run_enc.record("run_name", run_name)
-# pre_run_enc.add_context(GitRepositoryContext(name="capsula", path=Path(__file__).parents[1]), key=("git", "capsula"))
+pre_run_enc.add_context(
+    GitRepositoryContext(
+        name="capsula",
+        path=Path(__file__).parents[1],
+        diff_file=capsule_directory / "capsula.diff",
+        allow_dirty=True,
+    ),
+    key=("git", "capsula"),
+)
 # pre_run_enc.add_context(CpuInfoContext(), key="cpu")
 # pre_run_enc.add_context(PlatformContext(), key="platform")
 pre_run_enc.add_context(CwdContext())
