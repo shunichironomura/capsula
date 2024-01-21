@@ -1,0 +1,72 @@
+from __future__ import annotations
+
+from collections.abc import Callable, Sequence
+from functools import wraps
+from pathlib import Path
+from typing import ParamSpec, TypeVar
+
+from capsula.encapsulator import Encapsulator
+from capsula.reporter import Reporter
+
+from ._backport import TypeAlias
+from .context import Context
+from .watcher import Watcher
+
+_P = ParamSpec("_P")
+_T = TypeVar("_T")
+
+
+_ContextInput: TypeAlias = (
+    Context | tuple[Context, tuple[str, ...]] | Callable[[Path, Callable], Context | tuple[Context, tuple[str, ...]]]
+)
+_WatcherInput: TypeAlias = (
+    Watcher | tuple[Watcher, tuple[str, ...]] | Callable[[Path, Callable], Watcher | tuple[Watcher, tuple[str, ...]]]
+)
+_ReporterInput: TypeAlias = Reporter | Callable[[Path, Callable], Reporter]
+
+
+def capsule(
+    capsule_directory: Path | str | None = None,
+    pre_run_contexts: Sequence[_ContextInput] | None = None,
+    pre_run_reporters: Sequence[_ReporterInput] | None = None,
+    in_run_watchers: Sequence[_WatcherInput] | None = None,
+    post_run_contexts: Sequence[_ContextInput] | None = None,
+) -> Callable:
+    if capsule_directory is None:
+        raise NotImplementedError
+    capsule_directory = Path(capsule_directory)
+
+    assert pre_run_contexts is not None
+    assert pre_run_reporters is not None
+    assert in_run_watchers is not None
+    assert post_run_contexts is not None
+
+    def decorator(func: Callable[_P, _T]) -> Callable:
+        pre_run_enc = Encapsulator()
+        for cxt in pre_run_contexts:
+            if isinstance(cxt, Context):
+                pre_run_enc.add_context(cxt)
+            elif isinstance(cxt, tuple):
+                pre_run_enc.add_context(cxt[0], key=cxt[1])
+            else:
+                cxt_hydrated = cxt(capsule_directory, func)
+                if isinstance(cxt_hydrated, Context):
+                    pre_run_enc.add_context(cxt_hydrated)
+                elif isinstance(cxt_hydrated, tuple):
+                    pre_run_enc.add_context(cxt_hydrated[0], key=cxt_hydrated[1])
+
+        @wraps(func)
+        def wrapper(*args: _P.args, **kwargs: _P.kwargs) -> _T:
+            capsule_directory.mkdir(parents=True, exist_ok=True)
+            pre_run_capsule = pre_run_enc.encapsulate()
+            for reporter in pre_run_reporters:
+                if isinstance(reporter, Reporter):
+                    reporter.report(pre_run_capsule)
+                else:
+                    reporter(capsule_directory, func).report(pre_run_capsule)
+
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
