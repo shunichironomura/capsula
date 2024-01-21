@@ -7,7 +7,7 @@ from dataclasses import asdict
 from datetime import timedelta
 from pathlib import Path
 from types import TracebackType
-from typing import Any
+from typing import Any, Type
 
 from capsula.encapsulator import Capsule
 from capsula.utils import to_nested_dict
@@ -38,13 +38,28 @@ class CapsuleDataJsonEncoder(json.JSONEncoder):
 
         # namedtuple
         if hasattr(obj, "_asdict"):
-            d = obj._asdict()
-            return self.default(d)
+            try:
+                d = obj._asdict()
+            except TypeError:
+                pass
+            else:
+                return self.default(d)
 
         # dataclass
         if hasattr(obj, "__dataclass_fields__"):
-            d = asdict(obj)
-            return self.default(d)
+            try:
+                d = asdict(obj)
+            except TypeError:
+                pass
+            else:
+                return self.default(d)
+
+        if hasattr(obj, "as_json"):
+            json_obj = obj.as_json()
+            try:
+                return self.default(json_obj)
+            except TypeError as e:
+                logger.warning(f"Failed to encode {obj} as JSON: {e}")
 
         return json.JSONEncoder.default(self, obj)
 
