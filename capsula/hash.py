@@ -32,7 +32,7 @@ _HASH_CONSTRUCTOR: Dict[HashAlgorithm, Callable[..., "hashlib._Hash"]] = {
 assert set(_HASH_CONSTRUCTOR.keys()) == set(HashAlgorithm)
 
 
-def compute_hash(file_path: Path, algorithm: HashAlgorithm) -> str:
+def compute_hash(file_path: Path, algorithm: HashAlgorithm | "hashlib._Hash") -> str:
     buf_size = 65536  # lets read stuff in 64kb chunks!
 
     hash_value = _HASH_CONSTRUCTOR[algorithm]()
