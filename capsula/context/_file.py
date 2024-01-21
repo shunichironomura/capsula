@@ -5,7 +5,7 @@ from pathlib import Path
 from shutil import copyfile, move
 from typing import Iterable
 
-from capsula.hash import file_digest
+from capsula._backport import file_digest
 
 from ._base import Context
 

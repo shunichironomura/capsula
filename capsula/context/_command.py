@@ -2,7 +2,10 @@ from __future__ import annotations
 
 import logging
 import subprocess
-from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 from ._base import Context
 
@@ -16,7 +19,7 @@ class CommandContext(Context):
 
     def encapsulate(self) -> dict:
         logger.debug(f"Running command: {self.command}")
-        output = subprocess.run(self.command, shell=True, text=True, capture_output=True, cwd=self.cwd, check=False)
+        output = subprocess.run(self.command, shell=True, text=True, capture_output=True, cwd=self.cwd, check=False)  # noqa: S602
         logger.debug(f"Ran command: {self.command}. Result: {output}")
         return {
             "command": self.command,

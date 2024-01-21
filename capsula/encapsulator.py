@@ -5,8 +5,10 @@ from collections import OrderedDict
 from collections.abc import Hashable
 from contextlib import AbstractContextManager
 from itertools import chain
-from types import TracebackType
-from typing import Any, Generic, TypeAlias, TypeVar
+from typing import TYPE_CHECKING, Any, Generic, TypeAlias, TypeVar
+
+if TYPE_CHECKING:
+    from types import TracebackType
 
 from capsula.utils import ExceptionInfo
 

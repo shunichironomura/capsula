@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from collections.abc import Mapping
-from typing import Any, TypeAlias
+from typing import TYPE_CHECKING, Any, TypeAlias
 
-from capsula.utils import ExceptionInfo
+if TYPE_CHECKING:
+    from collections.abc import Mapping
+
+    from capsula.utils import ExceptionInfo
+
 
 _ContextKey: TypeAlias = str | tuple[str, ...]
 

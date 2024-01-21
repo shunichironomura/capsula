@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-import traceback
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from types import TracebackType
-from typing import Any, Hashable
+from typing import TYPE_CHECKING, Any, Hashable
+
+if TYPE_CHECKING:
+    from types import TracebackType
 
 
 @dataclass
@@ -22,13 +23,6 @@ class ExceptionInfo:
             exc_value=exception,
             traceback=exception.__traceback__,
         )
-
-    def as_json(self) -> dict[str, str | None]:
-        return {
-            "exc_type": self.exc_type.__name__ if self.exc_type is not None else None,
-            "exc_value": str(self.exc_value) if self.exc_value is not None else None,
-            "traceback": "".join(traceback.format_tb(self.traceback)) if self.traceback is not None else None,
-        }
 
 
 def to_flat_dict(

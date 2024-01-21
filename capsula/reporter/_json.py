@@ -3,12 +3,14 @@ from __future__ import annotations
 import logging
 from datetime import timedelta
 from pathlib import Path
-from typing import Any, Callable, Optional
+from typing import TYPE_CHECKING, Any, Callable, Optional
 
 import orjson
 
-from capsula.encapsulator import Capsule
 from capsula.utils import to_nested_dict
+
+if TYPE_CHECKING:
+    from capsula.encapsulator import Capsule
 
 from ._base import Reporter
 

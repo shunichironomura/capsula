@@ -2,9 +2,12 @@ from __future__ import annotations
 
 import logging
 import time
-from collections.abc import Iterator
 from contextlib import contextmanager
 from datetime import timedelta
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 from ._base import Watcher
 
