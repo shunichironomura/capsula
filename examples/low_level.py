@@ -61,7 +61,7 @@ in_run_reporter = JsonDumpReporter(capsule_directory / "in_run_report.json", ind
 # Catch the exception raised by the encapsulated function.
 # in_run_enc.add_watcher(UncaughtExceptionWatcher(base=Exception, reraise=False))
 
-with in_run_enc:
+with in_run_enc.watch():
     logger.info(f"Calculating pi with {N_SAMPLES} samples.")
     logger.debug(f"Seed: {SEED}")
     random.seed(SEED)
