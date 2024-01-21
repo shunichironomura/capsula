@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import json
 import logging
+import traceback
 from datetime import timedelta
 from pathlib import Path
+from types import TracebackType
 from typing import Any
 
 from capsula.encapsulator import Capsule
@@ -26,6 +28,10 @@ class CapsuleDataJsonEncoder(json.JSONEncoder):
             return str(obj)
         if isinstance(obj, Path):
             return str(obj)
+        if isinstance(obj, BaseException):
+            return str(obj)
+        if isinstance(obj, TracebackType):
+            return "".join(traceback.format_tb(obj))
         return json.JSONEncoder.default(self, obj)
 
 
