@@ -5,8 +5,8 @@ __all__ = [
 import logging
 import subprocess
 
+from capsula._context import Context
 from capsula.config import CapsulaConfig
-from capsula.context import Context
 
 logger = logging.getLogger(__name__)
 

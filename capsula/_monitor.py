@@ -46,9 +46,9 @@ else:
 
 from pydantic import BaseModel, Field
 
+from capsula._backport import file_digest
 from capsula.capture import capture as capture_core
 from capsula.config import CapsulaConfig
-from capsula.hash import HashAlgorithm, compute_hash
 
 logger = logging.getLogger(__name__)
 
@@ -72,7 +72,7 @@ class PreRunInfoFunc(PreRunInfoBase):
 
 
 class OutputFileInfo(BaseModel):
-    hash_algorithm: Optional[HashAlgorithm]
+    hash_algorithm: Optional[str]
     file_hash: Optional[str] = Field(..., alias="hash")
 
 
@@ -160,9 +160,14 @@ class MonitoringHandlerBase(ABC, Generic[_TPreRunInfo, _TPostRunInfo]):
                     logger.warning(f"File {relative_path} does not exist.")
                     post_run_info.files[relative_path] = None
                     continue
+                if file.hash_algorithm is None:
+                    digest = None
+                else:
+                    with path.open("rb") as f:
+                        digest = file_digest(f, file.hash_algorithm).hexdigest()
                 post_run_info.files[relative_path] = OutputFileInfo(
                     hash_algorithm=file.hash_algorithm,
-                    hash=compute_hash(path, file.hash_algorithm) if file.hash_algorithm else None,
+                    hash=digest,
                 )
                 if file.copy_:
                     copyfile(path, self.config.capsule / path.name)
