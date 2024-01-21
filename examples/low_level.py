@@ -4,7 +4,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from capsula import Encapsulator
-from capsula.context import CwdContext, EnvVarContext, FileContext, GitRepositoryContext, PlatformContext
+from capsula.context import CpuContext, CwdContext, EnvVarContext, FileContext, GitRepositoryContext, PlatformContext
 from capsula.reporter import JsonDumpReporter
 from capsula.watcher import TimeWatcher
 
@@ -44,7 +44,7 @@ pre_run_enc.add_context(
     ),
     key=("git", "capsula"),
 )
-# pre_run_enc.add_context(CpuInfoContext(), key="cpu")
+pre_run_enc.add_context(CpuContext())
 pre_run_enc.add_context(PlatformContext())
 pre_run_enc.add_context(CwdContext())
 pre_run_enc.add_context(EnvVarContext("HOME"), key=("env", "HOME"))

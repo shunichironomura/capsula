@@ -5,8 +5,10 @@ __all__ = [
     "GitRepositoryContext",
     "FileContext",
     "PlatformContext",
+    "CpuContext",
 ]
 from ._base import Context
+from ._cpu import CpuContext
 from ._cwd import CwdContext
 from ._envvar import EnvVarContext
 from ._file import FileContext
