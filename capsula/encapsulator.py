@@ -8,6 +8,8 @@ from itertools import chain
 from types import TracebackType
 from typing import Any, Generic, Literal, TypeAlias, TypeVar
 
+from capsula.utils import ExceptionInfo
+
 from .capsule import Capsule
 from .context import Context
 from .exceptions import CapsulaError
@@ -93,14 +95,15 @@ class Encapsulator:
 
     def encapsulate(self, *, abort_on_error: bool = False) -> Capsule:
         data = {}
+        fails = {}
         for key, capsule_item in chain(self.contexts.items(), self.watchers.items()):
             try:
                 data[key] = capsule_item.encapsulate()
             except Exception as e:  # noqa: PERF203,BLE001
                 if abort_on_error:
                     raise
-                data[key] = e
-        return Capsule(data)
+                fails[key] = ExceptionInfo.from_exception(e)
+        return Capsule(data, fails)
 
     def watch(self) -> WatcherGroup[_CapsuleItemKey, Watcher]:
         return WatcherGroup(self.watchers)
