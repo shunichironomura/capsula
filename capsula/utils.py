@@ -1,7 +1,26 @@
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
-from typing import Any, Hashable
+from dataclasses import dataclass
+from types import TracebackType
+from typing import Any, Hashable, TypedDict
+
+
+@dataclass
+class ExceptionInfo:
+    exc_type: type[BaseException] | None
+    exc_value: BaseException | None
+    traceback: TracebackType | None
+
+    @classmethod
+    def from_exception(cls, exception: BaseException | None) -> ExceptionInfo:
+        if exception is None:
+            return cls(exc_type=None, exc_value=None, traceback=None)
+        return cls(
+            exc_type=type(exception),
+            exc_value=exception,
+            traceback=exception.__traceback__,
+        )
 
 
 def to_flat_dict(
