@@ -25,6 +25,7 @@ py-cpuinfo = ">=9.0.0"
 gitpython = ">=3.1.31"
 tomli = { version = ">=2.0.1", python = "<3.11" }
 typing-extensions = { version = ">=4.7.1", python = "<3.11" }
+orjson = ">=3.9.12"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "0.1.14"
@@ -72,7 +73,7 @@ ignore = [
     "RET505",  # Unnecessary `else` after `return` statement
     "ANN401",  # Dynamically typed expressions (typing.Any) are disallowed
     "D401",    # First line should be in imperative mood
-    # "TD002", # Missing author in TODO
+    "TD002",   # Missing author in TODO
     "TD003",   # add link on issue into TODO
     "PLR0913", # Too many arguments to function call
     "D407",    # Missing dashed underline after section
@@ -88,8 +89,12 @@ runtime-evaluated-base-classes = ["pydantic.BaseModel"]
 keep-runtime-typing = true
 
 [tool.ruff.per-file-ignores]
-"capsula/*" = ["PT017"]
-"tests/*" = [
-    # "ANN201",
+"examples/*" = [
+    "INP001", # implicit-namespace-package
 ]
-"examples/*" = ["INP001"]
+"capsula/_backport.py" = [
+    "ANN202", # Missing return type annotation
+    "SIM108", # Use ternary operator instead of if/else
+    "TRY003", # Avoid specifying long messages outside the exception class
+    "EM102",  # Exception must not use an f-string literal, assign to variable first"
+]
