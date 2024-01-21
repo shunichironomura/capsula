@@ -6,6 +6,7 @@ from pathlib import Path
 from capsula import Encapsulator
 from capsula.context import CwdContext, EnvVarContext
 from capsula.reporter import JsonDumpReporter
+from capsula.watcher import TimeWatcher
 
 logger = logging.getLogger(__name__)
 
@@ -54,9 +55,9 @@ pre_run_reporter.report(pre_run_capsule)
 in_run_enc = Encapsulator()
 in_run_reporter = JsonDumpReporter(capsule_directory / "in_run_report.json", indent=2)
 
-# The order matters. The first watcher will be the innermost.
+# The order matters. The first watcher will be the innermost one.
 # Record the time it takes to run the function.
-# in_run_enc.add_watcher(TimeWatcher(name="pi"))
+in_run_enc.add_watcher(TimeWatcher("calculation_time"))
 
 # Catch the exception raised by the encapsulated function.
 # in_run_enc.add_watcher(UncaughtExceptionWatcher(base=Exception, reraise=False))
