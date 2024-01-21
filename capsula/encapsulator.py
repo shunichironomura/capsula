@@ -1,21 +1,23 @@
 from __future__ import annotations
 
+import queue
 from collections import OrderedDict
-from collections.abc import Iterator, Mapping
-from contextlib import contextmanager
+from collections.abc import Hashable, Iterator
+from contextlib import AbstractContextManager, contextmanager
 from types import TracebackType
-from typing import Any, Self, TypeAlias
+from typing import Any, Generic, TypeAlias, TypeVar
 
+from .capsule import Capsule
 from .context import Context
 from .exceptions import CapsulaError
+from .watcher import Watcher
 
-_ContextKey: TypeAlias = str | tuple[str, ...]
-_JsonValue: TypeAlias = str | int | float | bool | None | list["_JsonValue"] | dict[str, "_JsonValue"]
+_CapsuleItemKey: TypeAlias = str | tuple[str, ...]
 
 
 class KeyConflictError(CapsulaError):
-    def __init__(self, key: _ContextKey) -> None:
-        super().__init__(f"Context with key {key} already exists")
+    def __init__(self, key: _CapsuleItemKey) -> None:
+        super().__init__(f"Capsule item with key {key} already exists.")
 
 
 class ObjectContext(Context):
@@ -26,32 +28,65 @@ class ObjectContext(Context):
         return self.obj
 
 
-class Capsule:
-    def __init__(self, data: Mapping[_ContextKey, _JsonValue]) -> None:
-        self.data = dict(data)
+_K = TypeVar("_K", bound=Hashable)
+_V = TypeVar("_V", bound=Watcher)
+
+
+class WatcherGroup(AbstractContextManager, Generic[_K, _V]):
+    def __init__(self, watchers: OrderedDict[_K, _V]) -> None:
+        self.watchers = watchers
+        self.context_manager_stack: queue.LifoQueue[AbstractContextManager] = queue.LifoQueue()
+
+    def __enter__(self) -> dict[_K, Any]:
+        self.context_manager_stack = queue.LifoQueue()
+        cm_dict = {}
+        for key, watcher in reversed(self.watchers.items()):
+            cm = watcher.watch()
+            self.context_manager_stack.put(cm)
+            cm_dict[key] = cm
+            cm.__enter__()
+        return cm_dict
+
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: TracebackType | None,
+    ) -> None:
+        while not self.context_manager_stack.empty():
+            cm = self.context_manager_stack.get()
+            cm.__exit__(exc_type, exc_value, traceback)
 
 
 class Encapsulator:
     def __init__(self) -> None:
-        self.contexts: OrderedDict[_ContextKey, Context] = OrderedDict()
+        self.contexts: OrderedDict[_CapsuleItemKey, Context] = OrderedDict()
+        self.watchers: OrderedDict[_CapsuleItemKey, Watcher] = OrderedDict()
 
-    def add_context(self, context: Context, key: _ContextKey | None = None) -> None:
+    def add_context(self, context: Context, key: _CapsuleItemKey | None = None) -> None:
         if key is None:
             key = context.default_key()
-        if key in self.contexts:
+        if key in self.contexts or key in self.watchers:
             raise KeyConflictError(key)
         self.contexts[key] = context
 
-    def record(self, key: _ContextKey, record: Any) -> None:
+    def record(self, key: _CapsuleItemKey, record: Any) -> None:
         self.add_context(ObjectContext(record), key)
 
-    def encapsulate(self) -> Capsule:
-        return Capsule({key: context.encapsulate() for key, context in self.contexts.items()})
+    def add_watcher(self, watcher: Watcher, key: _CapsuleItemKey | None = None) -> None:
+        if key is None:
+            key = watcher.default_key()
+        if key in self.contexts or key in self.watchers:
+            raise KeyConflictError(key)
+        self.watchers[key] = watcher
 
-    @contextmanager
-    def watch(self) -> Iterator[None]:
-        # TODO: Implement
-        yield
+    def encapsulate(self) -> Capsule:
+        data = {key: context.encapsulate() for key, context in self.contexts.items()}
+        data.update({key: watcher.encapsulate() for key, watcher in self.watchers.items()})
+        return Capsule(data)
+
+    def watch(self) -> WatcherGroup[_CapsuleItemKey, Watcher]:
+        return WatcherGroup(self.watchers)
 
     # def __enter__(self) -> Self:
     #     return self
