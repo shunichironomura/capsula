@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import inspect
 import logging
 from pathlib import Path
+from typing import Callable
 
 from git.repo import Repo
 
@@ -57,3 +59,19 @@ class GitRepositoryContext(Context):
 
     def default_key(self) -> tuple[str, str]:
         return ("git", self.name)
+
+    @classmethod
+    def default(cls) -> Callable[[Path, Callable], GitRepositoryContext]:
+        def callback(capdir: Path, func: Callable) -> GitRepositoryContext:
+            func_file_path = Path(inspect.getfile(func))
+            repo = Repo(func_file_path.parent, search_parent_directories=True)
+            repo_name = Path(repo.working_dir).name
+            return cls(
+                name=Path(repo.working_dir).name,
+                path=Path(repo.working_dir),
+                diff_file=capdir / f"{repo_name}.diff",
+                search_parent_directories=False,
+                allow_dirty=True,
+            )
+
+        return callback
