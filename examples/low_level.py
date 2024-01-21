@@ -13,15 +13,15 @@ from capsula.context import (
     GitRepositoryContext,
     PlatformContext,
 )
+from capsula.exceptions import CapsulaError
 from capsula.reporter import JsonDumpReporter
-from capsula.watcher import TimeWatcher
+from capsula.watcher import TimeWatcher, UncaughtExceptionWatcher
 
 logger = logging.getLogger(__name__)
 
 logging.basicConfig(level=logging.DEBUG)
 
-# Set N_SAMPLES to 0 to raise an exception.
-N_SAMPLES = 1_000_000
+N_SAMPLES = 1_000
 SEED = 0
 
 
@@ -87,7 +87,7 @@ in_run_reporter = JsonDumpReporter(capsule_directory / "in_run_report.json", ind
 in_run_enc.add_watcher(TimeWatcher("calculation_time"))
 
 # Catch the exception raised by the encapsulated function.
-# in_run_enc.add_watcher(UncaughtExceptionWatcher(base=Exception, reraise=False))
+in_run_enc.add_watcher(UncaughtExceptionWatcher("Exception", base=Exception, reraise=False))
 
 with in_run_enc.watch():
     logger.info(f"Calculating pi with {N_SAMPLES} samples.")
@@ -102,6 +102,7 @@ with in_run_enc.watch():
     pi_estimate = (4.0 * inside) / N_SAMPLES
     logger.info(f"Pi estimate: {pi_estimate}")
     in_run_enc.record("pi_estimate", pi_estimate)
+    raise CapsulaError("This is a test error.")
 
     with (Path(__file__).parent / "pi.txt").open("w") as output_file:
         output_file.write(str(pi_estimate))
