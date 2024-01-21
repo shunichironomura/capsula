@@ -4,8 +4,9 @@ import queue
 from collections import OrderedDict
 from collections.abc import Hashable
 from contextlib import AbstractContextManager
+from itertools import chain
 from types import TracebackType
-from typing import Any, Generic, TypeAlias, TypeVar
+from typing import Any, Generic, Literal, TypeAlias, TypeVar
 
 from .capsule import Capsule
 from .context import Context
@@ -52,10 +53,20 @@ class WatcherGroup(AbstractContextManager, Generic[_K, _V]):
         exc_type: type[BaseException] | None,
         exc_value: BaseException | None,
         traceback: TracebackType | None,
-    ) -> None:
+    ) -> bool:
+        suppress_exception = False
+
         while not self.context_manager_stack.empty():
             cm = self.context_manager_stack.get()
-            cm.__exit__(exc_type, exc_value, traceback)
+            suppress = bool(cm.__exit__(exc_type, exc_value, traceback))
+            suppress_exception = suppress_exception or suppress
+
+            # If the current context manager handled the exception, we clear the exception info.
+            if suppress:
+                exc_type, exc_value, traceback = None, None, None
+
+        # Return True if any context manager in the stack handled the exception.
+        return suppress_exception
 
 
 class Encapsulator:
@@ -80,22 +91,16 @@ class Encapsulator:
             raise KeyConflictError(key)
         self.watchers[key] = watcher
 
-    def encapsulate(self) -> Capsule:
-        # TODO: Skip failed contexts and watchers.
-        data = {key: context.encapsulate() for key, context in self.contexts.items()}
-        data.update({key: watcher.encapsulate() for key, watcher in self.watchers.items()})
+    def encapsulate(self, *, abort_on_error: bool = False) -> Capsule:
+        data = {}
+        for key, capsule_item in chain(self.contexts.items(), self.watchers.items()):
+            try:
+                data[key] = capsule_item.encapsulate()
+            except Exception as e:  # noqa: PERF203,BLE001
+                if abort_on_error:
+                    raise
+                data[key] = e
         return Capsule(data)
 
     def watch(self) -> WatcherGroup[_CapsuleItemKey, Watcher]:
         return WatcherGroup(self.watchers)
-
-    # def __enter__(self) -> Self:
-    #     return self
-
-    # def __exit__(
-    #     self,
-    #     exc_type: type[BaseException] | None,
-    #     exc_value: BaseException | None,
-    #     traceback: TracebackType | None,
-    # ) -> None:
-    #     pass
