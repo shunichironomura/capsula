@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import logging
 import traceback
+from dataclasses import asdict
 from datetime import timedelta
 from pathlib import Path
 from types import TracebackType
@@ -28,10 +29,23 @@ class CapsuleDataJsonEncoder(json.JSONEncoder):
             return str(obj)
         if isinstance(obj, Path):
             return str(obj)
+        if isinstance(obj, type):
+            return obj.__name__
         if isinstance(obj, BaseException):
             return str(obj)
         if isinstance(obj, TracebackType):
             return "".join(traceback.format_tb(obj))
+
+        # namedtuple
+        if hasattr(obj, "_asdict"):
+            d = obj._asdict()
+            return self.default(d)
+
+        # dataclass
+        if hasattr(obj, "__dataclass_fields__"):
+            d = asdict(obj)
+            return self.default(d)
+
         return json.JSONEncoder.default(self, obj)
 
 
@@ -49,6 +63,8 @@ class JsonDumpReporter(Reporter):
             return s
 
         nested_data = to_nested_dict({_str_to_tuple(k): v for k, v in capsule.data.items()})
+        if capsule.fails:
+            nested_data["__fails"] = to_nested_dict({_str_to_tuple(k): v for k, v in capsule.fails.items()})
 
         json_encoder = self.kwargs.pop("cls", CapsuleDataJsonEncoder)
         with self.path.open("w") as f:
