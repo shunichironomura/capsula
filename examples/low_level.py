@@ -53,14 +53,18 @@ pre_run_enc.add_context(EnvVarContext("PATH"))  # Default key will be used
 # pre_run_enc.add_context(CommandContext("poetry lock --check"))
 # # This will have a side effect
 # pre_run_enc.add_context(CommandContext("pip freeze --exclude-editable > requirements.txt"))
+# pre_run_enc.add_context(
+#     FileContext(
+#         Path(__file__).parents[1] / "requirements.txt",
+#         hash_algorithm=hashlib.sha256,
+#         move_to=capsule_directory,
+#     ),
+# )
 pre_run_enc.add_context(
-    FileContext(Path(__file__).parents[1] / "requirements.txt", hash_algorithm=hashlib.sha256, move=True),
+    FileContext(Path(__file__).parents[1] / "pyproject.toml", hash_algorithm="sha256", copy_to=capsule_directory),
 )
 pre_run_enc.add_context(
-    FileContext(Path(__file__).parents[1] / "pyproject.toml", hash_algorithm=hashlib.sha256, copy=True),
-)
-pre_run_enc.add_context(
-    FileContext(Path(__file__).parents[1] / "poetry.lock", hash_algorithm=hashlib.sha256, copy=True),
+    FileContext(Path(__file__).parents[1] / "poetry.lock", hash_algorithm="sha256", copy_to=capsule_directory),
 )
 
 pre_run_capsule = pre_run_enc.encapsulate()
@@ -92,10 +96,12 @@ with in_run_enc.watch():
     logger.info(f"Pi estimate: {pi_estimate}")
     in_run_enc.record("pi_estimate", pi_estimate)
 
-    with (Path(__file__).parent / "pi_cli.txt").open("w") as output_file:
+    with (Path(__file__).parent / "pi.txt").open("w") as output_file:
         output_file.write(str(pi_estimate))
 
-in_run_enc.add_context(FileContext(Path(__file__).parent / "pi.txt", hash_algorithm="sha256", move=True))
+in_run_enc.add_context(
+    FileContext(Path(__file__).parent / "pi.txt", hash_algorithm="sha256", move_to=capsule_directory),
+)
 
 in_run_capsule = in_run_enc.encapsulate()
 in_run_reporter.report(in_run_capsule)
