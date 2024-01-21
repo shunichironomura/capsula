@@ -1,10 +1,11 @@
+import hashlib
 import logging
 import random
 from datetime import UTC, datetime
 from pathlib import Path
 
 from capsula import Encapsulator
-from capsula.context import CwdContext, EnvVarContext, GitRepositoryContext
+from capsula.context import CwdContext, EnvVarContext, FileContext, GitRepositoryContext
 from capsula.reporter import JsonDumpReporter
 from capsula.watcher import TimeWatcher
 
@@ -15,6 +16,7 @@ logging.basicConfig(level=logging.DEBUG)
 # Set N_SAMPLES to 0 to raise an exception.
 N_SAMPLES = 1_000_000
 SEED = 0
+
 
 # Define the run name and create the capsule directory
 run_name = datetime.now(UTC).astimezone().strftime(r"%Y%m%d_%H%M%S")
@@ -51,9 +53,15 @@ pre_run_enc.add_context(EnvVarContext("PATH"))  # Default key will be used
 # pre_run_enc.add_context(CommandContext("poetry lock --check"))
 # # This will have a side effect
 # pre_run_enc.add_context(CommandContext("pip freeze --exclude-editable > requirements.txt"))
-# pre_run_enc.add_context(FileContext(Path(__file__).parents[1] / "requirements.txt"), hash_algorithm="sha256", move=True)
-# pre_run_enc.add_context(FileContext(Path(__file__).parents[1] / "pyproject.toml"), hash_algorithm="sha256", copy=True)
-# pre_run_enc.add_context(FileContext(Path(__file__).parents[1] / "poetry.lock"), hash_algorithm="sha256", copy=True)
+pre_run_enc.add_context(
+    FileContext(Path(__file__).parents[1] / "requirements.txt", hash_algorithm=hashlib.sha256, move=True),
+)
+pre_run_enc.add_context(
+    FileContext(Path(__file__).parents[1] / "pyproject.toml", hash_algorithm=hashlib.sha256, copy=True),
+)
+pre_run_enc.add_context(
+    FileContext(Path(__file__).parents[1] / "poetry.lock", hash_algorithm=hashlib.sha256, copy=True),
+)
 
 pre_run_capsule = pre_run_enc.encapsulate()
 pre_run_reporter.report(pre_run_capsule)
@@ -87,7 +95,7 @@ with in_run_enc.watch():
     with (Path(__file__).parent / "pi_cli.txt").open("w") as output_file:
         output_file.write(str(pi_estimate))
 
-# in_run_enc.add_context(FileContext(Path(__file__).parent / "pi.txt", hash_algorithm="sha256", move=True))
+in_run_enc.add_context(FileContext(Path(__file__).parent / "pi.txt", hash_algorithm="sha256", move=True))
 
 in_run_capsule = in_run_enc.encapsulate()
 in_run_reporter.report(in_run_capsule)
