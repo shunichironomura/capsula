@@ -15,7 +15,6 @@ from capsula.context import (
     GitRepositoryContext,
     PlatformContext,
 )
-from capsula.exceptions import CapsulaError
 from capsula.reporter import JsonDumpReporter
 from capsula.watcher import TimeWatcher, UncaughtExceptionWatcher
 

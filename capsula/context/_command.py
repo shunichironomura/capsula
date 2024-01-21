@@ -16,7 +16,7 @@ class CommandContext(Context):
 
     def encapsulate(self) -> dict:
         logger.debug(f"Running command: {self.command}")
-        output = subprocess.run(self.command, shell=True, text=True, capture_output=True, cwd=self.cwd)
+        output = subprocess.run(self.command, shell=True, text=True, capture_output=True, cwd=self.cwd, check=False)
         logger.debug(f"Ran command: {self.command}. Result: {output}")
         return {
             "command": self.command,

@@ -4,7 +4,7 @@ import traceback
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from types import TracebackType
-from typing import Any, Hashable, TypedDict
+from typing import Any, Hashable
 
 
 @dataclass

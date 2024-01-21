@@ -6,7 +6,7 @@ from collections.abc import Hashable
 from contextlib import AbstractContextManager
 from itertools import chain
 from types import TracebackType
-from typing import Any, Generic, Literal, TypeAlias, TypeVar
+from typing import Any, Generic, TypeAlias, TypeVar
 
 from capsula.utils import ExceptionInfo
 

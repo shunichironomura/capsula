@@ -1,14 +1,10 @@
 from __future__ import annotations
 
-import hashlib
 import logging
 from pathlib import Path
 from shutil import copyfile, move
-from typing import Callable, Iterable, Literal, overload
+from typing import Iterable
 
-from git.repo import Repo
-
-from capsula.exceptions import CapsulaError
 from capsula.hash import file_digest
 
 from ._base import Context

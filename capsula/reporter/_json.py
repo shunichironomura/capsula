@@ -61,6 +61,5 @@ class JsonDumpReporter(Reporter):
         if capsule.fails:
             nested_data["__fails"] = to_nested_dict({_str_to_tuple(k): v for k, v in capsule.fails.items()})
 
-        # json_encoder = self.kwargs.pop("cls", CapsuleDataJsonEncoder)
         json_bytes = orjson.dumps(nested_data, default=self.default, option=self.option)
         self.path.write_bytes(json_bytes)
