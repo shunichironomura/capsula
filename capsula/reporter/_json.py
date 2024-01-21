@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import logging
+import traceback
 from datetime import timedelta
 from pathlib import Path
+from types import TracebackType
 from typing import TYPE_CHECKING, Any, Callable, Optional
 
 import orjson
@@ -18,12 +20,16 @@ logger = logging.getLogger(__name__)
 
 
 def default_preset(obj: Any) -> Any:
-    # if isinstance(obj, timedelta):
-    #     return str(obj)
     if isinstance(obj, Path):
         return str(obj)
     if isinstance(obj, timedelta):
         return str(obj)
+    if isinstance(obj, type) and issubclass(obj, BaseException):
+        return obj.__name__
+    if isinstance(obj, Exception):
+        return str(obj)
+    if isinstance(obj, TracebackType):
+        return "".join(traceback.format_tb(obj))
     raise TypeError
 
 
