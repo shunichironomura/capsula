@@ -81,6 +81,7 @@ class Encapsulator:
         self.watchers[key] = watcher
 
     def encapsulate(self) -> Capsule:
+        # TODO: Skip failed contexts and watchers.
         data = {key: context.encapsulate() for key, context in self.contexts.items()}
         data.update({key: watcher.encapsulate() for key, watcher in self.watchers.items()})
         return Capsule(data)
