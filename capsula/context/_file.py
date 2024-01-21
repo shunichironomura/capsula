@@ -8,7 +8,7 @@ from typing import Callable, Literal, overload
 from git.repo import Repo
 
 from capsula.exceptions import CapsulaError
-from capsula.hash import HashAlgorithm
+from capsula.hash import HashAlgorithm, compute_hash
 
 from ._base import Context
 
@@ -16,53 +16,22 @@ logger = logging.getLogger(__name__)
 
 
 class FileContext(Context):
-    # Overload to prevent users from setting both copy and move to True
-    @overload
     def __init__(
         self,
         path: Path | str,
         *,
-        hash_algorithm: Callable[..., hashlib._Hash],
-        copy: Literal[False] = False,
-        move: bool = False,
-    ) -> None:
-        ...
-
-    @overload
-    def __init__(
-        self,
-        path: Path | str,
-        *,
-        hash_algorithm: Callable[..., hashlib._Hash],
-        copy: bool = False,
-        move: Literal[False] = False,
-    ) -> None:
-        ...
-
-    def __init__(
-        self,
-        path: Path | str,
-        *,
-        hash_algorithm: Callable[..., hashlib._Hash],
-        copy=False,
-        move=False,
+        hash_algorithm: Callable[..., hashlib._Hash] | None,
+        copy_to: Path | str | None = None,
+        move_to: Path | str | None = None,
     ) -> None:
         self.path = Path(path)
         self.hash_algorithm = hash_algorithm
-
-        if copy and move:
-            msg = "copy and move cannot both be True"
-            raise CapsulaError(msg)
-        self.copy = copy
-        self.move = move
+        self.copy_to = None if copy_to is None else Path(copy_to)
+        self.move_to = None if move_to is None else Path(move_to)
 
     def encapsulate(self) -> dict:
         info = {
-            "working_dir": repo.working_dir,
-            "sha": repo.head.commit.hexsha,
-            "remotes": {remote.name: remote.url for remote in repo.remotes},
-            "branch": repo.active_branch.name,
-            "is_dirty": repo.is_dirty(),
+            "hash": None if self.hash_algorithm is None else compute_hash(self.path, self.hash_algorithm),
         }
 
         diff_txt = repo.git.diff()
@@ -74,4 +43,4 @@ class FileContext(Context):
         return info
 
     def default_key(self) -> tuple[str, str]:
-        return ("git", self.name)
+        return ("file", str(self.path))
