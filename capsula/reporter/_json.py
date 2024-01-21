@@ -1,13 +1,11 @@
 from __future__ import annotations
 
-import json
 import logging
-import traceback
-from dataclasses import asdict
 from datetime import timedelta
 from pathlib import Path
-from types import TracebackType
-from typing import Any, Type
+from typing import Any, Callable, Optional
+
+import orjson
 
 from capsula.encapsulator import Capsule
 from capsula.utils import to_nested_dict
@@ -17,57 +15,39 @@ from ._base import Reporter
 logger = logging.getLogger(__name__)
 
 
-class CapsuleDataJsonEncoder(json.JSONEncoder):
-    """A JSON encoder for Capsule.data.
-
-    You can inherit from this class and override the default method to add more
-    types.
-    """
-
-    def default(self, obj: Any) -> Any:
-        if isinstance(obj, timedelta):
-            return str(obj)
-        if isinstance(obj, Path):
-            return str(obj)
-        if isinstance(obj, type):
-            return obj.__name__
-        if isinstance(obj, BaseException):
-            return str(obj)
-        if isinstance(obj, TracebackType):
-            return "".join(traceback.format_tb(obj))
-
-        # namedtuple
-        if hasattr(obj, "_asdict"):
-            try:
-                d = obj._asdict()
-            except TypeError:
-                pass
-            else:
-                return self.default(d)
-
-        # dataclass
-        if hasattr(obj, "__dataclass_fields__"):
-            try:
-                d = asdict(obj)
-            except TypeError:
-                pass
-            else:
-                return self.default(d)
-
-        if hasattr(obj, "as_json"):
-            json_obj = obj.as_json()
-            try:
-                return self.default(json_obj)
-            except TypeError as e:
-                logger.warning(f"Failed to encode {obj} as JSON: {e}")
-
-        return json.JSONEncoder.default(self, obj)
+def default_preset(obj: Any) -> Any:
+    # if isinstance(obj, timedelta):
+    #     return str(obj)
+    if isinstance(obj, Path):
+        return str(obj)
+    if isinstance(obj, timedelta):
+        return str(obj)
+    raise TypeError
 
 
 class JsonDumpReporter(Reporter):
-    def __init__(self, path: Path | str, **kwargs: Any) -> None:
+    def __init__(
+        self,
+        path: Path | str,
+        *,
+        default: Optional[Callable[[Any], Any]] = None,
+        option: Optional[int] = None,
+    ) -> None:
         self.path = Path(path)
-        self.kwargs = kwargs
+
+        if default is None:
+            self.default = default_preset
+        else:
+
+            def _default(obj: Any) -> Any:
+                try:
+                    return default_preset(obj)
+                except TypeError:
+                    return default(obj)
+
+            self.default = _default
+
+        self.option = option
 
     def report(self, capsule: Capsule) -> None:
         logger.debug(f"Dumping capsule to {self.path}")
@@ -81,6 +61,6 @@ class JsonDumpReporter(Reporter):
         if capsule.fails:
             nested_data["__fails"] = to_nested_dict({_str_to_tuple(k): v for k, v in capsule.fails.items()})
 
-        json_encoder = self.kwargs.pop("cls", CapsuleDataJsonEncoder)
-        with self.path.open("w") as f:
-            json.dump(nested_data, f, cls=json_encoder, **self.kwargs)
+        # json_encoder = self.kwargs.pop("cls", CapsuleDataJsonEncoder)
+        json_bytes = orjson.dumps(nested_data, default=self.default, option=self.option)
+        self.path.write_bytes(json_bytes)

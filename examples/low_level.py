@@ -3,6 +3,8 @@ import random
 from datetime import UTC, datetime
 from pathlib import Path
 
+import orjson
+
 from capsula import Encapsulator
 from capsula.context import (
     CommandContext,
@@ -34,7 +36,7 @@ capsule_directory.mkdir(parents=True, exist_ok=True)
 pre_run_enc = Encapsulator()
 
 # Create a reporter
-pre_run_reporter = JsonDumpReporter(capsule_directory / "pre_run_report.json", indent=2)
+pre_run_reporter = JsonDumpReporter(capsule_directory / "pre_run_report.json", option=orjson.OPT_INDENT_2)
 # slack_reporter = SlackReporter(
 #     webhook_url="https://hooks.slack.com/services/T01JZQZQZQZ/B01JZQZQZQZ/QQZQZQZQZQZQZQZQZQZQZQZ",
 #     channel="test",
@@ -80,7 +82,7 @@ pre_run_reporter.report(pre_run_capsule)
 
 # Actual calculation
 in_run_enc = Encapsulator()
-in_run_reporter = JsonDumpReporter(capsule_directory / "in_run_report.json", indent=2)
+in_run_reporter = JsonDumpReporter(capsule_directory / "in_run_report.json", option=orjson.OPT_INDENT_2)
 
 # The order matters. The first watcher will be the innermost one.
 # Record the time it takes to run the function.
@@ -102,7 +104,7 @@ with in_run_enc.watch():
     pi_estimate = (4.0 * inside) / N_SAMPLES
     logger.info(f"Pi estimate: {pi_estimate}")
     in_run_enc.record("pi_estimate", pi_estimate)
-    raise CapsulaError("This is a test error.")
+    # raise CapsulaError("This is a test error.")
 
     with (Path(__file__).parent / "pi.txt").open("w") as output_file:
         output_file.write(str(pi_estimate))
