@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import queue
 from collections import OrderedDict
-from collections.abc import Hashable, Iterator
-from contextlib import AbstractContextManager, contextmanager
+from collections.abc import Hashable
+from contextlib import AbstractContextManager
 from types import TracebackType
 from typing import Any, Generic, TypeAlias, TypeVar
 
