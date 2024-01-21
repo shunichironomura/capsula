@@ -8,7 +8,7 @@ from typing import Callable, Literal, overload
 from git.repo import Repo
 
 from capsula.exceptions import CapsulaError
-from capsula.hash import HashAlgorithm, compute_hash
+from capsula.hash import file_digest
 
 from ._base import Context
 
@@ -20,7 +20,7 @@ class FileContext(Context):
         self,
         path: Path | str,
         *,
-        hash_algorithm: Callable[..., hashlib._Hash] | None,
+        hash_algorithm: str | Callable[[], hashlib._Hash] | None,
         copy_to: Path | str | None = None,
         move_to: Path | str | None = None,
     ) -> None:
@@ -30,16 +30,18 @@ class FileContext(Context):
         self.move_to = None if move_to is None else Path(move_to)
 
     def encapsulate(self) -> dict:
-        info = {
-            "hash": None if self.hash_algorithm is None else compute_hash(self.path, self.hash_algorithm),
-        }
+        if self.hash_algorithm is None:
+            digest = None
+        else:
+            with self.path.open("rb") as f:
+                digest = file_digest(f, self.hash_algorithm).hexdigest()
 
-        diff_txt = repo.git.diff()
-        if diff_txt:
-            assert self.diff_file is not None, "diff_file is None"
-            with self.diff_file.open("w") as f:
-                f.write(diff_txt)
-            logger.debug(f"Wrote diff to {self.diff_file}")
+        info = {
+            "hash": {
+                "algorithm": self.hash_algorithm,
+                "digest": digest,
+            },
+        }
         return info
 
     def default_key(self) -> tuple[str, str]:
