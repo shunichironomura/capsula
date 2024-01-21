@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from collections import OrderedDict
-from collections.abc import Mapping
+from collections.abc import Iterator, Mapping
+from contextlib import contextmanager
 from types import TracebackType
 from typing import Any, Self, TypeAlias
 
@@ -47,13 +48,18 @@ class Encapsulator:
     def encapsulate(self) -> Capsule:
         return Capsule({key: context.encapsulate() for key, context in self.contexts.items()})
 
-    def __enter__(self) -> Self:
-        return self
+    @contextmanager
+    def watch(self) -> Iterator[None]:
+        # TODO: Implement
+        yield
 
-    def __exit__(
-        self,
-        exc_type: type[BaseException] | None,
-        exc_value: BaseException | None,
-        traceback: TracebackType | None,
-    ) -> None:
-        pass
+    # def __enter__(self) -> Self:
+    #     return self
+
+    # def __exit__(
+    #     self,
+    #     exc_type: type[BaseException] | None,
+    #     exc_value: BaseException | None,
+    #     traceback: TracebackType | None,
+    # ) -> None:
+    #     pass
