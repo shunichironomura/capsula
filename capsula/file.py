@@ -3,11 +3,9 @@ from typing import Optional
 
 from pydantic import BaseModel, Field, model_validator
 
-from capsula.hash import HashAlgorithm
-
 
 class CaptureFileConfig(BaseModel):
-    hash_algorithm: Optional[HashAlgorithm] = Field(
+    hash_algorithm: Optional[str] = Field(
         default=None,
         alias="hash",
     )

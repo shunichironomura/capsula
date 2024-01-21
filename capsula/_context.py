@@ -10,23 +10,19 @@ __all__ = [
 ]
 import os
 import platform as pf
-import sys
 from abc import ABC, abstractmethod
 from pathlib import Path
 from shutil import copyfile, move
 from typing import Any, Dict, List, Optional, Union
 
-if sys.version_info < (3, 11):
-    from typing_extensions import Self
-else:
-    from typing import Self
-
 from cpuinfo import get_cpu_info
 from git.repo import Repo
 from pydantic import BaseModel, Field
 
+from capsula._backport import file_digest
 from capsula.config import CapsulaConfig
-from capsula.hash import HashAlgorithm, compute_hash
+
+from ._backport import Self
 
 
 class ContextItem(BaseModel, ABC):
@@ -130,7 +126,7 @@ class GitInfo(ContextItem):
 
 
 class FileContext(ContextItem):
-    hash_algorithm: Optional[HashAlgorithm]
+    hash_algorithm: Optional[str]
     file_hash: Optional[str] = Field(..., alias="hash")
 
     @classmethod
@@ -138,8 +134,13 @@ class FileContext(ContextItem):
         files = {}
         for relative_path, file_config in config.capture.files.items():
             path = config.root_directory / relative_path
+            if file_config.hash_algorithm is None:
+                digest = None
+            else:
+                with path.open("rb") as f:
+                    digest = file_digest(f, file_config.hash_algorithm).hexdigest()
             files[relative_path] = cls(
-                hash=compute_hash(path, file_config.hash_algorithm) if file_config.hash_algorithm else None,
+                hash=digest,
                 hash_algorithm=file_config.hash_algorithm,
             )
             if file_config.copy_:
