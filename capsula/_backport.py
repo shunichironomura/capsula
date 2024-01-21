@@ -1,8 +1,25 @@
 from __future__ import annotations
 
+__all__ = [
+    "TypeAlias",
+    "file_digest",
+    "Self",
+]
+
 import hashlib
 import sys
 from typing import TYPE_CHECKING, Callable
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
+
+if sys.version_info >= (3, 10):
+    from typing import TypeAlias
+else:
+    from typing_extensions import TypeAlias
+
 
 if sys.version_info >= (3, 11):
     file_digest = hashlib.file_digest

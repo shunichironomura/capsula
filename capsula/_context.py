@@ -10,16 +10,10 @@ __all__ = [
 ]
 import os
 import platform as pf
-import sys
 from abc import ABC, abstractmethod
 from pathlib import Path
 from shutil import copyfile, move
 from typing import Any, Dict, List, Optional, Union
-
-if sys.version_info < (3, 11):
-    from typing_extensions import Self
-else:
-    from typing import Self
 
 from cpuinfo import get_cpu_info
 from git.repo import Repo
@@ -27,6 +21,8 @@ from pydantic import BaseModel, Field
 
 from capsula._backport import file_digest
 from capsula.config import CapsulaConfig
+
+from ._backport import Self
 
 
 class ContextItem(BaseModel, ABC):

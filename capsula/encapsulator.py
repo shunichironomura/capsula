@@ -5,7 +5,10 @@ from collections import OrderedDict
 from collections.abc import Hashable
 from contextlib import AbstractContextManager
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Generic, TypeAlias, TypeVar
+from typing import TYPE_CHECKING, Any, Generic, Tuple, TypeVar, Union
+
+if TYPE_CHECKING:
+    from ._backport import TypeAlias
 
 if TYPE_CHECKING:
     from types import TracebackType
@@ -17,7 +20,7 @@ from .context import Context
 from .exceptions import CapsulaError
 from .watcher import Watcher
 
-_CapsuleItemKey: TypeAlias = str | tuple[str, ...]
+_CapsuleItemKey: TypeAlias = Union[str, Tuple[str, ...]]
 
 
 class KeyConflictError(CapsulaError):
