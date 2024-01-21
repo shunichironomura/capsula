@@ -4,12 +4,19 @@ from abc import ABC, abstractmethod
 from collections.abc import Mapping
 from typing import Any, TypeAlias
 
+from capsula.utils import ExceptionInfo
+
 _ContextKey: TypeAlias = str | tuple[str, ...]
 
 
 class Capsule:
-    def __init__(self, data: Mapping[_ContextKey, Any]) -> None:
+    def __init__(
+        self,
+        data: Mapping[_ContextKey, Any],
+        fails: Mapping[_ContextKey, ExceptionInfo],
+    ) -> None:
         self.data = dict(data)
+        self.fails = dict(fails)
 
 
 class CapsuleItem(ABC):
