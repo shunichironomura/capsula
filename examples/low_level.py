@@ -4,7 +4,15 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from capsula import Encapsulator
-from capsula.context import CpuContext, CwdContext, EnvVarContext, FileContext, GitRepositoryContext, PlatformContext
+from capsula.context import (
+    CommandContext,
+    CpuContext,
+    CwdContext,
+    EnvVarContext,
+    FileContext,
+    GitRepositoryContext,
+    PlatformContext,
+)
 from capsula.reporter import JsonDumpReporter
 from capsula.watcher import TimeWatcher
 
@@ -49,16 +57,16 @@ pre_run_enc.add_context(PlatformContext())
 pre_run_enc.add_context(CwdContext())
 pre_run_enc.add_context(EnvVarContext("HOME"), key=("env", "HOME"))
 pre_run_enc.add_context(EnvVarContext("PATH"))  # Default key will be used
-# pre_run_enc.add_context(CommandContext("poetry lock --check"))
-# # This will have a side effect
-# pre_run_enc.add_context(CommandContext("pip freeze --exclude-editable > requirements.txt"))
-# pre_run_enc.add_context(
-#     FileContext(
-#         Path(__file__).parents[1] / "requirements.txt",
-#         hash_algorithm=hashlib.sha256,
-#         move_to=capsule_directory,
-#     ),
-# )
+pre_run_enc.add_context(CommandContext("poetry check --lock"))
+# This will have a side effect
+pre_run_enc.add_context(CommandContext("pip freeze --exclude-editable > requirements.txt"))
+pre_run_enc.add_context(
+    FileContext(
+        Path(__file__).parents[1] / "requirements.txt",
+        hash_algorithm="sha256",
+        move_to=capsule_directory,
+    ),
+)
 pre_run_enc.add_context(
     FileContext(Path(__file__).parents[1] / "pyproject.toml", hash_algorithm="sha256", copy_to=capsule_directory),
 )

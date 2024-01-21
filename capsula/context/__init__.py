@@ -6,8 +6,10 @@ __all__ = [
     "FileContext",
     "PlatformContext",
     "CpuContext",
+    "CommandContext",
 ]
 from ._base import Context
+from ._command import CommandContext
 from ._cpu import CpuContext
 from ._cwd import CwdContext
 from ._envvar import EnvVarContext
