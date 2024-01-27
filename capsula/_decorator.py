@@ -39,7 +39,7 @@ def capsule(  # noqa: C901
     pre_run_reporters: Sequence[_ReporterInput] | None = None,
     in_run_watchers: Sequence[_WatcherInput] | None = None,
     post_run_contexts: Sequence[_ContextInput] | None = None,
-) -> Callable:
+) -> Callable[[Callable[_P, _T]], Callable[_P, _T]]:
     if capsule_directory is None:
         raise NotImplementedError
     capsule_directory = Path(capsule_directory)
@@ -49,7 +49,7 @@ def capsule(  # noqa: C901
     assert in_run_watchers is not None
     assert post_run_contexts is not None
 
-    def decorator(func: Callable[_P, _T]) -> Callable:
+    def decorator(func: Callable[_P, _T]) -> Callable[_P, _T]:
         pre_run_enc = Encapsulator()
         for cxt in pre_run_contexts:
             if isinstance(cxt, Context):
