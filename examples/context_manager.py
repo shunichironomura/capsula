@@ -46,10 +46,10 @@ def main(n_samples: int, seed: int) -> None:
     capsule_directory.mkdir(parents=True, exist_ok=True)
 
     # Actual calculation
-    in_run_enc = Encapsulator()
+    # in_run_enc = Encapsulator()
     in_run_reporter = JsonDumpReporter(capsule_directory / "in_run_report.json", option=orjson.OPT_INDENT_2)
 
-    with Encapsulator():
+    with Encapsulator() as enc:
         logger.info(f"Calculating pi with {n_samples} samples.")
         logger.debug(f"Seed: {seed}")
 
@@ -58,7 +58,7 @@ def main(n_samples: int, seed: int) -> None:
         with (Path(__file__).parent / "pi.txt").open("w") as output_file:
             output_file.write(str(pi_estimate))
 
-    in_run_capsule = in_run_enc.encapsulate()
+    in_run_capsule = enc.encapsulate()
     in_run_reporter.report(in_run_capsule)
 
 
