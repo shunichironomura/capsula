@@ -40,8 +40,11 @@ class JsonDumpReporter(Reporter):
         *,
         default: Optional[Callable[[Any], Any]] = None,
         option: Optional[int] = None,
+        mkdir: bool = True,
     ) -> None:
         self.path = Path(path)
+        if mkdir:
+            self.path.parent.mkdir(parents=True, exist_ok=True)
 
         if default is None:
             self.default = default_preset
