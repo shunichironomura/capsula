@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import queue
+import threading
 from collections import OrderedDict
 from collections.abc import Hashable
 from contextlib import AbstractContextManager
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Generic, Tuple, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Generic, Self, Tuple, TypeVar, Union
 
 if TYPE_CHECKING:
     from ._backport import TypeAlias
@@ -77,9 +78,36 @@ class WatcherGroup(AbstractContextManager, Generic[_K, _V]):
 
 
 class Encapsulator:
+    _thread_local = threading.local()
+
+    @classmethod
+    def _get_encapsulator_context_stack(cls) -> queue.LifoQueue[Self]:
+        if not hasattr(cls._thread_local, "encapsulator_context_stack"):
+            cls._thread_local.encapsulator_context_stack = queue.LifoQueue()
+        return cls._thread_local.encapsulator_context_stack
+
+    @classmethod
+    def get_current(cls) -> Self | None:
+        try:
+            return cls._get_encapsulator_context_stack().queue[-1]
+        except IndexError:
+            return None
+
     def __init__(self) -> None:
         self.contexts: OrderedDict[_CapsuleItemKey, Context] = OrderedDict()
         self.watchers: OrderedDict[_CapsuleItemKey, Watcher] = OrderedDict()
+
+    def __enter__(self) -> Self:
+        self._get_encapsulator_context_stack().put(self)
+        return self
+
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: TracebackType | None,
+    ) -> None:
+        self._get_encapsulator_context_stack().get()
 
     def add_context(self, context: Context, key: _CapsuleItemKey | None = None) -> None:
         if key is None:
