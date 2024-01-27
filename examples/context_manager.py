@@ -7,17 +7,7 @@ import orjson
 
 import capsula
 from capsula import Encapsulator
-from capsula.context import (
-    CommandContext,
-    CpuContext,
-    CwdContext,
-    EnvVarContext,
-    FileContext,
-    GitRepositoryContext,
-    PlatformContext,
-)
 from capsula.reporter import JsonDumpReporter
-from capsula.watcher import TimeWatcher, UncaughtExceptionWatcher
 
 logger = logging.getLogger(__name__)
 
@@ -43,11 +33,6 @@ def main(n_samples: int, seed: int) -> None:
     # Define the run name and create the capsule directory
     run_name = datetime.now(UTC).astimezone().strftime(r"%Y%m%d_%H%M%S")
     capsule_directory = Path(__file__).parents[1] / "vault" / run_name
-    capsule_directory.mkdir(parents=True, exist_ok=True)
-
-    # Actual calculation
-    # in_run_enc = Encapsulator()
-    in_run_reporter = JsonDumpReporter(capsule_directory / "in_run_report.json", option=orjson.OPT_INDENT_2)
 
     with Encapsulator() as enc:
         logger.info(f"Calculating pi with {n_samples} samples.")
@@ -59,6 +44,8 @@ def main(n_samples: int, seed: int) -> None:
             output_file.write(str(pi_estimate))
 
     in_run_capsule = enc.encapsulate()
+
+    in_run_reporter = JsonDumpReporter(capsule_directory / "in_run_report.json", option=orjson.OPT_INDENT_2)
     in_run_reporter.report(in_run_capsule)
 
 
