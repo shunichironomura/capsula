@@ -1,7 +1,11 @@
 from typing import Any
 
-from .encapsulator import _CapsuleItemKey
+from .encapsulator import Encapsulator, _CapsuleItemKey
 
 
 def record(key: _CapsuleItemKey, value: Any) -> None:
-    pass
+    enc = Encapsulator.get_current()
+    if enc is None:
+        msg = "No active encapsulator found."
+        raise RuntimeError(msg)
+    enc.record(key, value)
