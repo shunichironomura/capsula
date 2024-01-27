@@ -9,9 +9,11 @@ __all__ = [
     "set_capsule_name",
     "Encapsulator",
     "capsule",
+    "record",
 ]
 from ._decorator import capsule
 from ._monitor import monitor
+from ._record import record
 from ._version import __version__
 from .encapsulator import Encapsulator
 from .exceptions import CapsulaConfigurationError, CapsulaError
