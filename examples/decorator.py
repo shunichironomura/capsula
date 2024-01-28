@@ -6,10 +6,6 @@ from pathlib import Path
 import orjson
 
 import capsula
-from capsula._context import FileContext, GitRepositoryContext
-from capsula._reporter import JsonDumpReporter
-from capsula._watcher import TimeWatcher
-from capsula.encapsulator import Encapsulator
 
 logger = logging.getLogger(__name__)
 
@@ -20,19 +16,19 @@ logger = logging.getLogger(__name__)
     / datetime.now(UTC).astimezone().strftime(r"%Y%m%d_%H%M%S"),
 )
 @capsula.context(
-    lambda capdir, _: FileContext(
+    lambda capdir, _: capsula.FileContext(
         Path(__file__).parents[1] / "pyproject.toml",
         hash_algorithm="sha256",
         copy_to=capdir,
     ),
     mode="pre",
 )
-@capsula.context(GitRepositoryContext.default(), mode="pre")
+@capsula.context(capsula.GitRepositoryContext.default(), mode="pre")
 @capsula.reporter(
-    lambda capdir, _, phase: JsonDumpReporter(capdir / f"{phase}-run-report.json", option=orjson.OPT_INDENT_2),
+    lambda capdir, _, phase: capsula.JsonDumpReporter(capdir / f"{phase}-run-report.json", option=orjson.OPT_INDENT_2),
     mode="all",
 )
-@capsula.watcher(TimeWatcher("calculation_time"))
+@capsula.watcher(capsula.TimeWatcher("calculation_time"))
 def calculate_pi(*, n_samples: int = 1_000, seed: int = 42) -> None:
     logger.info(f"Calculating pi with {n_samples} samples.")
     logger.debug(f"Seed: {seed}")

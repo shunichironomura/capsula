@@ -6,8 +6,6 @@ from pathlib import Path
 import orjson
 
 import capsula
-from capsula import Encapsulator
-from capsula._reporter import JsonDumpReporter
 
 logger = logging.getLogger(__name__)
 
@@ -43,9 +41,9 @@ def main(n_samples: int, seed: int) -> None:
         with (Path(__file__).parent / "pi.txt").open("w") as output_file:
             output_file.write(str(pi_estimate))
 
-    in_run_capsule = enc.encapsulate()
+    in_run_capsule = run.encapsulate()
 
-    in_run_reporter = JsonDumpReporter(capsule_directory / "in_run_report.json", option=orjson.OPT_INDENT_2)
+    in_run_reporter = capsula.JsonDumpReporter(capsule_directory / "in_run_report.json", option=orjson.OPT_INDENT_2)
     in_run_reporter.report(in_run_capsule)
 
 
