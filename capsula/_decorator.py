@@ -8,7 +8,7 @@ from capsula.encapsulator import Encapsulator
 from capsula.reporter import Reporter
 
 from ._backport import ParamSpec
-from .context import Context
+from ._context import Context
 from .watcher import Watcher
 
 if TYPE_CHECKING:

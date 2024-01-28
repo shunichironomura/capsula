@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 from capsula.utils import ExceptionInfo
 
 from ._capsule import Capsule
-from .context import Context
+from ._context import Context
 from .exceptions import CapsulaError
 from .watcher import Watcher
 

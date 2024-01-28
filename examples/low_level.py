@@ -6,7 +6,7 @@ from pathlib import Path
 import orjson
 
 from capsula import Encapsulator
-from capsula.context import (
+from capsula._context import (
     CommandContext,
     CpuContext,
     CwdContext,

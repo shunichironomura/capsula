@@ -6,7 +6,7 @@ from pathlib import Path
 import orjson
 
 import capsula
-from capsula.context import FileContext, GitRepositoryContext
+from capsula._context import FileContext, GitRepositoryContext
 from capsula.encapsulator import Encapsulator
 from capsula.reporter import JsonDumpReporter
 from capsula.watcher import TimeWatcher
