@@ -1,9 +1,9 @@
 from cpuinfo import get_cpu_info
 
-from ._base import Context
+from ._base import ContextBase
 
 
-class CpuContext(Context):
+class CpuContext(ContextBase):
     def encapsulate(self) -> dict:
         return get_cpu_info()
 

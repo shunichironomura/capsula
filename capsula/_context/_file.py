@@ -7,12 +7,12 @@ from typing import Iterable
 
 from capsula._backport import file_digest
 
-from ._base import Context
+from ._base import ContextBase
 
 logger = logging.getLogger(__name__)
 
 
-class FileContext(Context):
+class FileContext(ContextBase):
     def __init__(
         self,
         path: Path | str,
@@ -32,13 +32,11 @@ class FileContext(Context):
         else:
             self.copy_to = tuple(Path(p) for p in copy_to)
 
-        def normalize_copy_dst_path(p: Path) -> Path:
-            if p.is_dir():
-                return p / self.path.name
-            else:
-                return p
-
-        self.copy_to = tuple(normalize_copy_dst_path(p) for p in self.copy_to)
+    def _normalize_copy_dst_path(self, p: Path) -> Path:
+        if p.is_dir():
+            return p / self.path.name
+        else:
+            return p
 
     def encapsulate(self) -> dict:
         if self.hash_algorithm is None:
@@ -46,6 +44,8 @@ class FileContext(Context):
         else:
             with self.path.open("rb") as f:
                 digest = file_digest(f, self.hash_algorithm).hexdigest()
+
+        self.copy_to = tuple(self._normalize_copy_dst_path(p) for p in self.copy_to)
 
         info: dict = {
             "hash": {

@@ -1,9 +1,9 @@
 import platform as pf
 
-from ._base import Context
+from ._base import ContextBase
 
 
-class PlatformContext(Context):
+class PlatformContext(ContextBase):
     def encapsulate(self) -> dict:
         return {
             "machine": pf.machine(),

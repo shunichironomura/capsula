@@ -1,13 +1,18 @@
 from __future__ import annotations
 
+import inspect
 import logging
 from pathlib import Path
+from typing import TYPE_CHECKING, Callable
 
 from git.repo import Repo
 
 from capsula.exceptions import CapsulaError
 
-from ._base import Context
+from ._base import ContextBase
+
+if TYPE_CHECKING:
+    from capsula._decorator import CapsuleParams
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +23,7 @@ class GitRepositoryDirtyError(CapsulaError):
         super().__init__(f"Repository {repo.working_dir} is dirty")
 
 
-class GitRepositoryContext(Context):
+class GitRepositoryContext(ContextBase):
     def __init__(
         self,
         name: str,
@@ -57,3 +62,19 @@ class GitRepositoryContext(Context):
 
     def default_key(self) -> tuple[str, str]:
         return ("git", self.name)
+
+    @classmethod
+    def default(cls) -> Callable[[CapsuleParams], GitRepositoryContext]:
+        def callback(params: CapsuleParams) -> GitRepositoryContext:
+            func_file_path = Path(inspect.getfile(params.func))
+            repo = Repo(func_file_path.parent, search_parent_directories=True)
+            repo_name = Path(repo.working_dir).name
+            return cls(
+                name=Path(repo.working_dir).name,
+                path=Path(repo.working_dir),
+                diff_file=params.run_dir / f"{repo_name}.diff",
+                search_parent_directories=False,
+                allow_dirty=True,
+            )
+
+        return callback

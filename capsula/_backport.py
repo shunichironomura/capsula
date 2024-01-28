@@ -1,10 +1,6 @@
 from __future__ import annotations
 
-__all__ = [
-    "TypeAlias",
-    "file_digest",
-    "Self",
-]
+__all__ = ["TypeAlias", "file_digest", "Self", "ParamSpec"]
 
 import hashlib
 import sys
@@ -16,9 +12,9 @@ else:
     from typing_extensions import Self
 
 if sys.version_info >= (3, 10):
-    from typing import TypeAlias
+    from typing import ParamSpec, TypeAlias
 else:
-    from typing_extensions import TypeAlias
+    from typing_extensions import ParamSpec, TypeAlias
 
 
 if sys.version_info >= (3, 11):

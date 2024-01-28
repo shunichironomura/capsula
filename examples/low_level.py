@@ -5,18 +5,7 @@ from pathlib import Path
 
 import orjson
 
-from capsula import Encapsulator
-from capsula.context import (
-    CommandContext,
-    CpuContext,
-    CwdContext,
-    EnvVarContext,
-    FileContext,
-    GitRepositoryContext,
-    PlatformContext,
-)
-from capsula.reporter import JsonDumpReporter
-from capsula.watcher import TimeWatcher, UncaughtExceptionWatcher
+import capsula
 
 logger = logging.getLogger(__name__)
 
@@ -32,10 +21,10 @@ capsule_directory = Path(__file__).parents[1] / "vault" / run_name
 capsule_directory.mkdir(parents=True, exist_ok=True)
 
 # Create an encapsulator
-pre_run_enc = Encapsulator()
+pre_run_enc = capsula.Encapsulator()
 
 # Create a reporter
-pre_run_reporter = JsonDumpReporter(capsule_directory / "pre_run_report.json", option=orjson.OPT_INDENT_2)
+pre_run_reporter = capsula.JsonDumpReporter(capsule_directory / "pre_run_report.json", option=orjson.OPT_INDENT_2)
 # slack_reporter = SlackReporter(
 #     webhook_url="https://hooks.slack.com/services/T01JZQZQZQZ/B01JZQZQZQZ/QQZQZQZQZQZQZQZQZQZQZQZ",
 #     channel="test",
@@ -45,7 +34,7 @@ pre_run_reporter = JsonDumpReporter(capsule_directory / "pre_run_report.json", o
 # The order of the contexts is important.
 pre_run_enc.record("run_name", run_name)
 pre_run_enc.add_context(
-    GitRepositoryContext(
+    capsula.GitRepositoryContext(
         name="capsula",
         path=Path(__file__).parents[1],
         diff_file=capsule_directory / "capsula.diff",
@@ -53,26 +42,30 @@ pre_run_enc.add_context(
     ),
     key=("git", "capsula"),
 )
-pre_run_enc.add_context(CpuContext())
-pre_run_enc.add_context(PlatformContext())
-pre_run_enc.add_context(CwdContext())
-pre_run_enc.add_context(EnvVarContext("HOME"), key=("env", "HOME"))
-pre_run_enc.add_context(EnvVarContext("PATH"))  # Default key will be used
-pre_run_enc.add_context(CommandContext("poetry check --lock"))
+pre_run_enc.add_context(capsula.CpuContext())
+pre_run_enc.add_context(capsula.PlatformContext())
+pre_run_enc.add_context(capsula.CwdContext())
+pre_run_enc.add_context(capsula.EnvVarContext("HOME"), key=("env", "HOME"))
+pre_run_enc.add_context(capsula.EnvVarContext("PATH"))  # Default key will be used
+pre_run_enc.add_context(capsula.CommandContext("poetry check --lock"))
 # This will have a side effect
-pre_run_enc.add_context(CommandContext("pip freeze --exclude-editable > requirements.txt"))
+pre_run_enc.add_context(capsula.CommandContext("pip freeze --exclude-editable > requirements.txt"))
 pre_run_enc.add_context(
-    FileContext(
+    capsula.FileContext(
         Path(__file__).parents[1] / "requirements.txt",
         hash_algorithm="sha256",
         move_to=capsule_directory,
     ),
 )
 pre_run_enc.add_context(
-    FileContext(Path(__file__).parents[1] / "pyproject.toml", hash_algorithm="sha256", copy_to=capsule_directory),
+    capsula.FileContext(
+        Path(__file__).parents[1] / "pyproject.toml",
+        hash_algorithm="sha256",
+        copy_to=capsule_directory,
+    ),
 )
 pre_run_enc.add_context(
-    FileContext(Path(__file__).parents[1] / "poetry.lock", hash_algorithm="sha256", copy_to=capsule_directory),
+    capsula.FileContext(Path(__file__).parents[1] / "poetry.lock", hash_algorithm="sha256", copy_to=capsule_directory),
 )
 
 pre_run_capsule = pre_run_enc.encapsulate()
@@ -80,15 +73,15 @@ pre_run_reporter.report(pre_run_capsule)
 # slack_reporter.report(pre_run_capsule)
 
 # Actual calculation
-in_run_enc = Encapsulator()
-in_run_reporter = JsonDumpReporter(capsule_directory / "in_run_report.json", option=orjson.OPT_INDENT_2)
+in_run_enc = capsula.Encapsulator()
+in_run_reporter = capsula.JsonDumpReporter(capsule_directory / "in_run_report.json", option=orjson.OPT_INDENT_2)
 
 # The order matters. The first watcher will be the innermost one.
 # Record the time it takes to run the function.
-in_run_enc.add_watcher(TimeWatcher("calculation_time"))
+in_run_enc.add_watcher(capsula.TimeWatcher("calculation_time"))
 
 # Catch the exception raised by the encapsulated function.
-in_run_enc.add_watcher(UncaughtExceptionWatcher("Exception", base=Exception, reraise=False))
+in_run_enc.add_watcher(capsula.UncaughtExceptionWatcher("Exception", base=Exception, reraise=False))
 
 with in_run_enc.watch():
     logger.info(f"Calculating pi with {N_SAMPLES} samples.")
@@ -109,7 +102,7 @@ with in_run_enc.watch():
         output_file.write(str(pi_estimate))
 
 in_run_enc.add_context(
-    FileContext(Path(__file__).parent / "pi.txt", hash_algorithm="sha256", move_to=capsule_directory),
+    capsula.FileContext(Path(__file__).parent / "pi.txt", hash_algorithm="sha256", move_to=capsule_directory),
 )
 
 in_run_capsule = in_run_enc.encapsulate()
