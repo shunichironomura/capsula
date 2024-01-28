@@ -3,14 +3,16 @@ from __future__ import annotations
 import inspect
 import logging
 from pathlib import Path
-from typing import Callable
+from typing import TYPE_CHECKING, Callable
 
 from git.repo import Repo
 
-from capsula._decorator import CapsuleParams
 from capsula.exceptions import CapsulaError
 
 from ._base import ContextBase
+
+if TYPE_CHECKING:
+    from capsula._decorator import CapsuleParams
 
 logger = logging.getLogger(__name__)
 
