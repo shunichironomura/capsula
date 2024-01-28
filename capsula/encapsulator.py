@@ -65,7 +65,7 @@ class WatcherGroup(AbstractContextManager, Generic[_K, _V]):
         suppress_exception = False
 
         while not self.context_manager_stack.empty():
-            cm = self.context_manager_stack.get()
+            cm = self.context_manager_stack.get(block=False)
             suppress = bool(cm.__exit__(exc_type, exc_value, traceback))
             suppress_exception = suppress_exception or suppress
 
