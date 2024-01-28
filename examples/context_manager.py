@@ -32,7 +32,7 @@ def main(n_samples: int, seed: int) -> None:
     run_name = datetime.now(UTC).astimezone().strftime(r"%Y%m%d_%H%M%S")
     capsule_directory = Path(__file__).parents[1] / "vault" / run_name
 
-    with capsula.Run() as run:
+    with capsula.Encapsulator() as enc:
         logger.info(f"Calculating pi with {n_samples} samples.")
         logger.debug(f"Seed: {seed}")
 
@@ -41,7 +41,7 @@ def main(n_samples: int, seed: int) -> None:
         with (Path(__file__).parent / "pi.txt").open("w") as output_file:
             output_file.write(str(pi_estimate))
 
-    in_run_capsule = run.encapsulate()
+    in_run_capsule = enc.encapsulate()
 
     in_run_reporter = capsula.JsonDumpReporter(capsule_directory / "in_run_report.json", option=orjson.OPT_INDENT_2)
     in_run_reporter.report(in_run_capsule)
