@@ -11,7 +11,7 @@ from capsula.encapsulator import Encapsulator
 
 from ._backport import ParamSpec
 from ._context import ContextBase
-from ._run import Run
+from ._run import CapsuleParams, Run
 from ._watcher import WatcherBase
 
 if TYPE_CHECKING:
@@ -83,23 +83,14 @@ def capsule(  # noqa: C901
     return decorator
 
 
-class CapsuleParams(BaseModel):
-    run_dir: Path
-    func: Callable
-    args: tuple
-    kwargs: dict
-    phase: Literal["pre", "in", "post"]
-
-
 def watcher(
     watcher: WatcherBase | Callable[[CapsuleParams], WatcherBase],
-) -> Callable[[Callable[_P, _T]], Callable[_P, _T]]:
-    def decorator(func: Callable[_P, _T]) -> Callable[_P, _T]:
-        @wraps(func)
-        def wrapper(*args: _P.args, **kwargs: _P.kwargs) -> _T:
-            return func(*args, **kwargs)
-
-        return wrapper
+) -> Callable[[Callable[_P, _T] | Run[_P, _T]], Run[_P, _T]]:
+    def decorator(func_or_run: Callable[_P, _T] | Run[_P, _T]) -> Run[_P, _T]:
+        func = func_or_run.func if isinstance(func_or_run, Run) else func_or_run
+        run = func_or_run if isinstance(func_or_run, Run) else Run(func)
+        run.add_watcher(watcher)
+        return run
 
     return decorator
 
@@ -107,13 +98,12 @@ def watcher(
 def reporter(
     reporter: ReporterBase | Callable[[CapsuleParams], ReporterBase],
     mode: Literal["pre", "in", "post", "all"],
-) -> Callable[[Callable[_P, _T]], Callable[_P, _T]]:
-    def decorator(func: Callable[_P, _T]) -> Callable[_P, _T]:
-        @wraps(func)
-        def wrapper(*args: _P.args, **kwargs: _P.kwargs) -> _T:
-            return func(*args, **kwargs)
-
-        return wrapper
+) -> Callable[[Callable[_P, _T] | Run[_P, _T]], Run[_P, _T]]:
+    def decorator(func_or_run: Callable[_P, _T] | Run[_P, _T]) -> Run[_P, _T]:
+        func = func_or_run.func if isinstance(func_or_run, Run) else func_or_run
+        run = func_or_run if isinstance(func_or_run, Run) else Run(func)
+        run.add_reporter(reporter, mode=mode)
+        return run
 
     return decorator
 
@@ -121,12 +111,24 @@ def reporter(
 def context(
     context: ContextBase | Callable[[CapsuleParams], ContextBase],
     mode: Literal["pre", "in", "post", "all"],
-) -> Callable[[Callable[_P, _T]], Callable[_P, _T]]:
-    def decorator(func: Callable[_P, _T]) -> Callable[_P, _T]:
-        @wraps(func)
-        def wrapper(*args: _P.args, **kwargs: _P.kwargs) -> _T:
-            return func(*args, **kwargs)
+) -> Callable[[Callable[_P, _T] | Run[_P, _T]], Run[_P, _T]]:
+    def decorator(func_or_run: Callable[_P, _T] | Run[_P, _T]) -> Run[_P, _T]:
+        func = func_or_run.func if isinstance(func_or_run, Run) else func_or_run
+        run = func_or_run if isinstance(func_or_run, Run) else Run(func)
+        run.add_context(context, mode=mode)
+        return run
 
-        return wrapper
+    return decorator
+
+
+def run(
+    run_dir: Path | Callable[[CapsuleParams], Path],
+) -> Callable[[Callable[_P, _T] | Run[_P, _T]], Run[_P, _T]]:
+    def decorator(func_or_run: Callable[_P, _T] | Run[_P, _T]) -> Run[_P, _T]:
+        func = func_or_run.func if isinstance(func_or_run, Run) else func_or_run
+        run = func_or_run if isinstance(func_or_run, Run) else Run(func)
+        run.set_run_dir(run_dir)
+
+        return run
 
     return decorator
