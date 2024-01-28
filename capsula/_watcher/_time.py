@@ -9,12 +9,12 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
-from ._base import Watcher
+from ._base import WatcherBase
 
 logger = logging.getLogger(__name__)
 
 
-class TimeWatcher(Watcher):
+class TimeWatcher(WatcherBase):
     def __init__(self, name: str) -> None:
         self.name = name
         self.duration: timedelta | None = None

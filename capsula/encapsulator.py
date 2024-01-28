@@ -1,24 +1,24 @@
 from __future__ import annotations
 
 import queue
+import threading
 from collections import OrderedDict
 from collections.abc import Hashable
 from contextlib import AbstractContextManager
 from itertools import chain
 from typing import TYPE_CHECKING, Any, Generic, Tuple, TypeVar, Union
 
-if TYPE_CHECKING:
-    from ._backport import TypeAlias
+from capsula.utils import ExceptionInfo
+
+from ._capsule import Capsule
+from ._context import ContextBase
+from ._watcher import WatcherBase
+from .exceptions import CapsulaError
 
 if TYPE_CHECKING:
     from types import TracebackType
 
-from capsula.utils import ExceptionInfo
-
-from .capsule import Capsule
-from .context import Context
-from .exceptions import CapsulaError
-from .watcher import Watcher
+    from ._backport import Self, TypeAlias
 
 _CapsuleItemKey: TypeAlias = Union[str, Tuple[str, ...]]
 
@@ -28,7 +28,7 @@ class KeyConflictError(CapsulaError):
         super().__init__(f"Capsule item with key {key} already exists.")
 
 
-class ObjectContext(Context):
+class ObjectContext(ContextBase):
     def __init__(self, obj: Any) -> None:
         self.obj = obj
 
@@ -37,7 +37,7 @@ class ObjectContext(Context):
 
 
 _K = TypeVar("_K", bound=Hashable)
-_V = TypeVar("_V", bound=Watcher)
+_V = TypeVar("_V", bound=WatcherBase)
 
 
 class WatcherGroup(AbstractContextManager, Generic[_K, _V]):
@@ -64,7 +64,7 @@ class WatcherGroup(AbstractContextManager, Generic[_K, _V]):
         suppress_exception = False
 
         while not self.context_manager_stack.empty():
-            cm = self.context_manager_stack.get()
+            cm = self.context_manager_stack.get(block=False)
             suppress = bool(cm.__exit__(exc_type, exc_value, traceback))
             suppress_exception = suppress_exception or suppress
 
@@ -77,11 +77,38 @@ class WatcherGroup(AbstractContextManager, Generic[_K, _V]):
 
 
 class Encapsulator:
-    def __init__(self) -> None:
-        self.contexts: OrderedDict[_CapsuleItemKey, Context] = OrderedDict()
-        self.watchers: OrderedDict[_CapsuleItemKey, Watcher] = OrderedDict()
+    _thread_local = threading.local()
 
-    def add_context(self, context: Context, key: _CapsuleItemKey | None = None) -> None:
+    @classmethod
+    def _get_context_stack(cls) -> queue.LifoQueue[Self]:
+        if not hasattr(cls._thread_local, "context_stack"):
+            cls._thread_local.context_stack = queue.LifoQueue()
+        return cls._thread_local.context_stack
+
+    @classmethod
+    def get_current(cls) -> Self | None:
+        try:
+            return cls._get_context_stack().queue[-1]
+        except IndexError:
+            return None
+
+    def __init__(self) -> None:
+        self.contexts: OrderedDict[_CapsuleItemKey, ContextBase] = OrderedDict()
+        self.watchers: OrderedDict[_CapsuleItemKey, WatcherBase] = OrderedDict()
+
+    def __enter__(self) -> Self:
+        self._get_context_stack().put(self)
+        return self
+
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: TracebackType | None,
+    ) -> None:
+        self._get_context_stack().get(block=False)
+
+    def add_context(self, context: ContextBase, key: _CapsuleItemKey | None = None) -> None:
         if key is None:
             key = context.default_key()
         if key in self.contexts or key in self.watchers:
@@ -91,7 +118,7 @@ class Encapsulator:
     def record(self, key: _CapsuleItemKey, record: Any) -> None:
         self.add_context(ObjectContext(record), key)
 
-    def add_watcher(self, watcher: Watcher, key: _CapsuleItemKey | None = None) -> None:
+    def add_watcher(self, watcher: WatcherBase, key: _CapsuleItemKey | None = None) -> None:
         if key is None:
             key = watcher.default_key()
         if key in self.contexts or key in self.watchers:
@@ -110,5 +137,5 @@ class Encapsulator:
                 fails[key] = ExceptionInfo.from_exception(e)
         return Capsule(data, fails)
 
-    def watch(self) -> WatcherGroup[_CapsuleItemKey, Watcher]:
+    def watch(self) -> WatcherGroup[_CapsuleItemKey, WatcherBase]:
         return WatcherGroup(self.watchers)

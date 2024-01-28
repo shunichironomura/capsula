@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import logging
+import traceback
 from datetime import timedelta
 from pathlib import Path
+from types import TracebackType
 from typing import TYPE_CHECKING, Any, Callable, Optional
 
 import orjson
@@ -12,30 +14,37 @@ from capsula.utils import to_nested_dict
 if TYPE_CHECKING:
     from capsula.encapsulator import Capsule
 
-from ._base import Reporter
+from ._base import ReporterBase
 
 logger = logging.getLogger(__name__)
 
 
 def default_preset(obj: Any) -> Any:
-    # if isinstance(obj, timedelta):
-    #     return str(obj)
     if isinstance(obj, Path):
         return str(obj)
     if isinstance(obj, timedelta):
         return str(obj)
+    if isinstance(obj, type) and issubclass(obj, BaseException):
+        return obj.__name__
+    if isinstance(obj, Exception):
+        return str(obj)
+    if isinstance(obj, TracebackType):
+        return "".join(traceback.format_tb(obj))
     raise TypeError
 
 
-class JsonDumpReporter(Reporter):
+class JsonDumpReporter(ReporterBase):
     def __init__(
         self,
         path: Path | str,
         *,
         default: Optional[Callable[[Any], Any]] = None,
         option: Optional[int] = None,
+        mkdir: bool = True,
     ) -> None:
         self.path = Path(path)
+        if mkdir:
+            self.path.parent.mkdir(parents=True, exist_ok=True)
 
         if default is None:
             self.default = default_preset

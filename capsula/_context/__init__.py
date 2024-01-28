@@ -1,5 +1,5 @@
 __all__ = [
-    "Context",
+    "ContextBase",
     "CwdContext",
     "EnvVarContext",
     "GitRepositoryContext",
@@ -8,7 +8,7 @@ __all__ = [
     "CpuContext",
     "CommandContext",
 ]
-from ._base import Context
+from ._base import ContextBase
 from ._command import CommandContext
 from ._cpu import CpuContext
 from ._cwd import CwdContext

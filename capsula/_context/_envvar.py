@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import os
 
-from ._base import Context
+from ._base import ContextBase
 
 
-class EnvVarContext(Context):
+class EnvVarContext(ContextBase):
     def __init__(self, name: str) -> None:
         self.name = name
 
