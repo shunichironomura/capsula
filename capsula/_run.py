@@ -3,14 +3,14 @@ from __future__ import annotations
 import queue
 import threading
 from pathlib import Path
-from typing import TYPE_CHECKING, Callable, Generic, Literal, Self, TypeVar
+from typing import TYPE_CHECKING, Callable, Generic, Literal, TypeVar
 
 from pydantic import BaseModel
 
 from capsula._reporter import ReporterBase
 from capsula.encapsulator import Encapsulator
 
-from ._backport import ParamSpec
+from ._backport import ParamSpec, Self
 from ._context import ContextBase
 from ._watcher import WatcherBase
 

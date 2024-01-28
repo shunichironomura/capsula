@@ -6,13 +6,7 @@ from collections import OrderedDict
 from collections.abc import Hashable
 from contextlib import AbstractContextManager
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Generic, Self, Tuple, TypeVar, Union
-
-if TYPE_CHECKING:
-    from ._backport import TypeAlias
-
-if TYPE_CHECKING:
-    from types import TracebackType
+from typing import TYPE_CHECKING, Any, Generic, Tuple, TypeVar, Union
 
 from capsula.utils import ExceptionInfo
 
@@ -20,6 +14,11 @@ from ._capsule import Capsule
 from ._context import ContextBase
 from ._watcher import WatcherBase
 from .exceptions import CapsulaError
+
+if TYPE_CHECKING:
+    from types import TracebackType
+
+    from ._backport import Self, TypeAlias
 
 _CapsuleItemKey: TypeAlias = Union[str, Tuple[str, ...]]
 
