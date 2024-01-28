@@ -21,6 +21,9 @@ __all__ = [
     "CommandContext",
     "JsonDumpReporter",
     "Reporter",
+    "Watcher",
+    "TimeWatcher",
+    "UncaughtExceptionWatcher",
 ]
 from ._context import (
     CommandContext,
@@ -38,6 +41,7 @@ from ._reporter import JsonDumpReporter, Reporter
 from ._root import record
 from ._run import Run
 from ._version import __version__
+from ._watcher import TimeWatcher, UncaughtExceptionWatcher, Watcher
 from .encapsulator import Encapsulator
 from .exceptions import CapsulaConfigurationError, CapsulaError
 from .globalvars import get_capsule_dir, get_capsule_name, set_capsule_dir, set_capsule_name
