@@ -82,9 +82,9 @@ class Encapsulator:
 
     @classmethod
     def _get_context_stack(cls) -> queue.LifoQueue[Self]:
-        if not hasattr(cls._thread_local, "encapsulator_context_stack"):
-            cls._thread_local.encapsulator_context_stack = queue.LifoQueue()
-        return cls._thread_local.encapsulator_context_stack
+        if not hasattr(cls._thread_local, "context_stack"):
+            cls._thread_local.context_stack = queue.LifoQueue()
+        return cls._thread_local.context_stack
 
     @classmethod
     def get_current(cls) -> Self | None:
@@ -107,7 +107,7 @@ class Encapsulator:
         exc_value: BaseException | None,
         traceback: TracebackType | None,
     ) -> None:
-        self._get_context_stack().get()
+        self._get_context_stack().get(block=False)
 
     def add_context(self, context: ContextBase, key: _CapsuleItemKey | None = None) -> None:
         if key is None:
