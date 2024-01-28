@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 @capsula.run(
-    run_dir=lambda: Path(__file__).parents[1] / "vault" / datetime.now(UTC).astimezone().strftime(r"%Y%m%d_%H%M%S"),
+    run_dir=lambda _: Path(__file__).parents[1] / "vault" / datetime.now(UTC).astimezone().strftime(r"%Y%m%d_%H%M%S"),
 )
 @capsula.context(
     lambda params: capsula.FileContext(
@@ -24,7 +24,8 @@ logger = logging.getLogger(__name__)
 @capsula.context(capsula.GitRepositoryContext.default(), mode="pre")
 @capsula.reporter(
     lambda params: capsula.JsonDumpReporter(
-        params.run_dir / f"{params.phase}-run-report.json", option=orjson.OPT_INDENT_2
+        params.run_dir / f"{params.phase}-run-report.json",
+        option=orjson.OPT_INDENT_2,
     ),
     mode="all",
 )
@@ -50,4 +51,4 @@ def calculate_pi(*, n_samples: int = 1_000, seed: int = 42) -> None:
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
-    calculate_pi(1_000)
+    calculate_pi(n_samples=1_000)
