@@ -27,6 +27,7 @@ __all__ = [
     "reporter",
     "context",
     "UncaughtExceptionWatcher",
+    "run",
 ]
 from ._context import (
     CommandContext,
@@ -38,7 +39,7 @@ from ._context import (
     GitRepositoryContext,
     PlatformContext,
 )
-from ._decorator import capsule, context, reporter, watcher
+from ._decorator import capsule, context, reporter, run, watcher
 from ._monitor import monitor
 from ._reporter import JsonDumpReporter, ReporterBase
 from ._root import record
