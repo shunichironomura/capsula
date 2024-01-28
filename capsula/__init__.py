@@ -10,10 +10,33 @@ __all__ = [
     "Encapsulator",
     "capsule",
     "record",
+    "Run",
+    "Context",
+    "CwdContext",
+    "EnvVarContext",
+    "GitRepositoryContext",
+    "FileContext",
+    "PlatformContext",
+    "CpuContext",
+    "CommandContext",
+    "JsonDumpReporter",
+    "Reporter",
 ]
+from ._context import (
+    CommandContext,
+    Context,
+    CpuContext,
+    CwdContext,
+    EnvVarContext,
+    FileContext,
+    GitRepositoryContext,
+    PlatformContext,
+)
 from ._decorator import capsule
 from ._monitor import monitor
+from ._reporter import JsonDumpReporter, Reporter
 from ._root import record
+from ._run import Run
 from ._version import __version__
 from .encapsulator import Encapsulator
 from .exceptions import CapsulaConfigurationError, CapsulaError
