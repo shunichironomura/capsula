@@ -4,8 +4,6 @@ from functools import wraps
 from pathlib import Path
 from typing import TYPE_CHECKING, Callable, Literal, Tuple, TypeVar, Union
 
-from pydantic import BaseModel
-
 from capsula._reporter import ReporterBase
 from capsula.encapsulator import Encapsulator
 

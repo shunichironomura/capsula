@@ -2,12 +2,10 @@ from __future__ import annotations
 
 import queue
 import threading
-from functools import wraps
 from pathlib import Path
 from types import TracebackType
-from typing import TYPE_CHECKING, Callable, Generic, Literal, Self, Tuple, TypeVar, Union
+from typing import Callable, Generic, Literal, Self, TypeVar
 
-from click import Context
 from pydantic import BaseModel
 
 from capsula._reporter import ReporterBase
@@ -16,11 +14,6 @@ from capsula.encapsulator import Encapsulator
 from ._backport import ParamSpec
 from ._context import ContextBase
 from ._watcher import WatcherBase
-
-if TYPE_CHECKING:
-    from collections.abc import Sequence
-
-    from ._backport import TypeAlias
 
 _P = ParamSpec("_P")
 _T = TypeVar("_T")
