@@ -34,7 +34,7 @@ def main(n_samples: int, seed: int) -> None:
     run_name = datetime.now(UTC).astimezone().strftime(r"%Y%m%d_%H%M%S")
     capsule_directory = Path(__file__).parents[1] / "vault" / run_name
 
-    with capsula.run:
+    with capsula.Run() as run:
         logger.info(f"Calculating pi with {n_samples} samples.")
         logger.debug(f"Seed: {seed}")
 
