@@ -2,13 +2,16 @@ from __future__ import annotations
 
 from functools import wraps
 from pathlib import Path
-from typing import TYPE_CHECKING, Callable, Tuple, TypeVar, Union
+from typing import TYPE_CHECKING, Callable, Literal, Tuple, TypeVar, Union
+
+from pydantic import BaseModel
 
 from capsula._reporter import Reporter
 from capsula.encapsulator import Encapsulator
 
 from ._backport import ParamSpec
 from ._context import Context
+from ._run import Run
 from ._watcher import Watcher
 
 if TYPE_CHECKING:
@@ -73,6 +76,53 @@ def capsule(  # noqa: C901
                 else:
                     reporter(capsule_directory, func).report(pre_run_capsule)
 
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
+
+
+class CapsuleParams(BaseModel):
+    run_dir: Path
+    func: Callable
+    args: tuple
+    kwargs: dict
+    phase: Literal["pre", "in", "post"]
+
+
+def watcher(watcher: Watcher | Callable[[CapsuleParams], Watcher]) -> Callable[[Callable[_P, _T]], Callable[_P, _T]]:
+    def decorator(func: Callable[_P, _T]) -> Callable[_P, _T]:
+        @wraps(func)
+        def wrapper(*args: _P.args, **kwargs: _P.kwargs) -> _T:
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
+
+
+def reporter(
+    reporter: Reporter | Callable[[CapsuleParams], Reporter],
+    mode: Literal["pre", "in", "post", "all"],
+) -> Callable[[Callable[_P, _T]], Callable[_P, _T]]:
+    def decorator(func: Callable[_P, _T]) -> Callable[_P, _T]:
+        @wraps(func)
+        def wrapper(*args: _P.args, **kwargs: _P.kwargs) -> _T:
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
+
+
+def context(
+    context: Context | Callable[[CapsuleParams], Context],
+    mode: Literal["pre", "in", "post", "all"],
+) -> Callable[[Callable[_P, _T]], Callable[_P, _T]]:
+    def decorator(func: Callable[_P, _T]) -> Callable[_P, _T]:
+        @wraps(func)
+        def wrapper(*args: _P.args, **kwargs: _P.kwargs) -> _T:
             return func(*args, **kwargs)
 
         return wrapper

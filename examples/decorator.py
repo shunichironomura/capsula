@@ -11,21 +11,21 @@ logger = logging.getLogger(__name__)
 
 
 @capsula.run(
-    capsule_directory=lambda: Path(__file__).parents[1]
-    / "vault"
-    / datetime.now(UTC).astimezone().strftime(r"%Y%m%d_%H%M%S"),
+    run_dir=lambda: Path(__file__).parents[1] / "vault" / datetime.now(UTC).astimezone().strftime(r"%Y%m%d_%H%M%S"),
 )
 @capsula.context(
-    lambda capdir, _: capsula.FileContext(
+    lambda params: capsula.FileContext(
         Path(__file__).parents[1] / "pyproject.toml",
         hash_algorithm="sha256",
-        copy_to=capdir,
+        copy_to=params.run_dir,
     ),
     mode="pre",
 )
 @capsula.context(capsula.GitRepositoryContext.default(), mode="pre")
 @capsula.reporter(
-    lambda capdir, _, phase: capsula.JsonDumpReporter(capdir / f"{phase}-run-report.json", option=orjson.OPT_INDENT_2),
+    lambda params: capsula.JsonDumpReporter(
+        params.run_dir / f"{params.phase}-run-report.json", option=orjson.OPT_INDENT_2
+    ),
     mode="all",
 )
 @capsula.watcher(capsula.TimeWatcher("calculation_time"))
