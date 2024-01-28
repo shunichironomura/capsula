@@ -1,9 +1,9 @@
 from pathlib import Path
 
-from ._base import Context
+from ._base import ContextBase
 
 
-class CwdContext(Context):
+class CwdContext(ContextBase):
     def encapsulate(self) -> Path:
         return Path.cwd()
 

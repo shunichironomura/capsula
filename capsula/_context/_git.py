@@ -10,7 +10,7 @@ from git.repo import Repo
 from capsula._decorator import CapsuleParams
 from capsula.exceptions import CapsulaError
 
-from ._base import Context
+from ._base import ContextBase
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +21,7 @@ class GitRepositoryDirtyError(CapsulaError):
         super().__init__(f"Repository {repo.working_dir} is dirty")
 
 
-class GitRepositoryContext(Context):
+class GitRepositoryContext(ContextBase):
     def __init__(
         self,
         name: str,

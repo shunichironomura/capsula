@@ -7,12 +7,12 @@ from typing import Iterable
 
 from capsula._backport import file_digest
 
-from ._base import Context
+from ._base import ContextBase
 
 logger = logging.getLogger(__name__)
 
 
-class FileContext(Context):
+class FileContext(ContextBase):
     def __init__(
         self,
         path: Path | str,

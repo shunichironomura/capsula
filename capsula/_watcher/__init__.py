@@ -1,4 +1,4 @@
-__all__ = ["Watcher", "TimeWatcher", "UncaughtExceptionWatcher"]
-from ._base import Watcher
+__all__ = ["WatcherBase", "TimeWatcher", "UncaughtExceptionWatcher"]
+from ._base import WatcherBase
 from ._exception import UncaughtExceptionWatcher
 from ._time import TimeWatcher

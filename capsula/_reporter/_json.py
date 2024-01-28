@@ -14,7 +14,7 @@ from capsula.utils import to_nested_dict
 if TYPE_CHECKING:
     from capsula.encapsulator import Capsule
 
-from ._base import Reporter
+from ._base import ReporterBase
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +33,7 @@ def default_preset(obj: Any) -> Any:
     raise TypeError
 
 
-class JsonDumpReporter(Reporter):
+class JsonDumpReporter(ReporterBase):
     def __init__(
         self,
         path: Path | str,

@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 from capsula._capsule import CapsuleItem
 
 
-class Watcher(CapsuleItem):
+class WatcherBase(CapsuleItem):
     @abstractmethod
     def watch(self) -> AbstractContextManager[None]:
         raise NotImplementedError

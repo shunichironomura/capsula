@@ -6,13 +6,13 @@ from typing import TYPE_CHECKING, Callable, Literal, Tuple, TypeVar, Union
 
 from pydantic import BaseModel
 
-from capsula._reporter import Reporter
+from capsula._reporter import ReporterBase
 from capsula.encapsulator import Encapsulator
 
 from ._backport import ParamSpec
-from ._context import Context
+from ._context import ContextBase
 from ._run import Run
-from ._watcher import Watcher
+from ._watcher import WatcherBase
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -24,16 +24,16 @@ _T = TypeVar("_T")
 
 
 _ContextInput: TypeAlias = Union[
-    Context,
-    Tuple[Context, Tuple[str, ...]],
-    Callable[[Path, Callable], Union[Context, Tuple[Context, Tuple[str, ...]]]],
+    ContextBase,
+    Tuple[ContextBase, Tuple[str, ...]],
+    Callable[[Path, Callable], Union[ContextBase, Tuple[ContextBase, Tuple[str, ...]]]],
 ]
 _WatcherInput: TypeAlias = Union[
-    Watcher,
-    Tuple[Watcher, Tuple[str, ...]],
-    Callable[[Path, Callable], Union[Watcher, Tuple[Watcher, Tuple[str, ...]]]],
+    WatcherBase,
+    Tuple[WatcherBase, Tuple[str, ...]],
+    Callable[[Path, Callable], Union[WatcherBase, Tuple[WatcherBase, Tuple[str, ...]]]],
 ]
-_ReporterInput: TypeAlias = Union[Reporter, Callable[[Path, Callable], Reporter]]
+_ReporterInput: TypeAlias = Union[ReporterBase, Callable[[Path, Callable], ReporterBase]]
 
 
 def capsule(  # noqa: C901
@@ -55,13 +55,13 @@ def capsule(  # noqa: C901
     def decorator(func: Callable[_P, _T]) -> Callable[_P, _T]:
         pre_run_enc = Encapsulator()
         for cxt in pre_run_contexts:
-            if isinstance(cxt, Context):
+            if isinstance(cxt, ContextBase):
                 pre_run_enc.add_context(cxt)
             elif isinstance(cxt, tuple):
                 pre_run_enc.add_context(cxt[0], key=cxt[1])
             else:
                 cxt_hydrated = cxt(capsule_directory, func)
-                if isinstance(cxt_hydrated, Context):
+                if isinstance(cxt_hydrated, ContextBase):
                     pre_run_enc.add_context(cxt_hydrated)
                 elif isinstance(cxt_hydrated, tuple):
                     pre_run_enc.add_context(cxt_hydrated[0], key=cxt_hydrated[1])
@@ -71,7 +71,7 @@ def capsule(  # noqa: C901
             capsule_directory.mkdir(parents=True, exist_ok=True)
             pre_run_capsule = pre_run_enc.encapsulate()
             for reporter in pre_run_reporters:
-                if isinstance(reporter, Reporter):
+                if isinstance(reporter, ReporterBase):
                     reporter.report(pre_run_capsule)
                 else:
                     reporter(capsule_directory, func).report(pre_run_capsule)
@@ -91,7 +91,9 @@ class CapsuleParams(BaseModel):
     phase: Literal["pre", "in", "post"]
 
 
-def watcher(watcher: Watcher | Callable[[CapsuleParams], Watcher]) -> Callable[[Callable[_P, _T]], Callable[_P, _T]]:
+def watcher(
+    watcher: WatcherBase | Callable[[CapsuleParams], WatcherBase],
+) -> Callable[[Callable[_P, _T]], Callable[_P, _T]]:
     def decorator(func: Callable[_P, _T]) -> Callable[_P, _T]:
         @wraps(func)
         def wrapper(*args: _P.args, **kwargs: _P.kwargs) -> _T:
@@ -103,7 +105,7 @@ def watcher(watcher: Watcher | Callable[[CapsuleParams], Watcher]) -> Callable[[
 
 
 def reporter(
-    reporter: Reporter | Callable[[CapsuleParams], Reporter],
+    reporter: ReporterBase | Callable[[CapsuleParams], ReporterBase],
     mode: Literal["pre", "in", "post", "all"],
 ) -> Callable[[Callable[_P, _T]], Callable[_P, _T]]:
     def decorator(func: Callable[_P, _T]) -> Callable[_P, _T]:
@@ -117,7 +119,7 @@ def reporter(
 
 
 def context(
-    context: Context | Callable[[CapsuleParams], Context],
+    context: ContextBase | Callable[[CapsuleParams], ContextBase],
     mode: Literal["pre", "in", "post", "all"],
 ) -> Callable[[Callable[_P, _T]], Callable[_P, _T]]:
     def decorator(func: Callable[_P, _T]) -> Callable[_P, _T]:

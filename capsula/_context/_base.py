@@ -1,5 +1,5 @@
 from capsula._capsule import CapsuleItem
 
 
-class Context(CapsuleItem):
+class ContextBase(CapsuleItem):
     pass

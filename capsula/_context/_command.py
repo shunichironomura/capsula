@@ -7,12 +7,12 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from pathlib import Path
 
-from ._base import Context
+from ._base import ContextBase
 
 logger = logging.getLogger(__name__)
 
 
-class CommandContext(Context):
+class CommandContext(ContextBase):
     def __init__(self, command: str, cwd: Path | None = None) -> None:
         self.command = command
         self.cwd = cwd

@@ -11,7 +11,7 @@ __all__ = [
     "capsule",
     "record",
     "Run",
-    "Context",
+    "ContextBase",
     "CwdContext",
     "EnvVarContext",
     "GitRepositoryContext",
@@ -20,8 +20,8 @@ __all__ = [
     "CpuContext",
     "CommandContext",
     "JsonDumpReporter",
-    "Reporter",
-    "Watcher",
+    "ReporterBase",
+    "WatcherBase",
     "TimeWatcher",
     "watcher",
     "reporter",
@@ -30,7 +30,7 @@ __all__ = [
 ]
 from ._context import (
     CommandContext,
-    Context,
+    ContextBase,
     CpuContext,
     CwdContext,
     EnvVarContext,
@@ -40,11 +40,11 @@ from ._context import (
 )
 from ._decorator import capsule, context, reporter, watcher
 from ._monitor import monitor
-from ._reporter import JsonDumpReporter, Reporter
+from ._reporter import JsonDumpReporter, ReporterBase
 from ._root import record
 from ._run import Run
 from ._version import __version__
-from ._watcher import TimeWatcher, UncaughtExceptionWatcher, Watcher
+from ._watcher import TimeWatcher, UncaughtExceptionWatcher, WatcherBase
 from .encapsulator import Encapsulator
 from .exceptions import CapsulaConfigurationError, CapsulaError
 from .globalvars import get_capsule_dir, get_capsule_name, set_capsule_dir, set_capsule_name

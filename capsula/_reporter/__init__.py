@@ -1,3 +1,3 @@
-__all__ = ["JsonDumpReporter", "Reporter"]
-from ._base import Reporter
+__all__ = ["JsonDumpReporter", "ReporterBase"]
+from ._base import ReporterBase
 from ._json import JsonDumpReporter
