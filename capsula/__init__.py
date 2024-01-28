@@ -13,7 +13,7 @@ __all__ = [
 ]
 from ._decorator import capsule
 from ._monitor import monitor
-from ._record import record
+from ._root import record
 from ._version import __version__
 from .encapsulator import Encapsulator
 from .exceptions import CapsulaConfigurationError, CapsulaError
