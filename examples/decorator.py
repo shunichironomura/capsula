@@ -9,24 +9,30 @@ import capsula
 from capsula.context import FileContext, GitRepositoryContext
 from capsula.encapsulator import Encapsulator
 from capsula.reporter import JsonDumpReporter
+from capsula.watcher import TimeWatcher
 
 logger = logging.getLogger(__name__)
 
 
-@capsula.capsule(
-    capsule_directory=Path(__file__).parents[1] / "vault" / datetime.now(UTC).astimezone().strftime(r"%Y%m%d_%H%M%S"),
-    pre_run_contexts=(
-        lambda capdir, _: FileContext(
-            Path(__file__).parents[1] / "pyproject.toml",
-            hash_algorithm="sha256",
-            copy_to=capdir,
-        ),
-        GitRepositoryContext.default(),
-    ),
-    pre_run_reporters=(lambda capdir, _: JsonDumpReporter(capdir / "pre_run_report.json", option=orjson.OPT_INDENT_2),),
-    in_run_watchers=(),
-    post_run_contexts=(),
+@capsula.run(
+    capsule_directory=lambda: Path(__file__).parents[1]
+    / "vault"
+    / datetime.now(UTC).astimezone().strftime(r"%Y%m%d_%H%M%S"),
 )
+@capsula.context(
+    lambda capdir, _: FileContext(
+        Path(__file__).parents[1] / "pyproject.toml",
+        hash_algorithm="sha256",
+        copy_to=capdir,
+    ),
+    mode="pre",
+)
+@capsula.context(GitRepositoryContext.default(), mode="pre")
+@capsula.reporter(
+    lambda capdir, _, phase: JsonDumpReporter(capdir / f"{phase}-run-report.json", option=orjson.OPT_INDENT_2),
+    mode="all",
+)
+@capsula.watcher(TimeWatcher("calculation_time"))
 def calculate_pi(*, n_samples: int = 1_000, seed: int = 42) -> None:
     logger.info(f"Calculating pi with {n_samples} samples.")
     logger.debug(f"Seed: {seed}")
@@ -35,11 +41,11 @@ def calculate_pi(*, n_samples: int = 1_000, seed: int = 42) -> None:
     ys = (random.random() for _ in range(n_samples))  # noqa: S311
     inside = sum(x * x + y * y <= 1.0 for x, y in zip(xs, ys))
 
-    enc.record("inside", inside)
+    capsula.record("inside", inside)
 
     pi_estimate = (4.0 * inside) / n_samples
     logger.info(f"Pi estimate: {pi_estimate}")
-    enc.record("pi_estimate", pi_estimate)
+    capsula.record("pi_estimate", pi_estimate)
     # raise CapsulaError("This is a test error.")
 
     with (Path(__file__).parent / "pi.txt").open("w") as output_file:
