@@ -120,6 +120,7 @@ class Run(Generic[_P, _T]):
             msg = "run_dir_generator must be set before calling the function."
             raise ValueError(msg)
         run_dir = self.run_dir_generator(func_info)
+        run_dir.mkdir(parents=True, exist_ok=True)
         params = CapsuleParams(
             func=func_info.func,
             args=func_info.args,
@@ -137,17 +138,19 @@ class Run(Generic[_P, _T]):
             reporter = reporter_generator(params)
             reporter.report(pre_run_capsule)
 
+        params.phase = "in"
         in_run_enc = Encapsulator()
         for watcher_generator in self.in_run_watcher_generators:
             watcher = watcher_generator(params)
             in_run_enc.add_watcher(watcher)
-        with in_run_enc.watch():
+        with in_run_enc, in_run_enc.watch():
             result = self.func(*args, **kwargs)
         in_run_capsule = in_run_enc.encapsulate()
         for reporter_generator in self.in_run_reporter_generators:
             reporter = reporter_generator(params)
             reporter.report(in_run_capsule)
 
+        params.phase = "post"
         post_run_enc = Encapsulator()
         for context_generator in self.post_run_context_generators:
             context = context_generator(params)
