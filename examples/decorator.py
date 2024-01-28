@@ -30,6 +30,14 @@ logger = logging.getLogger(__name__)
     mode="all",
 )
 @capsula.watcher(capsula.TimeWatcher("calculation_time"))
+@capsula.context(
+    lambda params: capsula.FileContext(
+        Path(__file__).parent / "pi.txt",
+        hash_algorithm="sha256",
+        move_to=params.run_dir,
+    ),
+    mode="post",
+)
 def calculate_pi(*, n_samples: int = 1_000, seed: int = 42) -> None:
     logger.info(f"Calculating pi with {n_samples} samples.")
     logger.debug(f"Seed: {seed}")
