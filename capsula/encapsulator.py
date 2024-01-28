@@ -81,7 +81,7 @@ class Encapsulator:
     _thread_local = threading.local()
 
     @classmethod
-    def _get_encapsulator_context_stack(cls) -> queue.LifoQueue[Self]:
+    def _get_context_stack(cls) -> queue.LifoQueue[Self]:
         if not hasattr(cls._thread_local, "encapsulator_context_stack"):
             cls._thread_local.encapsulator_context_stack = queue.LifoQueue()
         return cls._thread_local.encapsulator_context_stack
@@ -89,7 +89,7 @@ class Encapsulator:
     @classmethod
     def get_current(cls) -> Self | None:
         try:
-            return cls._get_encapsulator_context_stack().queue[-1]
+            return cls._get_context_stack().queue[-1]
         except IndexError:
             return None
 
@@ -98,7 +98,7 @@ class Encapsulator:
         self.watchers: OrderedDict[_CapsuleItemKey, Watcher] = OrderedDict()
 
     def __enter__(self) -> Self:
-        self._get_encapsulator_context_stack().put(self)
+        self._get_context_stack().put(self)
         return self
 
     def __exit__(
@@ -107,7 +107,7 @@ class Encapsulator:
         exc_value: BaseException | None,
         traceback: TracebackType | None,
     ) -> None:
-        self._get_encapsulator_context_stack().get()
+        self._get_context_stack().get()
 
     def add_context(self, context: Context, key: _CapsuleItemKey | None = None) -> None:
         if key is None:
