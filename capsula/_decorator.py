@@ -9,7 +9,7 @@ from capsula.encapsulator import Encapsulator
 
 from ._backport import ParamSpec
 from ._context import ContextBase
-from ._run import CapsuleParams, Run
+from ._run import CapsuleParams, FuncInfo, Run
 from ._watcher import WatcherBase
 
 if TYPE_CHECKING:
@@ -108,7 +108,7 @@ def reporter(
 
 def context(
     context: ContextBase | Callable[[CapsuleParams], ContextBase],
-    mode: Literal["pre", "in", "post", "all"],
+    mode: Literal["pre", "post", "all"],
 ) -> Callable[[Callable[_P, _T] | Run[_P, _T]], Run[_P, _T]]:
     def decorator(func_or_run: Callable[_P, _T] | Run[_P, _T]) -> Run[_P, _T]:
         func = func_or_run.func if isinstance(func_or_run, Run) else func_or_run
@@ -120,7 +120,7 @@ def context(
 
 
 def run(
-    run_dir: Path | Callable[[CapsuleParams], Path],
+    run_dir: Path | Callable[[FuncInfo], Path],
 ) -> Callable[[Callable[_P, _T] | Run[_P, _T]], Run[_P, _T]]:
     def decorator(func_or_run: Callable[_P, _T] | Run[_P, _T]) -> Run[_P, _T]:
         func = func_or_run.func if isinstance(func_or_run, Run) else func_or_run

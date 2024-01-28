@@ -5,13 +5,13 @@ __all__ = [
 import logging
 import subprocess
 
-from capsula._context import ContextBase
 from capsula.config import CapsulaConfig
+from capsula.context import Context
 
 logger = logging.getLogger(__name__)
 
 
-def capture(*, config: CapsulaConfig) -> ContextBase:
+def capture(*, config: CapsulaConfig) -> Context:
     """Capture the context."""
     logger.debug(f"Capture config: {config.capture}")
 
@@ -36,7 +36,7 @@ def capture(*, config: CapsulaConfig) -> ContextBase:
 
     config.ensure_capsule_directory_exists()
 
-    ctx = ContextBase.capture(config)
+    ctx = Context.capture(config)
 
     # Write the context to the output file.
     with (config.capsule / "context.json").open("w") as output_file:
