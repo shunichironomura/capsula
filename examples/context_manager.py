@@ -7,7 +7,7 @@ import orjson
 
 import capsula
 from capsula import Encapsulator
-from capsula.reporter import JsonDumpReporter
+from capsula._reporter import JsonDumpReporter
 
 logger = logging.getLogger(__name__)
 

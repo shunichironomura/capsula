@@ -7,9 +7,9 @@ import orjson
 
 import capsula
 from capsula._context import FileContext, GitRepositoryContext
+from capsula._reporter import JsonDumpReporter
+from capsula._watcher import TimeWatcher
 from capsula.encapsulator import Encapsulator
-from capsula.reporter import JsonDumpReporter
-from capsula.watcher import TimeWatcher
 
 logger = logging.getLogger(__name__)
 

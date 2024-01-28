@@ -4,12 +4,12 @@ from functools import wraps
 from pathlib import Path
 from typing import TYPE_CHECKING, Callable, Tuple, TypeVar, Union
 
+from capsula._reporter import Reporter
 from capsula.encapsulator import Encapsulator
-from capsula.reporter import Reporter
 
 from ._backport import ParamSpec
 from ._context import Context
-from .watcher import Watcher
+from ._watcher import Watcher
 
 if TYPE_CHECKING:
     from collections.abc import Sequence

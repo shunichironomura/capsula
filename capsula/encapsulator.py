@@ -18,8 +18,8 @@ from capsula.utils import ExceptionInfo
 
 from ._capsule import Capsule
 from ._context import Context
+from ._watcher import Watcher
 from .exceptions import CapsulaError
-from .watcher import Watcher
 
 _CapsuleItemKey: TypeAlias = Union[str, Tuple[str, ...]]
 

@@ -15,8 +15,8 @@ from capsula._context import (
     GitRepositoryContext,
     PlatformContext,
 )
-from capsula.reporter import JsonDumpReporter
-from capsula.watcher import TimeWatcher, UncaughtExceptionWatcher
+from capsula._reporter import JsonDumpReporter
+from capsula._watcher import TimeWatcher, UncaughtExceptionWatcher
 
 logger = logging.getLogger(__name__)
 
