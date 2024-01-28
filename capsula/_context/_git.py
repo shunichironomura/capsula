@@ -7,6 +7,7 @@ from typing import Callable
 
 from git.repo import Repo
 
+from capsula._decorator import CapsuleParams
 from capsula.exceptions import CapsulaError
 
 from ._base import Context
@@ -61,15 +62,15 @@ class GitRepositoryContext(Context):
         return ("git", self.name)
 
     @classmethod
-    def default(cls) -> Callable[[Path, Callable], GitRepositoryContext]:
-        def callback(capdir: Path, func: Callable) -> GitRepositoryContext:
-            func_file_path = Path(inspect.getfile(func))
+    def default(cls) -> Callable[[CapsuleParams], GitRepositoryContext]:
+        def callback(params: CapsuleParams) -> GitRepositoryContext:
+            func_file_path = Path(inspect.getfile(params.func))
             repo = Repo(func_file_path.parent, search_parent_directories=True)
             repo_name = Path(repo.working_dir).name
             return cls(
                 name=Path(repo.working_dir).name,
                 path=Path(repo.working_dir),
-                diff_file=capdir / f"{repo_name}.diff",
+                diff_file=params.run_dir / f"{repo_name}.diff",
                 search_parent_directories=False,
                 allow_dirty=True,
             )
