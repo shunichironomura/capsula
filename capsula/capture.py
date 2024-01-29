@@ -6,7 +6,7 @@ import logging
 import subprocess
 
 from capsula.config import CapsulaConfig
-from capsula.context import Context
+from capsula.context_deprecated import Context
 
 logger = logging.getLogger(__name__)
 
