@@ -8,7 +8,6 @@ __all__ = [
     "set_capsule_dir",
     "set_capsule_name",
     "Encapsulator",
-    "capsule",
     "record",
     "Run",
     "ContextBase",
@@ -39,7 +38,7 @@ from ._context import (
     GitRepositoryContext,
     PlatformContext,
 )
-from ._decorator import capsule, context, reporter, run, watcher
+from ._decorator import context, reporter, run, watcher
 from ._monitor import monitor
 from ._reporter import JsonDumpReporter, ReporterBase
 from ._root import record
