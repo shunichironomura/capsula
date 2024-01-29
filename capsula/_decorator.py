@@ -1,21 +1,17 @@
 from __future__ import annotations
 
-from functools import wraps
-from pathlib import Path
-from typing import TYPE_CHECKING, Callable, Literal, Tuple, TypeVar, Union
-
-from capsula._reporter import ReporterBase
-from capsula.encapsulator import Encapsulator
+from typing import TYPE_CHECKING, Callable, Literal, TypeVar
 
 from ._backport import ParamSpec
-from ._context import ContextBase
 from ._run import CapsuleParams, FuncInfo, Run
-from ._watcher import WatcherBase
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from pathlib import Path
 
-    from ._backport import TypeAlias
+    from capsula._reporter import ReporterBase
+
+    from ._context import ContextBase
+    from ._watcher import WatcherBase
 
 _P = ParamSpec("_P")
 _T = TypeVar("_T")
