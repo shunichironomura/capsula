@@ -88,6 +88,12 @@ def capture(ctx: click.Context) -> None:
 @click.pass_context
 def monitor(ctx: click.Context, items: Iterable[str], args: tuple[str]) -> None:
     """Monitor execution."""
+    # Show deprecation warning
+    click.secho(
+        "The 'monitor' command is deprecated and will be removed in a future version.",
+        fg="yellow",
+    )
+
     config: CapsulaConfig = ctx.obj["capsula_config"]
     capture_core(config=config)
 
