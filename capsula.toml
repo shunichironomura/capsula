@@ -14,7 +14,7 @@ include-cpu = true
 # They are executed in the order specified, and if one of them fails, the subsequent commands are not executed.
 # The commands are executed in the root directory.
 pre-capture-commands = [
-    'poetry lock --check',
+    'poetry check --lock',
     'pip freeze --exclude-editable > requirements.txt',
 ]
 
