@@ -296,6 +296,12 @@ def monitor(
         )
         items = (items,)
 
+    warnings.warn(
+        "The `monitor` decorator is deprecated. Use `@capsula.run` instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+
     def decorator(func: Callable[P, T]) -> Callable[P, T]:
         capsula_config_path = directory / "capsula.toml"
         with capsula_config_path.open("rb") as capsula_config_file:
