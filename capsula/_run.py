@@ -11,7 +11,7 @@ from capsula._reporter import ReporterBase
 from capsula.encapsulator import Encapsulator
 
 from ._backport import Concatenate, ParamSpec, Self
-from ._context import ContextBase
+from ._context import ContextBase, FunctionCallContext
 from ._watcher import WatcherBase
 
 if TYPE_CHECKING:
@@ -181,6 +181,8 @@ class Run(Generic[_P, _T]):
         for watcher_generator in self.in_run_watcher_generators:
             watcher = watcher_generator(params)
             in_run_enc.add_watcher(watcher)
+
+        in_run_enc.add_context(FunctionCallContext(self.func, args, kwargs))
 
         with self, in_run_enc, in_run_enc.watch():
             if self.pass_pre_run_capsule:
