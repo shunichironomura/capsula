@@ -3,19 +3,21 @@ from __future__ import annotations
 import queue
 import threading
 from pathlib import Path
-from typing import TYPE_CHECKING, Callable, Generic, Literal, TypeVar
+from typing import TYPE_CHECKING, Callable, Generic, Literal, TypeVar, overload
 
 from pydantic import BaseModel
 
 from capsula._reporter import ReporterBase
 from capsula.encapsulator import Encapsulator
 
-from ._backport import ParamSpec, Self
+from ._backport import Concatenate, ParamSpec, Self
 from ._context import ContextBase
 from ._watcher import WatcherBase
 
 if TYPE_CHECKING:
     from types import TracebackType
+
+    from ._capsule import Capsule
 
 _P = ParamSpec("_P")
 _T = TypeVar("_T")
@@ -48,7 +50,15 @@ class Run(Generic[_P, _T]):
         except IndexError:
             return None
 
-    def __init__(self, func: Callable[_P, _T]) -> None:
+    @overload
+    def __init__(self, func: Callable[_P, _T], *, pass_pre_run_capsule: Literal[False] = False) -> None:
+        ...
+
+    @overload
+    def __init__(self, func: Callable[Concatenate[Capsule, _P], _T], *, pass_pre_run_capsule: Literal[True]) -> None:
+        ...
+
+    def __init__(self, func, *, pass_pre_run_capsule: bool = False) -> None:
         self.pre_run_context_generators: list[Callable[[CapsuleParams], ContextBase]] = []
         self.in_run_watcher_generators: list[Callable[[CapsuleParams], WatcherBase]] = []
         self.post_run_context_generators: list[Callable[[CapsuleParams], ContextBase]] = []
@@ -57,7 +67,9 @@ class Run(Generic[_P, _T]):
         self.in_run_reporter_generators: list[Callable[[CapsuleParams], ReporterBase]] = []
         self.post_run_reporter_generators: list[Callable[[CapsuleParams], ReporterBase]] = []
 
-        self.func = func
+        self.pass_pre_run_capsule: bool = pass_pre_run_capsule
+        self.func: Callable[_P, _T] | Callable[Concatenate[Capsule, _P], _T] = func
+
         self.run_dir_generator: Callable[[FuncInfo], Path] | None = None
 
     def add_context(
@@ -170,7 +182,10 @@ class Run(Generic[_P, _T]):
             in_run_enc.add_watcher(watcher)
 
         with self, in_run_enc, in_run_enc.watch():
-            result = self.func(*args, **kwargs)
+            if self.pass_pre_run_capsule:
+                result = self.func(pre_run_capsule, *args, **kwargs)  # type: ignore[arg-type]
+            else:
+                result = self.func(*args, **kwargs)
 
         in_run_capsule = in_run_enc.encapsulate()
         for reporter_generator in self.in_run_reporter_generators:
