@@ -12,6 +12,7 @@ import orjson
 from capsula.utils import to_nested_dict
 
 if TYPE_CHECKING:
+    from capsula._decorator import CapsuleParams
     from capsula.encapsulator import Capsule
 
 from ._base import ReporterBase
@@ -47,7 +48,7 @@ class JsonDumpReporter(ReporterBase):
             self.path.parent.mkdir(parents=True, exist_ok=True)
 
         if default is None:
-            self.default = default_preset
+            self.default_for_encoder = default_preset
         else:
 
             def _default(obj: Any) -> Any:
@@ -56,7 +57,7 @@ class JsonDumpReporter(ReporterBase):
                 except TypeError:
                     return default(obj)
 
-            self.default = _default
+            self.default_for_encoder = _default
 
         self.option = option
 
@@ -72,5 +73,19 @@ class JsonDumpReporter(ReporterBase):
         if capsule.fails:
             nested_data["__fails"] = to_nested_dict({_str_to_tuple(k): v for k, v in capsule.fails.items()})
 
-        json_bytes = orjson.dumps(nested_data, default=self.default, option=self.option)
+        json_bytes = orjson.dumps(nested_data, default=self.default_for_encoder, option=self.option)
         self.path.write_bytes(json_bytes)
+
+    @classmethod
+    def default(
+        cls,
+        *,
+        option: Optional[int] = None,
+    ) -> Callable[[CapsuleParams], JsonDumpReporter]:
+        def callback(params: CapsuleParams) -> JsonDumpReporter:
+            return cls(
+                params.run_dir / f"{params.phase}-run-report.json",
+                option=orjson.OPT_INDENT_2 if option is None else option,
+            )
+
+        return callback

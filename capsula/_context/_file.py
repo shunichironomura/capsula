@@ -1,13 +1,17 @@
 from __future__ import annotations
 
 import logging
+import warnings
 from pathlib import Path
 from shutil import copyfile, move
-from typing import Iterable
+from typing import TYPE_CHECKING, Callable, Iterable
 
 from capsula._backport import file_digest
 
 from ._base import ContextBase
+
+if TYPE_CHECKING:
+    from capsula._decorator import CapsuleParams
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +24,7 @@ class FileContext(ContextBase):
         path: Path | str,
         *,
         compute_hash: bool = True,
-        hash_algorithm: str | None,
+        hash_algorithm: str | None = None,
         copy_to: Iterable[Path | str] | Path | str | None = None,
         move_to: Path | str | None = None,
     ) -> None:
@@ -67,3 +71,29 @@ class FileContext(ContextBase):
 
     def default_key(self) -> tuple[str, str]:
         return ("file", str(self.path))
+
+    @classmethod
+    def default(
+        cls,
+        path: Path | str,
+        *,
+        compute_hash: bool = True,
+        hash_algorithm: str | None = None,
+        copy: bool = False,
+        move: bool = False,
+    ) -> Callable[[CapsuleParams], FileContext]:
+        if copy and move:
+            warnings.warn("Both copy and move are True. Only move will be performed.", UserWarning, stacklevel=2)
+            move = True
+            copy = False
+
+        def callback(params: CapsuleParams) -> FileContext:
+            return cls(
+                path=path,
+                compute_hash=compute_hash,
+                hash_algorithm=hash_algorithm,
+                copy_to=params.run_dir if copy else None,
+                move_to=params.run_dir if move else None,
+            )
+
+        return callback
