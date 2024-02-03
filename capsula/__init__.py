@@ -1,6 +1,7 @@
 __all__ = [
     "CapsulaConfigurationError",
     "CapsulaError",
+    "Capsule",
     "CommandContext",
     "ContextBase",
     "CpuContext",
@@ -21,6 +22,7 @@ __all__ = [
     "get_capsule_dir",
     "get_capsule_name",
     "monitor",
+    "pass_pre_run_capsule",
     "record",
     "reporter",
     "run",
@@ -28,6 +30,7 @@ __all__ = [
     "set_capsule_name",
     "watcher",
 ]
+from ._capsule import Capsule
 from ._context import (
     CommandContext,
     ContextBase,
@@ -38,7 +41,7 @@ from ._context import (
     GitRepositoryContext,
     PlatformContext,
 )
-from ._decorator import context, reporter, run, watcher
+from ._decorator import context, pass_pre_run_capsule, reporter, run, watcher
 from ._reporter import JsonDumpReporter, ReporterBase
 from ._root import record
 from ._run import Run

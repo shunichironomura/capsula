@@ -38,7 +38,8 @@ logger = logging.getLogger(__name__)
     ),
     mode="post",
 )
-def calculate_pi(*, n_samples: int = 1_000, seed: int = 42) -> None:
+@capsula.pass_pre_run_capsule
+def calculate_pi(pre_run_capsule: capsula.Capsule, *, n_samples: int = 1_000, seed: int = 42) -> None:
     logger.info(f"Calculating pi with {n_samples} samples.")
     logger.debug(f"Seed: {seed}")
     random.seed(seed)
@@ -52,9 +53,10 @@ def calculate_pi(*, n_samples: int = 1_000, seed: int = 42) -> None:
     logger.info(f"Pi estimate: {pi_estimate}")
     capsula.record("pi_estimate", pi_estimate)
     # raise CapsulaError("This is a test error.")
+    logger.info(pre_run_capsule.data)
 
     with (Path(__file__).parent / "pi.txt").open("w") as output_file:
-        output_file.write(str(pi_estimate))
+        output_file.write(f"Pi estimate: {pi_estimate}. Git SHA: {pre_run_capsule.data[('git', 'capsula')]['sha']}")
 
 
 if __name__ == "__main__":
