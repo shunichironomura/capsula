@@ -39,7 +39,6 @@ from ._context import (
     PlatformContext,
 )
 from ._decorator import context, reporter, run, watcher
-from ._monitor import monitor
 from ._reporter import JsonDumpReporter, ReporterBase
 from ._root import record
 from ._run import Run
@@ -47,4 +46,3 @@ from ._version import __version__
 from ._watcher import TimeWatcher, UncaughtExceptionWatcher, WatcherBase
 from .encapsulator import Encapsulator
 from .exceptions import CapsulaConfigurationError, CapsulaError
-from .globalvars import get_capsule_dir, get_capsule_name, set_capsule_dir, set_capsule_name
