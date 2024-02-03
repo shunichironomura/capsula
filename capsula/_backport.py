@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-__all__ = ["TypeAlias", "file_digest", "Self", "ParamSpec"]
+__all__ = ["ParamSpec", "Self", "TypeAlias", "file_digest"]
 
 import hashlib
 import sys

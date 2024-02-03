@@ -1,8 +1,8 @@
 __all__ = [
-    "set_capsule_dir",
     "get_capsule_dir",
-    "set_capsule_name",
     "get_capsule_name",
+    "set_capsule_dir",
+    "set_capsule_name",
 ]
 import os
 from pathlib import Path
