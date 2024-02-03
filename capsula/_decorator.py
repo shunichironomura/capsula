@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import inspect
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from random import choices
 from string import ascii_letters, digits
@@ -63,7 +63,7 @@ def run(
     def _default_run_dir_generator(func_info: FuncInfo) -> Path:
         project_root = search_for_project_root(Path(inspect.getfile(func_info.func)))
         random_suffix = "".join(choices(ascii_letters + digits, k=4))  # noqa: S311
-        datetime_str = datetime.now(UTC).astimezone().strftime(r"%Y%m%d_%H%M%S")
+        datetime_str = datetime.now(timezone.utc).astimezone().strftime(r"%Y%m%d_%H%M%S")
         dir_name = f"{func_info.func.__name__}_{datetime_str}_{random_suffix}"
         return project_root / "vault" / dir_name
 
