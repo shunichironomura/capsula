@@ -1,12 +1,9 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from ._run import Run
 from .encapsulator import Encapsulator, _CapsuleItemKey
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 
 def record(key: _CapsuleItemKey, value: Any) -> None:
@@ -17,7 +14,7 @@ def record(key: _CapsuleItemKey, value: Any) -> None:
     enc.record(key, value)
 
 
-def current_run_dir() -> Path:
+def current_run_name() -> str:
     run: Run | None = Run.get_current()
     if run is None:
         msg = "No active run found."
@@ -25,4 +22,4 @@ def current_run_dir() -> Path:
     if run.run_dir is None:
         msg = "No active run directory found."
         raise RuntimeError(msg)
-    return run.run_dir
+    return run.run_dir.name
