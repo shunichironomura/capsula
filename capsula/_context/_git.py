@@ -64,17 +64,22 @@ class GitRepositoryContext(ContextBase):
         return ("git", self.name)
 
     @classmethod
-    def default(cls) -> Callable[[CapsuleParams], GitRepositoryContext]:
+    def default(
+        cls,
+        name: str | None = None,
+        *,
+        allow_dirty: bool | None = None,
+    ) -> Callable[[CapsuleParams], GitRepositoryContext]:
         def callback(params: CapsuleParams) -> GitRepositoryContext:
             func_file_path = Path(inspect.getfile(params.func))
             repo = Repo(func_file_path.parent, search_parent_directories=True)
             repo_name = Path(repo.working_dir).name
             return cls(
-                name=Path(repo.working_dir).name,
+                name=Path(repo.working_dir).name if name is None else name,
                 path=Path(repo.working_dir),
                 diff_file=params.run_dir / f"{repo_name}.diff",
                 search_parent_directories=False,
-                allow_dirty=True,
+                allow_dirty=True if allow_dirty is None else allow_dirty,
             )
 
         return callback

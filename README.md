@@ -25,45 +25,30 @@ See the following Python script:
 ```python
 import logging
 import random
-from datetime import UTC, datetime
 from pathlib import Path
-
-import orjson
 
 import capsula
 
 logger = logging.getLogger(__name__)
 
 
-@capsula.run(
-    run_dir=lambda _: Path(__file__).parents[1] / "vault" / datetime.now(UTC).astimezone().strftime(r"%Y%m%d_%H%M%S"),
-)
-@capsula.context(
-    lambda params: capsula.FileContext(
-        Path(__file__).parents[1] / "pyproject.toml",
-        hash_algorithm="sha256",
-        copy_to=params.run_dir,
-    ),
-    mode="pre",
-)
-@capsula.context(capsula.GitRepositoryContext.default(), mode="pre")
-@capsula.reporter(
-    lambda params: capsula.JsonDumpReporter(
-        params.run_dir / f"{params.phase}-run-report.json",
-        option=orjson.OPT_INDENT_2,
-    ),
-    mode="all",
-)
+@capsula.run()
+@capsula.reporter(capsula.JsonDumpReporter.default(), mode="all")
+@capsula.context(capsula.FileContext.default(Path(__file__).parent / "pi.txt", move=True), mode="post")
+@capsula.watcher(capsula.UncaughtExceptionWatcher("Exception"))
 @capsula.watcher(capsula.TimeWatcher("calculation_time"))
-@capsula.context(
-    lambda params: capsula.FileContext(
-        Path(__file__).parent / "pi.txt",
-        hash_algorithm="sha256",
-        move_to=params.run_dir,
-    ),
-    mode="post",
-)
-def calculate_pi(*, n_samples: int = 1_000, seed: int = 42) -> None:
+@capsula.context(capsula.FileContext.default(Path(__file__).parents[1] / "pyproject.toml", copy=True), mode="pre")
+@capsula.context(capsula.FileContext.default(Path(__file__).parents[1] / "poetry.lock", copy=True), mode="pre")
+@capsula.context(capsula.FileContext.default(Path(__file__).parents[1] / "requirements.txt", move=True), mode="pre")
+@capsula.context(capsula.GitRepositoryContext.default(), mode="pre")
+@capsula.context(capsula.CommandContext("poetry check --lock"), mode="pre")
+@capsula.context(capsula.CommandContext("pip freeze --exclude-editable > requirements.txt"), mode="pre")
+@capsula.context(capsula.EnvVarContext("HOME"), mode="pre")
+@capsula.context(capsula.EnvVarContext("PATH"), mode="pre")
+@capsula.context(capsula.CwdContext(), mode="pre")
+@capsula.context(capsula.CpuContext(), mode="pre")
+@capsula.pass_pre_run_capsule
+def calculate_pi(pre_run_capsule: capsula.Capsule, *, n_samples: int = 1_000, seed: int = 42) -> None:
     logger.info(f"Calculating pi with {n_samples} samples.")
     logger.debug(f"Seed: {seed}")
     random.seed(seed)
@@ -76,13 +61,14 @@ def calculate_pi(*, n_samples: int = 1_000, seed: int = 42) -> None:
     pi_estimate = (4.0 * inside) / n_samples
     logger.info(f"Pi estimate: {pi_estimate}")
     capsula.record("pi_estimate", pi_estimate)
+    logger.info(pre_run_capsule.data)
+    logger.info(capsula.current_run_name())
 
     with (Path(__file__).parent / "pi.txt").open("w") as output_file:
-        output_file.write(str(pi_estimate))
+        output_file.write(f"Pi estimate: {pi_estimate}. Git SHA: {pre_run_capsule.data[('git', 'capsula')]['sha']}")
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
     calculate_pi(n_samples=1_000)
 ```
 

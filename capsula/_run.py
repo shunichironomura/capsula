@@ -71,6 +71,7 @@ class Run(Generic[_P, _T]):
         self.func: Callable[_P, _T] | Callable[Concatenate[Capsule, _P], _T] = func
 
         self.run_dir_generator: Callable[[FuncInfo], Path] | None = None
+        self.run_dir: Path | None = None
 
     def add_context(
         self,
@@ -156,13 +157,13 @@ class Run(Generic[_P, _T]):
         if self.run_dir_generator is None:
             msg = "run_dir_generator must be set before calling the function."
             raise ValueError(msg)
-        run_dir = self.run_dir_generator(func_info)
-        run_dir.mkdir(parents=True, exist_ok=True)
+        self.run_dir = self.run_dir_generator(func_info)
+        self.run_dir.mkdir(parents=True, exist_ok=True)
         params = CapsuleParams(
             func=func_info.func,
             args=func_info.args,
             kwargs=func_info.kwargs,
-            run_dir=run_dir,
+            run_dir=self.run_dir,
             phase="pre",
         )
 

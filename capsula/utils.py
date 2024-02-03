@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Hashable
 
 if TYPE_CHECKING:
+    from pathlib import Path
     from types import TracebackType
 
 
@@ -71,3 +72,21 @@ def to_nested_dict(flat_dict: Mapping[Sequence[Hashable], Any]) -> dict[Hashable
         else:
             nested_dict[key[0]] = to_nested_dict({key[1:]: value})
     return nested_dict
+
+
+def search_for_project_root(start: Path) -> Path:
+    """Search for the project root directory by looking for pyproject.toml.
+
+    Args:
+        start: The start directory to search.
+
+    Returns:
+        The project root directory.
+
+    """
+    if (start / "pyproject.toml").exists():
+        return start
+    if start == start.parent:
+        msg = "Project root not found."
+        raise FileNotFoundError(msg)
+    return search_for_project_root(start.parent)
