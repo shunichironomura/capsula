@@ -35,8 +35,8 @@ coverage = "7.4.1"
 genbadge = { extras = ["coverage"], version = "1.1.1" }
 tomli-w = "1.0.0"
 
-[tool.poetry.scripts]
-capsula = "capsula.__main__:main"
+# [tool.poetry.scripts]
+# capsula = "capsula.__main__:main"
 
 [build-system]
 requires = ["poetry-core"]
