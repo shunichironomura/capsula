@@ -21,6 +21,7 @@ __all__ = [
     "get_capsule_dir",
     "get_capsule_name",
     "monitor",
+    "pass_pre_run_capsule",
     "record",
     "reporter",
     "run",
@@ -38,7 +39,7 @@ from ._context import (
     GitRepositoryContext,
     PlatformContext,
 )
-from ._decorator import context, reporter, run, watcher
+from ._decorator import context, pass_pre_run_capsule, reporter, run, watcher
 from ._reporter import JsonDumpReporter, ReporterBase
 from ._root import record
 from ._run import Run

@@ -3,7 +3,7 @@ from __future__ import annotations
 import queue
 import threading
 from pathlib import Path
-from typing import TYPE_CHECKING, Callable, Generic, Literal, TypeVar
+from typing import TYPE_CHECKING, Callable, Concatenate, Generic, Literal, TypeVar
 
 from pydantic import BaseModel
 
@@ -16,6 +16,8 @@ from ._watcher import WatcherBase
 
 if TYPE_CHECKING:
     from types import TracebackType
+
+    from ._capsule import Capsule
 
 _P = ParamSpec("_P")
 _T = TypeVar("_T")
@@ -48,7 +50,7 @@ class Run(Generic[_P, _T]):
         except IndexError:
             return None
 
-    def __init__(self, func: Callable[_P, _T]) -> None:
+    def __init__(self, func: Callable[Concatenate[Capsule, _P], _T] | Callable[_P, _T]) -> None:
         self.pre_run_context_generators: list[Callable[[CapsuleParams], ContextBase]] = []
         self.in_run_watcher_generators: list[Callable[[CapsuleParams], WatcherBase]] = []
         self.post_run_context_generators: list[Callable[[CapsuleParams], ContextBase]] = []
@@ -59,6 +61,8 @@ class Run(Generic[_P, _T]):
 
         self.func = func
         self.run_dir_generator: Callable[[FuncInfo], Path] | None = None
+
+        self.pass_pre_run_capsule: bool = False
 
     def add_context(
         self,
@@ -170,7 +174,10 @@ class Run(Generic[_P, _T]):
             in_run_enc.add_watcher(watcher)
 
         with self, in_run_enc, in_run_enc.watch():
-            result = self.func(*args, **kwargs)
+            if self.pass_pre_run_capsule:
+                result = self.func(pre_run_capsule, *args, **kwargs)  # type: ignore[arg-type]
+            else:
+                result = self.func(*args, **kwargs)
 
         in_run_capsule = in_run_enc.encapsulate()
         for reporter_generator in self.in_run_reporter_generators:

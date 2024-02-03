@@ -66,3 +66,10 @@ def run(
         return run
 
     return decorator
+
+
+def pass_pre_run_capsule(func_or_run: Callable[_P, _T] | Run[_P, _T]) -> Run[_P, _T]:
+    func = func_or_run.func if isinstance(func_or_run, Run) else func_or_run
+    run = func_or_run if isinstance(func_or_run, Run) else Run(func)
+    run.pass_pre_run_capsule = True
+    return run
