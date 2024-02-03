@@ -19,6 +19,7 @@ __all__ = [
     "WatcherBase",
     "__version__",
     "context",
+    "current_run_dir",
     "get_capsule_dir",
     "get_capsule_name",
     "monitor",
@@ -43,7 +44,7 @@ from ._context import (
 )
 from ._decorator import context, pass_pre_run_capsule, reporter, run, watcher
 from ._reporter import JsonDumpReporter, ReporterBase
-from ._root import record
+from ._root import current_run_dir, record
 from ._run import Run
 from ._version import __version__
 from ._watcher import TimeWatcher, UncaughtExceptionWatcher, WatcherBase
