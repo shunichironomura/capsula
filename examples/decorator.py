@@ -3,8 +3,6 @@ import random
 from datetime import UTC, datetime
 from pathlib import Path
 
-import orjson
-
 import capsula
 
 logger = logging.getLogger(__name__)
@@ -22,13 +20,7 @@ logger = logging.getLogger(__name__)
     mode="pre",
 )
 @capsula.context(capsula.GitRepositoryContext.default(), mode="pre")
-@capsula.reporter(
-    lambda params: capsula.JsonDumpReporter(
-        params.run_dir / f"{params.phase}-run-report.json",
-        option=orjson.OPT_INDENT_2,
-    ),
-    mode="all",
-)
+@capsula.reporter(capsula.JsonDumpReporter.default(), mode="all")
 @capsula.watcher(capsula.TimeWatcher("calculation_time"))
 @capsula.context(
     lambda params: capsula.FileContext(
