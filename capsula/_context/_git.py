@@ -66,8 +66,8 @@ class GitRepositoryContext(ContextBase):
     @classmethod
     def default(
         cls,
-        *,
         name: str | None = None,
+        *,
         allow_dirty: bool | None = None,
     ) -> Callable[[CapsuleParams], GitRepositoryContext]:
         def callback(params: CapsuleParams) -> GitRepositoryContext:
