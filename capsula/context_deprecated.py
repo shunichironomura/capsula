@@ -1,12 +1,12 @@
 __all__ = [
-    "ContextItem",
     "Architecture",
-    "PythonInfo",
-    "Platform",
-    "GitRemote",
-    "GitInfo",
-    "FileContext",
     "Context",
+    "ContextItem",
+    "FileContext",
+    "GitInfo",
+    "GitRemote",
+    "Platform",
+    "PythonInfo",
 ]
 import os
 import platform as pf

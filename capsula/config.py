@@ -1,9 +1,9 @@
 __all__ = [
-    "GitConfig",
-    "CaptureConfig",
-    "MonitorItemConfig",
-    "MonitorConfig",
     "CapsulaConfig",
+    "CaptureConfig",
+    "GitConfig",
+    "MonitorConfig",
+    "MonitorItemConfig",
 ]
 import sys
 from datetime import datetime

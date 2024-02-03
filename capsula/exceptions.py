@@ -1,4 +1,4 @@
-__all__ = ["CapsulaError", "CapsulaConfigurationError"]
+__all__ = ["CapsulaConfigurationError", "CapsulaError"]
 
 
 class CapsulaError(Exception):
