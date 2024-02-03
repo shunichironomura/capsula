@@ -13,16 +13,20 @@ logger = logging.getLogger(__name__)
 
 
 class FileContext(ContextBase):
+    _default_hash_algorithm = "sha256"
+
     def __init__(
         self,
         path: Path | str,
         *,
+        compute_hash: bool = True,
         hash_algorithm: str | None,
         copy_to: Iterable[Path | str] | Path | str | None = None,
         move_to: Path | str | None = None,
     ) -> None:
         self.path = Path(path)
-        self.hash_algorithm = hash_algorithm
+        self.hash_algorithm = self._default_hash_algorithm if hash_algorithm is None else hash_algorithm
+        self.compute_hash = compute_hash
         self.move_to = None if move_to is None else Path(move_to)
 
         if copy_to is None:
@@ -39,22 +43,20 @@ class FileContext(ContextBase):
             return p
 
     def encapsulate(self) -> dict:
-        if self.hash_algorithm is None:
-            digest = None
-        else:
-            with self.path.open("rb") as f:
-                digest = file_digest(f, self.hash_algorithm).hexdigest()
-
         self.copy_to = tuple(self._normalize_copy_dst_path(p) for p in self.copy_to)
 
         info: dict = {
-            "hash": {
-                "algorithm": self.hash_algorithm,
-                "digest": digest,
-            },
             "copied_to": self.copy_to,
             "moved_to": self.move_to,
         }
+
+        if self.compute_hash:
+            with self.path.open("rb") as f:
+                digest = file_digest(f, self.hash_algorithm).hexdigest()
+            info["hash"] = {
+                "algorithm": self.hash_algorithm,
+                "digest": digest,
+            }
 
         for path in self.copy_to:
             copyfile(self.path, path)
