@@ -1,6 +1,7 @@
 __all__ = [
     "CapsulaConfigurationError",
     "CapsulaError",
+    "Capsule",
     "CommandContext",
     "ContextBase",
     "CpuContext",
@@ -29,6 +30,7 @@ __all__ = [
     "set_capsule_name",
     "watcher",
 ]
+from ._capsule import Capsule
 from ._context import (
     CommandContext,
     ContextBase,

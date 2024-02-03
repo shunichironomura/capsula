@@ -3,7 +3,7 @@ from __future__ import annotations
 import queue
 import threading
 from pathlib import Path
-from typing import TYPE_CHECKING, Callable, Concatenate, Generic, Literal, TypeVar
+from typing import TYPE_CHECKING, Callable, Concatenate, Generic, Literal, TypeVar, overload
 
 from pydantic import BaseModel
 
@@ -50,7 +50,15 @@ class Run(Generic[_P, _T]):
         except IndexError:
             return None
 
-    def __init__(self, func: Callable[Concatenate[Capsule, _P], _T] | Callable[_P, _T]) -> None:
+    @overload
+    def __init__(self, func: Callable[_P, _T], *, pass_pre_run_capsule: Literal[False] = False) -> None:
+        ...
+
+    @overload
+    def __init__(self, func: Callable[Concatenate[Capsule, _P], _T], *, pass_pre_run_capsule: Literal[True]) -> None:
+        ...
+
+    def __init__(self, func, *, pass_pre_run_capsule: bool = False) -> None:
         self.pre_run_context_generators: list[Callable[[CapsuleParams], ContextBase]] = []
         self.in_run_watcher_generators: list[Callable[[CapsuleParams], WatcherBase]] = []
         self.post_run_context_generators: list[Callable[[CapsuleParams], ContextBase]] = []
@@ -59,10 +67,10 @@ class Run(Generic[_P, _T]):
         self.in_run_reporter_generators: list[Callable[[CapsuleParams], ReporterBase]] = []
         self.post_run_reporter_generators: list[Callable[[CapsuleParams], ReporterBase]] = []
 
-        self.func = func
-        self.run_dir_generator: Callable[[FuncInfo], Path] | None = None
+        self.pass_pre_run_capsule: bool = pass_pre_run_capsule
+        self.func: Callable[_P, _T] | Callable[Concatenate[Capsule, _P], _T] = func
 
-        self.pass_pre_run_capsule: bool = False
+        self.run_dir_generator: Callable[[FuncInfo], Path] | None = None
 
     def add_context(
         self,

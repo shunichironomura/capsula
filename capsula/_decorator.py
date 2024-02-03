@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Callable, Literal, TypeVar
+from typing import TYPE_CHECKING, Callable, Concatenate, Literal, TypeVar
 
 from ._backport import ParamSpec
 from ._run import CapsuleParams, FuncInfo, Run
@@ -8,9 +8,9 @@ from ._run import CapsuleParams, FuncInfo, Run
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from capsula._reporter import ReporterBase
-
+    from ._capsule import Capsule
     from ._context import ContextBase
+    from ._reporter import ReporterBase
     from ._watcher import WatcherBase
 
 _P = ParamSpec("_P")
@@ -21,8 +21,7 @@ def watcher(
     watcher: WatcherBase | Callable[[CapsuleParams], WatcherBase],
 ) -> Callable[[Callable[_P, _T] | Run[_P, _T]], Run[_P, _T]]:
     def decorator(func_or_run: Callable[_P, _T] | Run[_P, _T]) -> Run[_P, _T]:
-        func = func_or_run.func if isinstance(func_or_run, Run) else func_or_run
-        run = func_or_run if isinstance(func_or_run, Run) else Run(func)
+        run = func_or_run if isinstance(func_or_run, Run) else Run(func_or_run)
         run.add_watcher(watcher)
         return run
 
@@ -34,8 +33,7 @@ def reporter(
     mode: Literal["pre", "in", "post", "all"],
 ) -> Callable[[Callable[_P, _T] | Run[_P, _T]], Run[_P, _T]]:
     def decorator(func_or_run: Callable[_P, _T] | Run[_P, _T]) -> Run[_P, _T]:
-        func = func_or_run.func if isinstance(func_or_run, Run) else func_or_run
-        run = func_or_run if isinstance(func_or_run, Run) else Run(func)
+        run = func_or_run if isinstance(func_or_run, Run) else Run(func_or_run)
         run.add_reporter(reporter, mode=mode)
         return run
 
@@ -47,8 +45,7 @@ def context(
     mode: Literal["pre", "post", "all"],
 ) -> Callable[[Callable[_P, _T] | Run[_P, _T]], Run[_P, _T]]:
     def decorator(func_or_run: Callable[_P, _T] | Run[_P, _T]) -> Run[_P, _T]:
-        func = func_or_run.func if isinstance(func_or_run, Run) else func_or_run
-        run = func_or_run if isinstance(func_or_run, Run) else Run(func)
+        run = func_or_run if isinstance(func_or_run, Run) else Run(func_or_run)
         run.add_context(context, mode=mode)
         return run
 
@@ -59,8 +56,7 @@ def run(
     run_dir: Path | Callable[[FuncInfo], Path],
 ) -> Callable[[Callable[_P, _T] | Run[_P, _T]], Run[_P, _T]]:
     def decorator(func_or_run: Callable[_P, _T] | Run[_P, _T]) -> Run[_P, _T]:
-        func = func_or_run.func if isinstance(func_or_run, Run) else func_or_run
-        run = func_or_run if isinstance(func_or_run, Run) else Run(func)
+        run = func_or_run if isinstance(func_or_run, Run) else Run(func_or_run)
         run.set_run_dir(run_dir)
 
         return run
@@ -68,8 +64,5 @@ def run(
     return decorator
 
 
-def pass_pre_run_capsule(func_or_run: Callable[_P, _T] | Run[_P, _T]) -> Run[_P, _T]:
-    func = func_or_run.func if isinstance(func_or_run, Run) else func_or_run
-    run = func_or_run if isinstance(func_or_run, Run) else Run(func)
-    run.pass_pre_run_capsule = True
-    return run
+def pass_pre_run_capsule(func: Callable[Concatenate[Capsule, _P], _T]) -> Run[_P, _T]:
+    return Run(func, pass_pre_run_capsule=True)
