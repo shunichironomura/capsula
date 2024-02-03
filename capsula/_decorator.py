@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Callable, Concatenate, Literal, TypeVar
+from typing import TYPE_CHECKING, Callable, Literal, TypeVar
 
-from ._backport import ParamSpec
+from ._backport import Concatenate, ParamSpec
 from ._run import CapsuleParams, FuncInfo, Run
 
 if TYPE_CHECKING:

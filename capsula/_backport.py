@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-__all__ = ["ParamSpec", "Self", "TypeAlias", "file_digest"]
+__all__ = ["Concatenate", "ParamSpec", "Self", "TypeAlias", "file_digest"]
 
 import hashlib
 import sys
@@ -12,9 +12,9 @@ else:
     from typing_extensions import Self
 
 if sys.version_info >= (3, 10):
-    from typing import ParamSpec, TypeAlias
+    from typing import Concatenate, ParamSpec, TypeAlias
 else:
-    from typing_extensions import ParamSpec, TypeAlias
+    from typing_extensions import Concatenate, ParamSpec, TypeAlias
 
 
 if sys.version_info >= (3, 11):
