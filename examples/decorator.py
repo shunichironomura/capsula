@@ -1,6 +1,5 @@
 import logging
 import random
-from datetime import UTC, datetime
 from pathlib import Path
 
 import capsula
@@ -8,9 +7,7 @@ import capsula
 logger = logging.getLogger(__name__)
 
 
-@capsula.run(
-    run_dir=lambda _: Path(__file__).parents[1] / "vault" / datetime.now(UTC).astimezone().strftime(r"%Y%m%d_%H%M%S"),
-)
+@capsula.run()
 @capsula.reporter(capsula.JsonDumpReporter.default(), mode="all")
 @capsula.context(capsula.FileContext.default(Path(__file__).parent / "pi.txt", move=True), mode="post")
 @capsula.watcher(capsula.UncaughtExceptionWatcher("Exception"))
@@ -41,6 +38,7 @@ def calculate_pi(pre_run_capsule: capsula.Capsule, *, n_samples: int = 1_000, se
     capsula.record("pi_estimate", pi_estimate)
     # raise CapsulaError("This is a test error.")
     logger.info(pre_run_capsule.data)
+    logger.info(capsula.current_run_dir().name)
 
     with (Path(__file__).parent / "pi.txt").open("w") as output_file:
         output_file.write(f"Pi estimate: {pi_estimate}. Git SHA: {pre_run_capsule.data[('git', 'capsula')]['sha']}")
