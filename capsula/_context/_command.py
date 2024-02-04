@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 import subprocess
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypedDict
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -12,13 +12,21 @@ from ._base import ContextBase
 logger = logging.getLogger(__name__)
 
 
+class _CommandContextData(TypedDict):
+    command: str
+    cwd: Path | None
+    returncode: int
+    stdout: str
+    stderr: str
+
+
 class CommandContext(ContextBase):
     def __init__(self, command: str, *, cwd: Path | None = None, check: bool = False) -> None:
         self.command = command
         self.cwd = cwd
         self.check = check
 
-    def encapsulate(self) -> dict:
+    def encapsulate(self) -> _CommandContextData:
         logger.debug(f"Running command: {self.command}")
         output = subprocess.run(
             self.command,

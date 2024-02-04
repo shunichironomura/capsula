@@ -12,8 +12,8 @@ import orjson
 from capsula.utils import to_nested_dict
 
 if TYPE_CHECKING:
-    from capsula._decorator import CapsuleParams
-    from capsula.encapsulator import Capsule
+    from capsula._capsule import Capsule
+    from capsula._run import CapsuleParams
 
 from ._base import ReporterBase
 

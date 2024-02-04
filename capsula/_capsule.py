@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Any, Callable, Tuple, Union
 if TYPE_CHECKING:
     from collections.abc import Mapping
 
-    from capsula._decorator import CapsuleParams
+    from capsula._run import CapsuleParams
     from capsula.utils import ExceptionInfo
 
     from ._backport import Self, TypeAlias

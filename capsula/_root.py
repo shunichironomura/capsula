@@ -15,7 +15,7 @@ def record(key: _CapsuleItemKey, value: Any) -> None:
 
 
 def current_run_name() -> str:
-    run: Run | None = Run.get_current()
+    run: Run[Any, Any] | None = Run.get_current()
     if run is None:
         msg = "No active run found."
         raise RuntimeError(msg)

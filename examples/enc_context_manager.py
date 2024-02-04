@@ -1,6 +1,6 @@
 import logging
 import random
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 import orjson
@@ -29,7 +29,7 @@ def calc_pi(n_samples: int, seed: int) -> float:
 
 def main(n_samples: int, seed: int) -> None:
     # Define the run name and create the capsule directory
-    run_name = datetime.now(UTC).astimezone().strftime(r"%Y%m%d_%H%M%S")
+    run_name = datetime.now(timezone.utc).astimezone().strftime(r"%Y%m%d_%H%M%S")
     capsule_directory = Path(__file__).parents[1] / "vault" / run_name
 
     with capsula.Encapsulator() as enc:
