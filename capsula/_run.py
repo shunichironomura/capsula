@@ -3,7 +3,7 @@ from __future__ import annotations
 import queue
 import threading
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, Generic, Literal, TypeVar, overload
+from typing import TYPE_CHECKING, Any, Callable, Dict, Generic, Literal, Tuple, TypeVar, overload
 
 from pydantic import BaseModel
 
@@ -25,8 +25,8 @@ _T = TypeVar("_T")
 
 class FuncInfo(BaseModel):
     func: Callable[..., Any]
-    args: tuple[Any, ...]
-    kwargs: dict[str, Any]
+    args: Tuple[Any, ...]
+    kwargs: Dict[str, Any]
 
 
 class CapsuleParams(FuncInfo):
