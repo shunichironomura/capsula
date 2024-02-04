@@ -49,6 +49,9 @@ jobs:
   mypy:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.12", "3.11", "3.10", "3.9", "3.8"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -64,7 +67,7 @@ jobs:
         run: poetry install --no-interaction
 
       - name: Run mypy
-        run: poetry run --no-interaction mypy --strict .
+        run: poetry run --no-interaction -- mypy --strict --python-version ${{ matrix.python-version }} .
 
   tox:
     if: github.event.pull_request.draft == false
