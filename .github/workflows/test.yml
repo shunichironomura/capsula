@@ -64,7 +64,7 @@ jobs:
         run: poetry install --no-interaction
 
       - name: Run mypy
-        run: poetry run --no-interaction mypy .
+        run: poetry run --no-interaction mypy --strict .
 
   tox:
     if: github.event.pull_request.draft == false
