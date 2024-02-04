@@ -3,7 +3,7 @@ from __future__ import annotations
 import queue
 import threading
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, Generic, Literal, TypeVar, Unpack, overload
+from typing import TYPE_CHECKING, Any, Callable, Generic, Literal, TypeVar, overload
 
 from pydantic import BaseModel
 

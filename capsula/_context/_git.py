@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import inspect
 import logging
-from os import PathLike
 from pathlib import Path
 from typing import TYPE_CHECKING, Callable, TypedDict
 
@@ -13,6 +12,8 @@ from capsula.exceptions import CapsulaError
 from ._base import ContextBase
 
 if TYPE_CHECKING:
+    from os import PathLike
+
     from capsula._run import CapsuleParams
 
 logger = logging.getLogger(__name__)
