@@ -16,7 +16,7 @@
 
 1. **Context Capture:** Capsula logs the details of the execution context for future reference and reproduction. The context includes, but is not limited to, the Python version, system environment variables, and the Git commit hash of the current working directory.
 
-2. **Execution Monitoring:** Capsula monitors the execution of Python scripts and CLI commands, logging information such as the execution status, output, duration, etc.
+2. **Execution Monitoring:** Capsula monitors the execution of a Python function, logging information such as the execution status, output, duration, etc.
 
 3. **Context Reproduction (to be implemented):** Capsula enables the reproduction of the captured context. This ensures the consistency and reproducibility of results.
 
