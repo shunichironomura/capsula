@@ -4,12 +4,12 @@ import queue
 import threading
 from collections import OrderedDict
 from collections.abc import Hashable
-from contextlib import AbstractContextManager
 from itertools import chain
 from typing import TYPE_CHECKING, Any, Dict, Generic, Tuple, TypeVar, Union
 
 from capsula.utils import ExceptionInfo
 
+from ._backport import AbstractContextManager
 from ._capsule import Capsule
 from ._context import ContextBase
 from ._watcher import WatcherBase
@@ -40,7 +40,7 @@ _K = TypeVar("_K", bound=Hashable)
 _V = TypeVar("_V", bound=WatcherBase)
 
 
-class WatcherGroup(AbstractContextManager[Dict[_K, Any]], Generic[_K, _V]):
+class WatcherGroup(Generic[_K, _V], AbstractContextManager[Dict[_K, Any]]):
     def __init__(self, watchers: OrderedDict[_K, _V]) -> None:
         self.watchers = watchers
         self.context_manager_stack: queue.LifoQueue[AbstractContextManager[None]] = queue.LifoQueue()
