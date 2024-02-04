@@ -1,10 +1,24 @@
+from __future__ import annotations
+
 import platform as pf
+from typing import TypedDict
 
 from ._base import ContextBase
 
 
+class _PlatformContextData(TypedDict):
+    machine: str
+    node: str
+    platform: str
+    release: str
+    version: str
+    system: str
+    processor: str
+    python: dict[str, str | dict[str, str]]
+
+
 class PlatformContext(ContextBase):
-    def encapsulate(self) -> dict:
+    def encapsulate(self) -> _PlatformContextData:
         return {
             "machine": pf.machine(),
             "node": pf.node(),

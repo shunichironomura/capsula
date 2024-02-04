@@ -3,7 +3,7 @@ from __future__ import annotations
 import inspect
 import logging
 from pathlib import Path
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING, Callable, TypedDict
 
 from git.repo import Repo
 
@@ -12,7 +12,9 @@ from capsula.exceptions import CapsulaError
 from ._base import ContextBase
 
 if TYPE_CHECKING:
-    from capsula._decorator import CapsuleParams
+    from os import PathLike
+
+    from capsula._run import CapsuleParams
 
 logger = logging.getLogger(__name__)
 
@@ -21,6 +23,14 @@ class GitRepositoryDirtyError(CapsulaError):
     def __init__(self, repo: Repo) -> None:
         self.repo = repo
         super().__init__(f"Repository {repo.working_dir} is dirty")
+
+
+class _GitRepositoryContextData(TypedDict):
+    working_dir: PathLike[str] | str
+    sha: str
+    remotes: dict[str, str]
+    branch: str
+    is_dirty: bool
 
 
 class GitRepositoryContext(ContextBase):
@@ -39,12 +49,12 @@ class GitRepositoryContext(ContextBase):
         self.allow_dirty = allow_dirty
         self.diff_file = None if diff_file is None else Path(diff_file)
 
-    def encapsulate(self) -> dict:
+    def encapsulate(self) -> _GitRepositoryContextData:
         repo = Repo(self.path, search_parent_directories=self.search_parent_directories)
         if not self.allow_dirty and repo.is_dirty():
             raise GitRepositoryDirtyError(repo)
 
-        info = {
+        info: _GitRepositoryContextData = {
             "working_dir": repo.working_dir,
             "sha": repo.head.commit.hexsha,
             "remotes": {remote.name: remote.url for remote in repo.remotes},

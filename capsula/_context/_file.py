@@ -4,16 +4,22 @@ import logging
 import warnings
 from pathlib import Path
 from shutil import copyfile, move
-from typing import TYPE_CHECKING, Callable, Iterable
+from typing import TYPE_CHECKING, Callable, Iterable, TypedDict
 
 from capsula._backport import file_digest
 
 from ._base import ContextBase
 
 if TYPE_CHECKING:
-    from capsula._decorator import CapsuleParams
+    from capsula._run import CapsuleParams
 
 logger = logging.getLogger(__name__)
+
+
+class _FileContextData(TypedDict):
+    copied_to: tuple[Path, ...]
+    moved_to: Path | None
+    hash: dict[str, str] | None
 
 
 class FileContext(ContextBase):
@@ -46,26 +52,29 @@ class FileContext(ContextBase):
         else:
             return p
 
-    def encapsulate(self) -> dict:
+    def encapsulate(self) -> _FileContextData:
         self.copy_to = tuple(self._normalize_copy_dst_path(p) for p in self.copy_to)
-
-        info: dict = {
-            "copied_to": self.copy_to,
-            "moved_to": self.move_to,
-        }
 
         if self.compute_hash:
             with self.path.open("rb") as f:
                 digest = file_digest(f, self.hash_algorithm).hexdigest()
-            info["hash"] = {
+            hash_data = {
                 "algorithm": self.hash_algorithm,
                 "digest": digest,
             }
+        else:
+            hash_data = None
+
+        info: _FileContextData = {
+            "copied_to": self.copy_to,
+            "moved_to": self.move_to,
+            "hash": hash_data,
+        }
 
         for path in self.copy_to:
             copyfile(self.path, path)
         if self.move_to is not None:
-            move(self.path, self.move_to)
+            move(str(self.path), self.move_to)
 
         return info
 
