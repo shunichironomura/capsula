@@ -74,7 +74,7 @@ class FileContext(ContextBase):
         for path in self.copy_to:
             copyfile(self.path, path)
         if self.move_to is not None:
-            move(self.path, self.move_to)
+            move(str(self.path), self.move_to)
 
         return info
 

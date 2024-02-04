@@ -21,11 +21,11 @@ if sys.version_info >= (3, 11):
     file_digest = hashlib.file_digest
 else:
     if TYPE_CHECKING:
-        import io
+        from typing_extensions import Buffer
     from typing import Protocol
 
     class _BytesIOLike(Protocol):
-        def getbuffer(self) -> io.ReadableBuffer:
+        def getbuffer(self) -> Buffer:
             ...
 
     class _FileDigestFileObj(Protocol):
@@ -41,7 +41,7 @@ else:
         /,
         *,
         _bufsize: int = 2**18,
-    ):
+    ) -> hashlib._Hash:
         """Hash the contents of a file-like object. Returns a digest object.
 
         *fileobj* must be a file-like object opened for reading in binary mode.
