@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from capsula.encapsulator import Capsule
+from capsula._capsule import Capsule
 
 
 class ReporterBase(ABC):

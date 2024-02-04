@@ -12,7 +12,7 @@ from capsula.exceptions import CapsulaError
 from ._base import ContextBase
 
 if TYPE_CHECKING:
-    from capsula._decorator import CapsuleParams
+    from capsula._run import CapsuleParams
 
 logger = logging.getLogger(__name__)
 
