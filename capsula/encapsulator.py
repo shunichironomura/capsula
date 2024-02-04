@@ -40,10 +40,10 @@ _K = TypeVar("_K", bound=Hashable)
 _V = TypeVar("_V", bound=WatcherBase)
 
 
-class WatcherGroup(AbstractContextManager, Generic[_K, _V]):
+class WatcherGroup(AbstractContextManager[dict[_K, Any]], Generic[_K, _V]):
     def __init__(self, watchers: OrderedDict[_K, _V]) -> None:
         self.watchers = watchers
-        self.context_manager_stack: queue.LifoQueue[AbstractContextManager] = queue.LifoQueue()
+        self.context_manager_stack: queue.LifoQueue[AbstractContextManager[None]] = queue.LifoQueue()
 
     def __enter__(self) -> dict[_K, Any]:
         self.context_manager_stack = queue.LifoQueue()
@@ -83,7 +83,7 @@ class Encapsulator:
     def _get_context_stack(cls) -> queue.LifoQueue[Self]:
         if not hasattr(cls._thread_local, "context_stack"):
             cls._thread_local.context_stack = queue.LifoQueue()
-        return cls._thread_local.context_stack
+        return cls._thread_local.context_stack  # type: ignore[no-any-return]
 
     @classmethod
     def get_current(cls) -> Self | None:

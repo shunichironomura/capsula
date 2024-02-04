@@ -3,7 +3,7 @@ from __future__ import annotations
 import queue
 import threading
 from pathlib import Path
-from typing import TYPE_CHECKING, Callable, Generic, Literal, TypeVar, overload
+from typing import TYPE_CHECKING, Any, Callable, Generic, Literal, TypeVar, Unpack, overload
 
 from pydantic import BaseModel
 
@@ -24,9 +24,9 @@ _T = TypeVar("_T")
 
 
 class FuncInfo(BaseModel):
-    func: Callable
-    args: tuple
-    kwargs: dict
+    func: Callable[..., Any]
+    args: tuple[Any, ...]
+    kwargs: dict[str, Any]
 
 
 class CapsuleParams(FuncInfo):
@@ -41,7 +41,7 @@ class Run(Generic[_P, _T]):
     def _get_run_stack(cls) -> queue.LifoQueue[Self]:
         if not hasattr(cls._thread_local, "run_stack"):
             cls._thread_local.run_stack = queue.LifoQueue()
-        return cls._thread_local.run_stack
+        return cls._thread_local.run_stack  # type: ignore[no-any-return]
 
     @classmethod
     def get_current(cls) -> Self | None:
@@ -58,7 +58,12 @@ class Run(Generic[_P, _T]):
     def __init__(self, func: Callable[Concatenate[Capsule, _P], _T], *, pass_pre_run_capsule: Literal[True]) -> None:
         ...
 
-    def __init__(self, func, *, pass_pre_run_capsule: bool = False) -> None:
+    def __init__(
+        self,
+        func: Callable[_P, _T] | Callable[Concatenate[Capsule, _P], _T],
+        *,
+        pass_pre_run_capsule: bool = False,
+    ) -> None:
         self.pre_run_context_generators: list[Callable[[CapsuleParams], ContextBase]] = []
         self.in_run_watcher_generators: list[Callable[[CapsuleParams], WatcherBase]] = []
         self.post_run_context_generators: list[Callable[[CapsuleParams], ContextBase]] = []
