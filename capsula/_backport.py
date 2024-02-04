@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-__all__ = ["Concatenate", "ParamSpec", "Self", "TypeAlias", "file_digest"]
+__all__ = ["AbstractContextManager", "Concatenate", "ParamSpec", "Self", "TypeAlias", "file_digest"]
 
 import hashlib
 import sys
@@ -15,6 +15,11 @@ if sys.version_info >= (3, 10):
     from typing import Concatenate, ParamSpec, TypeAlias
 else:
     from typing_extensions import Concatenate, ParamSpec, TypeAlias
+
+if sys.version_info >= (3, 9):
+    from contextlib import AbstractContextManager
+else:
+    from typing import ContextManager as AbstractContextManager
 
 
 if sys.version_info >= (3, 11):
