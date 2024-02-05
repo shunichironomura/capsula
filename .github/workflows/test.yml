@@ -69,13 +69,17 @@ jobs:
       - name: Run mypy
         run: poetry run --no-interaction -- mypy --strict --python-version ${{ matrix.python-version }} .
 
-  tox:
+  pytest:
     if: github.event.pull_request.draft == false
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         python-version: ["3.12", "3.11", "3.10", "3.9", "3.8"]
+    env:
+      OS: ${{ matrix.os }}
+      PYTHON: ${{ matrix.python-version }}
+      COVERAGE_FILE: .coverage.${{ matrix.os }}-${{ matrix.python-version }}
 
     steps:
     - uses: actions/checkout@v4
@@ -85,69 +89,27 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
+    - name: Set up Poetry
+      uses: abatilo/actions-poetry@v3
+      with:
+        poetry-version: ${{ env.POETRY_VERSION }}
+
     - name: Install dependencies
+      run: poetry install --no-interaction
+
+    - name: Run pytest
+      run: poetry run --no-interaction -- coverage run -m pytest ./tests --import-mode importlib
+
+    - name: Generate coverage report
       run: |
-        python -m pip install --upgrade pip
-        python -m pip install tox tox-gh-actions
+        poetry run --no-interaction -- coverage report -m
+        poetry run --no-interaction -- coverage xml -o ./coverage/coverage.xml
 
-    - name: Test with tox
-      run: tox
-      env:
-        PLATFORM: ${{ matrix.os }}
-
-    - name: Upload coverage
-      uses: actions/upload-artifact@v4
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
       with:
-        name: covdata-${{ matrix.os }}-${{ matrix.python-version }}
-        path: .coverage.*
-
-  combine-coverage-reports:
-    if: github.event.pull_request.draft == false
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    needs: tox
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ env.PYTHON_VERSION }}
-
-    - name: Download coverage reports from all jobs
-      uses: actions/download-artifact@v4
-
-    - name: Flatten directory structure
-      run: |
-        shopt -s dotglob
-        for dir in ./covdata-*; do
-          if [ -d "$dir" ]; then
-            mv "$dir"/* ./
-            rm -rf "$dir"
-          fi
-        done
-        shopt -u dotglob
-
-    - name: Combine coverage reports
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install coverage genbadge[coverage]
-        coverage combine
-        coverage report -m
-        coverage xml -o coverage/coverage.xml
-        coverage html -d coverage/html
-        genbadge coverage -i coverage/coverage.xml -o coverage/badge.svg
-
-    - name: Upload coverage reports to Codecov
-      uses: codecov/codecov-action@v3
-      env:
-        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
-    - name: Commit and push
-      if: github.event_name == 'pull_request'
-      uses: EndBug/add-and-commit@v9
-      with:
-        default_author: github_actions
-        message: "Update tox report"
-        push: "origin HEAD:${{ github.head_ref }} --force"
+        directory: ./coverage/
+        file: coverage.xml
+        env_vars: OS,PYTHON
+        fail_ci_if_error: true
+        token: ${{ secrets.CODECOV_TOKEN }}
