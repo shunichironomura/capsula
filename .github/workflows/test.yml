@@ -79,6 +79,7 @@ jobs:
     env:
       OS: ${{ matrix.os }}
       PYTHON: ${{ matrix.python-version }}
+      COVERAGE_FILE: .coverage.${{ matrix.os }}-${{ matrix.python-version }}
 
     steps:
     - uses: actions/checkout@v4
