@@ -1,12 +1,12 @@
 # Capsula
 
-![Test Status](https://github.com/shunichironomura/capsula/workflows/Test/badge.svg?event=push&branch=main)
 [![PyPI](https://img.shields.io/pypi/v/capsula)](https://pypi.org/project/capsula/)
 [![conda-forge](https://img.shields.io/conda/vn/conda-forge/capsula.svg)](https://anaconda.org/conda-forge/capsula)
 ![PyPI - License](https://img.shields.io/pypi/l/capsula)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/capsula)
-![PyPI - Downloads](https://img.shields.io/pypi/dm/capsula)
+![Test Status](https://github.com/shunichironomura/capsula/workflows/Test/badge.svg?event=push&branch=main)
 ![Coverage Status](coverage/badge.svg?dummy=8484744)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/capsula)
 
 > [!NOTE]
 > This project is still work in progress. Consider pinning the version to avoid breaking changes.
