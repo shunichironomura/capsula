@@ -98,14 +98,18 @@ jobs:
       run: poetry install --no-interaction
 
     - name: Run pytest
-      run: poetry run --no-interaction -- coverage run -m pytest tests/ --import-mode importlib
+      run: poetry run --no-interaction -- coverage run -m pytest ./tests --import-mode importlib
 
     - name: Generate coverage report
-      run: poetry run --no-interaction -- coverage report -m
+      run: |
+        poetry run --no-interaction -- coverage report -m
+        poetry run --no-interaction -- coverage xml -o ./coverage/coverage.xml
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4
       with:
+        directory: ./coverage/
+        file: coverage.xml
         env_vars: OS,PYTHON
         fail_ci_if_error: true
         token: ${{ secrets.CODECOV_TOKEN }}
