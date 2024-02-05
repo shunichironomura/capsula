@@ -2,6 +2,7 @@
 
 ![Test Status](https://github.com/shunichironomura/capsula/workflows/Test/badge.svg?event=push&branch=main)
 [![PyPI](https://img.shields.io/pypi/v/capsula)](https://pypi.org/project/capsula/)
+[![conda-forge](https://img.shields.io/conda/vn/conda-forge/capsula.svg)](https://anaconda.org/conda-forge/capsula)
 ![PyPI - License](https://img.shields.io/pypi/l/capsula)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/capsula)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/capsula)
