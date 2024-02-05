@@ -5,7 +5,7 @@
 ![PyPI - License](https://img.shields.io/pypi/l/capsula)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/capsula)
 ![Test Status](https://github.com/shunichironomura/capsula/workflows/Test/badge.svg?event=push&branch=main)
-![Coverage Status](coverage/badge.svg?dummy=8484744)
+[![codecov](https://codecov.io/gh/shunichironomura/capsula/graph/badge.svg?token=BZXF2PPDM0)](https://codecov.io/gh/shunichironomura/capsula)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/capsula)
 
 > [!NOTE]

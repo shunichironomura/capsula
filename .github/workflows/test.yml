@@ -139,6 +139,11 @@ jobs:
         coverage html -d coverage/html
         genbadge coverage -i coverage/coverage.xml -o coverage/badge.svg
 
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v3
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
     - name: Commit and push
       if: github.event_name == 'pull_request'
       uses: EndBug/add-and-commit@v9
