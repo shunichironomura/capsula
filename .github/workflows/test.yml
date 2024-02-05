@@ -98,7 +98,7 @@ jobs:
       run: poetry install --no-interaction
 
     - name: Run pytest
-      run: poetry run --no-interaction -- coverage run -m pytest ./tests --import-mode importlib
+      run: poetry run --no-interaction -- coverage run --source=./capsula -m pytest ./tests --import-mode importlib
 
     - name: Generate coverage report
       run: |
