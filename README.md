@@ -8,9 +8,6 @@
 [![codecov](https://codecov.io/gh/shunichironomura/capsula/graph/badge.svg?token=BZXF2PPDM0)](https://codecov.io/gh/shunichironomura/capsula)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/capsula)
 
-> [!NOTE]
-> This project is still work in progress. Consider pinning the version to avoid breaking changes.
-
 *Capsula*, a Latin word meaning *box*, is a Python package designed to help researchers and developers easily capture and reproduce their command execution context. The primary aim of Capsula is to tackle the reproducibility problem by providing a way to capture the execution context at any point in time, preserving it for future use. This ensures that you can reproduce the exact conditions of past command execution, fostering reproducibility and consistency over time.
 
 ## Usage
