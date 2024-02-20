@@ -19,7 +19,7 @@
 
 2. **Execution Monitoring:** Capsula monitors the execution of a Python function, logging information such as the execution status, output, duration, etc.
 
-3. **Context Reproduction (to be implemented):** Capsula enables the reproduction of the captured context. This ensures the consistency and reproducibility of results.
+3. **Context Diffing (to be implemented):** Capsula can compare the current context with the context captured at a previous point in time. This is useful for identifying changes or for reproducing the exact conditions of a past execution.
 
 See the following Python script:
 
