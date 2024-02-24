@@ -3,16 +3,14 @@ from __future__ import annotations
 import queue
 import threading
 from collections import OrderedDict
-from collections.abc import Hashable
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Dict, Generic, Tuple, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Tuple, Union
 
 from capsula.utils import ExceptionInfo
 
-from ._backport import AbstractContextManager
 from ._capsule import Capsule
 from ._context import ContextBase
-from ._watcher import WatcherBase
+from ._watcher import WatcherBase, WatcherGroup
 from .exceptions import CapsulaError
 
 if TYPE_CHECKING:
@@ -34,46 +32,6 @@ class ObjectContext(ContextBase):
 
     def encapsulate(self) -> Any:
         return self.obj
-
-
-_K = TypeVar("_K", bound=Hashable)
-_V = TypeVar("_V", bound=WatcherBase)
-
-
-class WatcherGroup(Generic[_K, _V], AbstractContextManager[Dict[_K, Any]]):
-    def __init__(self, watchers: OrderedDict[_K, _V]) -> None:
-        self.watchers = watchers
-        self.context_manager_stack: queue.LifoQueue[AbstractContextManager[None]] = queue.LifoQueue()
-
-    def __enter__(self) -> dict[_K, Any]:
-        self.context_manager_stack = queue.LifoQueue()
-        cm_dict = {}
-        for key, watcher in reversed(self.watchers.items()):
-            cm = watcher.watch()
-            self.context_manager_stack.put(cm)
-            cm_dict[key] = cm
-            cm.__enter__()
-        return cm_dict
-
-    def __exit__(
-        self,
-        exc_type: type[BaseException] | None,
-        exc_value: BaseException | None,
-        traceback: TracebackType | None,
-    ) -> bool:
-        suppress_exception = False
-
-        while not self.context_manager_stack.empty():
-            cm = self.context_manager_stack.get(block=False)
-            suppress = bool(cm.__exit__(exc_type, exc_value, traceback))
-            suppress_exception = suppress_exception or suppress
-
-            # If the current context manager handled the exception, we clear the exception info.
-            if suppress:
-                exc_type, exc_value, traceback = None, None, None
-
-        # Return True if any context manager in the stack handled the exception.
-        return suppress_exception
 
 
 class Encapsulator:
