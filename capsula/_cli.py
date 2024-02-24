@@ -50,6 +50,7 @@ def enc(
 
     exec_info = None
     run_dir = generate_default_run_dir(exec_info=exec_info)
+    run_dir.mkdir(exist_ok=True, parents=True)
     params = CapsuleParams(exec_info=exec_info, run_dir=run_dir, phase=phase.value)
 
     for context in contexts:
