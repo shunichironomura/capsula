@@ -64,7 +64,7 @@ def generate_default_run_dir(exec_info: ExecInfo | None = None) -> Path:
 
     random_suffix = "".join(choices(ascii_letters + digits, k=4))  # noqa: S311
     datetime_str = datetime.now(timezone.utc).astimezone().strftime(r"%Y%m%d_%H%M%S")
-    dir_name = "" if exec_name is None else f"{exec_name}_" + f"{datetime_str}_{random_suffix}"
+    dir_name = ("" if exec_name is None else f"{exec_name}_") + f"{datetime_str}_{random_suffix}"
     return project_root / "vault" / dir_name
 
 
