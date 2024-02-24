@@ -84,8 +84,11 @@ class GitRepositoryContext(ContextBase):
         def callback(params: CapsuleParams) -> GitRepositoryContext:
             if isinstance(params.exec_info, FuncInfo):
                 repo_search_start_path = Path(inspect.getfile(params.exec_info.func)).parent
-            elif isinstance(params.exec_info, CommandInfo):
+            elif isinstance(params.exec_info, CommandInfo) or params.exec_info is None:
                 repo_search_start_path = Path.cwd()
+            else:
+                msg = f"exec_info must be an instance of FuncInfo or CommandInfo, not {type(params.exec_info)}."
+                raise TypeError(msg)
             repo = Repo(repo_search_start_path, search_parent_directories=True)
             repo_name = Path(repo.working_dir).name
             return cls(
