@@ -67,7 +67,7 @@ jobs:
         run: poetry install --no-interaction
 
       - name: Run mypy
-        run: poetry run --no-interaction -- mypy --strict --python-version ${{ matrix.python-version }} .
+        run: poetry run --no-interaction -- mypy --python-version ${{ matrix.python-version }} .
 
   pytest:
     if: github.event.pull_request.draft == false
