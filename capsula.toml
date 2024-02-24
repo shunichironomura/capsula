@@ -1,48 +1,77 @@
-# The directory where the captured context is stored.
-vault-directory = 'vault'
+[[pre-run.context]]
+type = "CommandContext"
+command = "poetry check --lock"
 
-# The template for the capsule directory name.
-# It will be formatted by `datetime.now(UTC).astimezone().strftime(capsule_template)`.
-capsule-template = '%Y%m%d_%H%M%S'
+[[pre-run.context]]
+type = "CommandContext"
+command = "pip freeze --exclude-editable > requirements.txt"
 
-[capture]
-# Whether to include CPU information in the captured context.
-# Note that this may take a relatively long time to capture.
-include-cpu = true
+[[pre-run.context]]
+type = "FileContext"
+path = "pyproject.toml"
+compute_hash = true
+hash_algorithm = "sha256"
+copy = true
+move = false
 
-# List of commands to run before capturing the context.
-# They are executed in the order specified, and if one of them fails, the subsequent commands are not executed.
-# The commands are executed in the root directory.
-pre-capture-commands = [
-    'poetry check --lock',
-    'pip freeze --exclude-editable > requirements.txt',
-]
+[[pre-run.context]]
+type = "FileContext"
+path = "poetry.lock"
+compute_hash = true
+hash_algorithm = "sha256"
+copy = true
+move = false
 
-# List of environment variables to include in the captured context.
-environment-variables = ['HOME']
+[[pre-run.context]]
+type = "FileContext"
+path = "requirements.txt"
+compute_hash = true
+hash_algorithm = "sha256"
+copy = false
+move = true
 
-[capture.files]
-# List of files (relative to the root directory) to include in the captured context.
-# If `hash` is specified, the file hash computed with the specified algorithm will be included in the captured context.
-# If `move` is set to true, the file will be moved to the vault directory. (default: false)
-# If `copy` is set to true, the file will be copied to the vault directory. (default: false)
-# You cannot set both `move` and `copy` to true.
-"pyproject.toml" = { hash = "sha3-256", copy = true }
-"poetry.lock" = { hash = "sha256", copy = true }
-"requirements.txt" = { hash = "sha256", move = true }
+[[pre-run.context]]
+type = "GitRepositoryContext"
+name = "capsula"
+allow_dirty = true
 
-[capture.git.repositories]
-# Git repositories to include in the captured context, relative to the root directory.
-capsula = '.'
+[[pre-run.context]]
+type = "EnvVarContext"
+name = "HOME"
 
-[monitor]
-# Whether to capture the context before running the command using the `capture` configuration.
-capture = true
+[[pre-run.context]]
+type = "EnvVarContext"
+name = "PATH"
 
-# You can configure the monitoring behavior for each "item" (e.g., Python function, CLI command).
-[monitor.item.calculate-pi-cli.files]
-# List of files (relative to the root directory) to include after the execution of the command.
-"examples/pi_cli.txt" = { hash = "sha256", move = true }
+[[pre-run.context]]
+type = "CwdContext"
 
-[monitor.item.calculate-pi-dec.files]
-"examples/pi_dec.txt" = { hash = "sha256", move = true }
+[[pre-run.context]]
+type = "CpuContext"
+
+[[pre-run.reporter]]
+type = "JsonDumpReporter"
+
+[[in-run.watcher]]
+type = "UncaughtExceptionWatcher"
+name = "Exception"
+reraise = false
+# TODO: configure the base exception class
+
+[[in-run.watcher]]
+type = "TimeWatcher"
+name = "calculation_time"
+
+[[in-run.reporter]]
+type = "JsonDumpReporter"
+
+[[post-run.context]]
+type = "FileContext"
+path = "examples/pi.txt"
+compute_hash = true
+hash_algorithm = "sha256"
+copy = false
+move = true
+
+[[post-run.reporter]]
+type = "JsonDumpReporter"
