@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-__all__ = ["AbstractContextManager", "Concatenate", "ParamSpec", "Self", "TypeAlias", "file_digest"]
+__all__ = ["AbstractContextManager", "Concatenate", "ParamSpec", "Self", "TypeAlias", "file_digest", "tomllib"]
 
 import hashlib
 import sys
@@ -8,7 +8,10 @@ from typing import TYPE_CHECKING, Callable
 
 if sys.version_info >= (3, 11):
     from typing import Self
+
+    import tomllib
 else:
+    import tomli as tomllib
     from typing_extensions import Self
 
 if sys.version_info >= (3, 10):
