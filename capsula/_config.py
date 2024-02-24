@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, Mapping, MutableMapping, TypedDict
+from typing import TYPE_CHECKING, Any, Callable, MutableMapping, TypedDict
 
 from ._backport import tomllib
 from ._context import ContextBase
@@ -31,18 +31,18 @@ def _construct_reporter(raw_config: MutableMapping[str, Any]) -> Callable[[Capsu
 
 
 class _PreRunConfig(TypedDict):
-    context: list[Mapping[str, Callable[[CapsuleParams], ContextBase] | ContextBase]]
-    reporter: list[Mapping[str, Callable[[CapsuleParams], ReporterBase] | ReporterBase]]
+    context: list[Callable[[CapsuleParams], ContextBase] | ContextBase]
+    reporter: list[Callable[[CapsuleParams], ReporterBase] | ReporterBase]
 
 
 class _InRunConfig(TypedDict):
-    watcher: list[Mapping[str, Callable[[CapsuleParams], WatcherBase] | WatcherBase]]
-    reporter: list[Mapping[str, Callable[[CapsuleParams], ReporterBase] | ReporterBase]]
+    watcher: list[Callable[[CapsuleParams], WatcherBase] | WatcherBase]
+    reporter: list[Callable[[CapsuleParams], ReporterBase] | ReporterBase]
 
 
 class _PostRunConfig(TypedDict):
-    context: list[Mapping[str, Callable[[CapsuleParams], ContextBase] | ContextBase]]
-    reporter: list[Mapping[str, Callable[[CapsuleParams], ReporterBase] | ReporterBase]]
+    context: list[Callable[[CapsuleParams], ContextBase] | ContextBase]
+    reporter: list[Callable[[CapsuleParams], ReporterBase] | ReporterBase]
 
 
 _CapsulaConfig = TypedDict(
