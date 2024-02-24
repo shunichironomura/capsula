@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Callable, TypedDict
 
 from git.repo import Repo
 
+from capsula._run import CommandInfo, FuncInfo
 from capsula.exceptions import CapsulaError
 
 from ._base import ContextBase
@@ -81,8 +82,11 @@ class GitRepositoryContext(ContextBase):
         allow_dirty: bool | None = None,
     ) -> Callable[[CapsuleParams], GitRepositoryContext]:
         def callback(params: CapsuleParams) -> GitRepositoryContext:
-            func_file_path = Path(inspect.getfile(params.func))
-            repo = Repo(func_file_path.parent, search_parent_directories=True)
+            if isinstance(params.exec_info, FuncInfo):
+                repo_search_start_path = Path(inspect.getfile(params.exec_info.func)).parent
+            elif isinstance(params.exec_info, CommandInfo):
+                repo_search_start_path = Path.cwd()
+            repo = Repo(repo_search_start_path, search_parent_directories=True)
             repo_name = Path(repo.working_dir).name
             return cls(
                 name=Path(repo.working_dir).name if name is None else name,

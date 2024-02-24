@@ -34,7 +34,12 @@ class FuncInfo(BaseModel):
     kwargs: Dict[str, Any]
 
 
-class CapsuleParams(FuncInfo):
+class CommandInfo(BaseModel):
+    command: str
+
+
+class CapsuleParams(BaseModel):
+    exec_info: FuncInfo | CommandInfo
     run_dir: Path
     phase: Literal["pre", "in", "post"]
 
@@ -178,9 +183,7 @@ class Run(Generic[_P, _T]):
         self.run_dir = self.run_dir_generator(func_info)
         self.run_dir.mkdir(parents=True, exist_ok=True)
         params = CapsuleParams(
-            func=func_info.func,
-            args=func_info.args,
-            kwargs=func_info.kwargs,
+            exec_info=func_info,
             run_dir=self.run_dir,
             phase="pre",
         )
