@@ -68,7 +68,11 @@ line-length = 120
 preview = true
 explicit-preview-rules = true
 
-select = ["ALL", "RUF022"]
+select = [
+    "ALL",
+    "RUF022", # unsorted-dunder-all (preview)
+]
+
 ignore = [
     "PLR2004", # magic numbers
     "S101",    # use of assert
