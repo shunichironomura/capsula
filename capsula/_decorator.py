@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Callable, Literal, TypeVar
 
 from ._backport import Concatenate, ParamSpec
-from ._run import CapsuleParams, FuncInfo, Run, default_run_dir_generator
+from ._run import CapsuleParams, FuncInfo, Run, generate_default_run_dir
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -55,7 +55,7 @@ def context(
 def run(
     run_dir: Path | Callable[[FuncInfo], Path] | None = None,
 ) -> Callable[[Callable[_P, _T] | Run[_P, _T]], Run[_P, _T]]:
-    run_dir = default_run_dir_generator if run_dir is None else run_dir
+    run_dir = generate_default_run_dir if run_dir is None else run_dir
 
     def decorator(func_or_run: Callable[_P, _T] | Run[_P, _T]) -> Run[_P, _T]:
         run = func_or_run if isinstance(func_or_run, Run) else Run(func_or_run)
