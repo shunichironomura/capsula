@@ -7,14 +7,14 @@ from datetime import datetime, timezone
 from pathlib import Path
 from random import choices
 from string import ascii_letters, digits
-from typing import TYPE_CHECKING, Any, Callable, Dict, Generic, Literal, Tuple, TypeAlias, TypeVar, Union, overload
+from typing import TYPE_CHECKING, Any, Callable, Dict, Generic, Literal, Tuple, TypeVar, Union, overload
 
 from pydantic import BaseModel
 
 from capsula._reporter import ReporterBase
 from capsula.encapsulator import Encapsulator
 
-from ._backport import Concatenate, ParamSpec, Self
+from ._backport import Concatenate, ParamSpec, Self, TypeAlias
 from ._context import ContextBase, FunctionCallContext
 from ._watcher import WatcherBase
 from .utils import search_for_project_root
