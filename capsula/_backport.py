@@ -1,6 +1,15 @@
 from __future__ import annotations
 
-__all__ = ["AbstractContextManager", "Concatenate", "ParamSpec", "Self", "TypeAlias", "file_digest", "tomllib"]
+__all__ = [
+    "AbstractContextManager",
+    "Annotated",
+    "Concatenate",
+    "ParamSpec",
+    "Self",
+    "TypeAlias",
+    "file_digest",
+    "tomllib",
+]
 
 import hashlib
 import sys
@@ -21,8 +30,11 @@ else:
 
 if sys.version_info >= (3, 9):
     from contextlib import AbstractContextManager
+    from typing import Annotated
 else:
     from typing import ContextManager as AbstractContextManager
+
+    from typing_extensions import Annotated
 
 
 if sys.version_info >= (3, 11):
