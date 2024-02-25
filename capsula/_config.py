@@ -66,14 +66,14 @@ def load_config(path: Path) -> _CapsulaConfig:
     }
 
     if (pre_run := raw_config.get("pre-run")) is not None:
-        config["pre-run"]["context"] = list(map(_construct_context, pre_run.get("context", [])))  # type: ignore[arg-type]
-        config["pre-run"]["reporter"] = list(map(_construct_reporter, pre_run.get("reporter", [])))  # type: ignore[arg-type]
+        config["pre-run"]["context"] = list(map(_construct_context, pre_run.get("context", [])))
+        config["pre-run"]["reporter"] = list(map(_construct_reporter, pre_run.get("reporter", [])))
     if (in_run := raw_config.get("in-run")) is not None:
-        config["in-run"]["watcher"] = list(map(_construct_watcher, in_run.get("watcher", [])))  # type: ignore[arg-type]
-        config["in-run"]["reporter"] = list(map(_construct_reporter, in_run.get("reporter", [])))  # type: ignore[arg-type]
+        config["in-run"]["watcher"] = list(map(_construct_watcher, in_run.get("watcher", [])))
+        config["in-run"]["reporter"] = list(map(_construct_reporter, in_run.get("reporter", [])))
     if (post_run := raw_config.get("post-run")) is not None:
-        config["post-run"]["context"] = list(map(_construct_context, post_run.get("context", [])))  # type: ignore[arg-type]
-        config["post-run"]["reporter"] = list(map(_construct_reporter, post_run.get("reporter", [])))  # type: ignore[arg-type]
+        config["post-run"]["context"] = list(map(_construct_context, post_run.get("context", [])))
+        config["post-run"]["reporter"] = list(map(_construct_reporter, post_run.get("reporter", [])))
 
     return config
 
