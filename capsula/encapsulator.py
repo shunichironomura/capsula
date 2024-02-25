@@ -83,7 +83,7 @@ class Encapsulator:
             raise KeyConflictError(key)
         self.watchers[key] = watcher
 
-    def encapsulate(self, *, abort_on_error: bool = False) -> Capsule:
+    def encapsulate(self, *, abort_on_error: bool = True) -> Capsule:
         data = {}
         fails = {}
         for key, capsule_item in chain(self.contexts.items(), self.watchers.items()):
