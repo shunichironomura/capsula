@@ -79,4 +79,4 @@ def load_config(path: Path) -> _CapsulaConfig:
 
 
 if __name__ == "__main__":
-    print(load_config(Path(__file__).parent.parent / "capsula.toml"))
+    print(load_config(Path(__file__).parent.parent / "capsula.toml"))  # noqa: T201
