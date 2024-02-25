@@ -3,7 +3,7 @@ from __future__ import annotations
 import queue
 from abc import abstractmethod
 from collections.abc import Hashable
-from typing import TYPE_CHECKING, Any, Dict, Generic, OrderedDict, TypeVar
+from typing import TYPE_CHECKING, Any, Dict, Final, Generic, OrderedDict, TypeVar
 
 from capsula._backport import AbstractContextManager
 from capsula._capsule import CapsuleItem
@@ -13,6 +13,16 @@ if TYPE_CHECKING:
 
 
 class WatcherBase(CapsuleItem):
+    _subclass_registry: Final[dict[str, type[WatcherBase]]] = {}
+
+    def __init_subclass__(cls, **kwargs: Any) -> None:
+        cls._subclass_registry[cls.__name__] = cls
+        super().__init_subclass__(**kwargs)
+
+    @classmethod
+    def get_subclass(cls, name: str) -> type[WatcherBase]:
+        return cls._subclass_registry[name]
+
     @abstractmethod
     def watch(self) -> AbstractContextManager[None]:
         raise NotImplementedError

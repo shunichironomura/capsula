@@ -1,16 +1,12 @@
 from __future__ import annotations
 
-import inspect
-from datetime import datetime, timezone
 from pathlib import Path
-from random import choices
-from string import ascii_letters, digits
 from typing import TYPE_CHECKING, Callable, Literal, TypeVar
 
-from capsula.utils import search_for_project_root
-
 from ._backport import Concatenate, ParamSpec
-from ._run import CapsuleParams, FuncInfo, Run
+from ._config import load_config
+from ._run import CapsuleParams, FuncInfo, Run, generate_default_run_dir
+from .utils import get_default_config_path
 
 if TYPE_CHECKING:
     from ._capsule import Capsule
@@ -59,19 +55,31 @@ def context(
 
 def run(
     run_dir: Path | Callable[[FuncInfo], Path] | None = None,
+    *,
+    load_from_config: bool = False,
+    config_path: Path | str | None = None,
 ) -> Callable[[Callable[_P, _T] | Run[_P, _T]], Run[_P, _T]]:
-    def _default_run_dir_generator(func_info: FuncInfo) -> Path:
-        project_root = search_for_project_root(Path(inspect.getfile(func_info.func)))
-        random_suffix = "".join(choices(ascii_letters + digits, k=4))  # noqa: S311
-        datetime_str = datetime.now(timezone.utc).astimezone().strftime(r"%Y%m%d_%H%M%S")
-        dir_name = f"{func_info.func.__name__}_{datetime_str}_{random_suffix}"
-        return project_root / "vault" / dir_name
-
-    run_dir = _default_run_dir_generator if run_dir is None else run_dir
+    run_dir = generate_default_run_dir if run_dir is None else run_dir
 
     def decorator(func_or_run: Callable[_P, _T] | Run[_P, _T]) -> Run[_P, _T]:
         run = func_or_run if isinstance(func_or_run, Run) else Run(func_or_run)
         run.set_run_dir(run_dir)
+
+        if load_from_config:
+            config = load_config(get_default_config_path() if config_path is None else Path(config_path))
+            for phase in ("pre", "in", "post"):
+                phase_key = f"{phase}-run"
+                if phase_key not in config:
+                    continue
+                for context in config[phase_key].get("context", []):  # type: ignore[literal-required]
+                    assert phase in {"pre", "post"}, f"Invalid phase for context: {phase}"
+                    run.add_context(context, mode=phase)  # type: ignore[arg-type]
+                for watcher in config[phase_key].get("watcher", []):  # type: ignore[literal-required]
+                    assert phase == "in", "Watcher can only be added to the in-run phase."
+                    run.add_watcher(watcher)
+                for reporter in config[phase_key].get("reporter", []):  # type: ignore[literal-required]
+                    assert phase in {"pre", "in", "post"}, f"Invalid phase for reporter: {phase}"
+                    run.add_reporter(reporter, mode=phase)  # type: ignore[arg-type]
 
         return run
 

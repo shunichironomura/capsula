@@ -1,18 +1,23 @@
 from __future__ import annotations
 
+import inspect
 import queue
 import threading
+from datetime import datetime, timezone
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, Dict, Generic, Literal, Tuple, TypeVar, overload
+from random import choices
+from string import ascii_letters, digits
+from typing import TYPE_CHECKING, Any, Callable, Dict, Generic, Literal, Tuple, TypeVar, Union, overload
 
 from pydantic import BaseModel
 
 from capsula._reporter import ReporterBase
 from capsula.encapsulator import Encapsulator
 
-from ._backport import Concatenate, ParamSpec, Self
+from ._backport import Concatenate, ParamSpec, Self, TypeAlias
 from ._context import ContextBase, FunctionCallContext
 from ._watcher import WatcherBase
+from .utils import search_for_project_root
 
 if TYPE_CHECKING:
     from types import TracebackType
@@ -29,9 +34,38 @@ class FuncInfo(BaseModel):
     kwargs: Dict[str, Any]
 
 
-class CapsuleParams(FuncInfo):
+class CommandInfo(BaseModel):
+    command: str
+
+
+class CapsuleParams(BaseModel):
+    exec_info: FuncInfo | CommandInfo | None
     run_dir: Path
     phase: Literal["pre", "in", "post"]
+
+
+ExecInfo: TypeAlias = Union[FuncInfo, CommandInfo]
+
+
+def generate_default_run_dir(exec_info: ExecInfo | None = None) -> Path:
+    exec_name: str | None
+    if exec_info is None:
+        project_root = search_for_project_root(Path.cwd())
+        exec_name = None
+    elif isinstance(exec_info, CommandInfo):
+        project_root = search_for_project_root(Path.cwd())
+        exec_name = exec_info.command.split()[0]  # TODO: handle more complex commands
+    elif isinstance(exec_info, FuncInfo):
+        project_root = search_for_project_root(Path(inspect.getfile(exec_info.func)))
+        exec_name = exec_info.func.__name__
+    else:
+        msg = f"exec_info must be an instance of FuncInfo or CommandInfo, not {type(exec_info)}."
+        raise TypeError(msg)
+
+    random_suffix = "".join(choices(ascii_letters + digits, k=4))  # noqa: S311
+    datetime_str = datetime.now(timezone.utc).astimezone().strftime(r"%Y%m%d_%H%M%S")
+    dir_name = ("" if exec_name is None else f"{exec_name}_") + f"{datetime_str}_{random_suffix}"
+    return project_root / "vault" / dir_name
 
 
 class Run(Generic[_P, _T]):
@@ -165,9 +199,7 @@ class Run(Generic[_P, _T]):
         self.run_dir = self.run_dir_generator(func_info)
         self.run_dir.mkdir(parents=True, exist_ok=True)
         params = CapsuleParams(
-            func=func_info.func,
-            args=func_info.args,
-            kwargs=func_info.kwargs,
+            exec_info=func_info,
             run_dir=self.run_dir,
             phase="pre",
         )
