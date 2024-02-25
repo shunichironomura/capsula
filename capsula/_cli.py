@@ -1,5 +1,4 @@
 from enum import Enum
-from pathlib import Path
 from typing import Annotated, Literal, NoReturn
 
 import typer
@@ -9,17 +8,9 @@ import capsula
 from ._config import load_config
 from ._context import ContextBase
 from ._run import CapsuleParams, generate_default_run_dir
-from .utils import search_for_project_root
+from .utils import get_default_config_path
 
 app = typer.Typer()
-
-
-def _get_default_config_path() -> Path:
-    config_path = search_for_project_root(Path.cwd()) / "capsula.toml"
-    if not config_path.exists():
-        msg = f"Config file not found: {config_path}"
-        raise FileNotFoundError(msg)
-    return config_path
 
 
 @app.command()
@@ -42,7 +33,7 @@ def enc(
     ] = _PhaseForEncapsulate.pre,
 ) -> NoReturn:
     typer.echo("Encapsulating...")
-    config = load_config(_get_default_config_path())
+    config = load_config(get_default_config_path())
     enc = capsula.Encapsulator()
     phase_key: Literal["pre-run", "post-run"] = f"{phase.value}-run"  # type: ignore[assignment]
     contexts = config[phase_key]["context"]

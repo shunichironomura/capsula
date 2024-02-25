@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, Hashable
 
 if TYPE_CHECKING:
-    from pathlib import Path
     from types import TracebackType
 
 
@@ -90,3 +90,11 @@ def search_for_project_root(start: Path) -> Path:
         msg = "Project root not found."
         raise FileNotFoundError(msg)
     return search_for_project_root(start.parent)
+
+
+def get_default_config_path() -> Path:
+    config_path = search_for_project_root(Path.cwd()) / "capsula.toml"
+    if not config_path.exists():
+        msg = f"Config file not found: {config_path}"
+        raise FileNotFoundError(msg)
+    return config_path
