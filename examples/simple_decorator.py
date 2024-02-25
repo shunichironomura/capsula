@@ -37,6 +37,6 @@ if __name__ == "__main__":
         level=logging.DEBUG,
         format="%(message)s",
         datefmt="[%X]",
-        handlers=[RichHandler(show_time=False, show_path=False)],
+        handlers=[RichHandler(show_time=False, show_path=True)],
     )
     calculate_pi(n_samples=1_000)
