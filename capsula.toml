@@ -40,10 +40,6 @@ type = "EnvVarContext"
 name = "HOME"
 
 [[pre-run.context]]
-type = "EnvVarContext"
-name = "PATH"
-
-[[pre-run.context]]
 type = "CwdContext"
 
 [[pre-run.context]]
