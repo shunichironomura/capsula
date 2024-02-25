@@ -9,35 +9,16 @@ command = "pip freeze --exclude-editable > requirements.txt"
 [[pre-run.context]]
 type = "FileContext"
 path = "pyproject.toml"
-compute_hash = true
-hash_algorithm = "sha256"
 copy = true
-move = false
-
-[[pre-run.context]]
-type = "FileContext"
-path = "poetry.lock"
-compute_hash = true
-hash_algorithm = "sha256"
-copy = true
-move = false
 
 [[pre-run.context]]
 type = "FileContext"
 path = "requirements.txt"
-compute_hash = true
-hash_algorithm = "sha256"
-copy = false
 move = true
 
 [[pre-run.context]]
 type = "GitRepositoryContext"
 name = "capsula"
-allow_dirty = true
-
-[[pre-run.context]]
-type = "EnvVarContext"
-name = "HOME"
 
 [[pre-run.context]]
 type = "CwdContext"
@@ -50,13 +31,9 @@ type = "JsonDumpReporter"
 
 [[in-run.watcher]]
 type = "UncaughtExceptionWatcher"
-name = "Exception"
-reraise = false
-# TODO: configure the base exception class
 
 [[in-run.watcher]]
 type = "TimeWatcher"
-name = "calculation_time"
 
 [[in-run.reporter]]
 type = "JsonDumpReporter"
@@ -64,9 +41,6 @@ type = "JsonDumpReporter"
 [[post-run.context]]
 type = "FileContext"
 path = "examples/pi.txt"
-compute_hash = true
-hash_algorithm = "sha256"
-copy = false
 move = true
 
 [[post-run.reporter]]
