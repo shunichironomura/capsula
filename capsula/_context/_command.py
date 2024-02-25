@@ -21,7 +21,7 @@ class _CommandContextData(TypedDict):
 
 
 class CommandContext(ContextBase):
-    def __init__(self, command: str, *, cwd: Path | None = None, check: bool = False) -> None:
+    def __init__(self, command: str, *, cwd: Path | None = None, check: bool = True) -> None:
         self.command = command
         self.cwd = cwd
         self.check = check

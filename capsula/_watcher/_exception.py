@@ -15,7 +15,13 @@ logger = logging.getLogger(__name__)
 
 
 class UncaughtExceptionWatcher(WatcherBase):
-    def __init__(self, name: str, *, base: type[BaseException] = Exception, reraise: bool = False) -> None:
+    def __init__(
+        self,
+        name: str = "exception",
+        *,
+        base: type[BaseException] = Exception,
+        reraise: bool = False,
+    ) -> None:
         self.name = name
         self.base = base
         self.reraise = reraise

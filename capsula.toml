@@ -1,73 +1,19 @@
-[[pre-run.context]]
-type = "CommandContext"
-command = "poetry check --lock"
+[pre-run]
+context = [
+    { type = "CommandContext", command = "poetry check --lock" },
+    { type = "CommandContext", command = "pip freeze --exclude-editable > requirements.txt" },
+    { type = "FileContext", path = "pyproject.toml", copy = true },
+    { type = "FileContext", path = "requirements.txt", move = true },
+    { type = "GitRepositoryContext", name = "capsula" },
+    { type = "CwdContext" },
+    { type = "CpuContext" },
+]
+reporter = [{ type = "JsonDumpReporter" }]
 
-[[pre-run.context]]
-type = "CommandContext"
-command = "pip freeze --exclude-editable > requirements.txt"
+[in-run]
+watcher = [{ type = "UncaughtExceptionWatcher" }, { type = "TimeWatcher" }]
+reporter = [{ type = "JsonDumpReporter" }]
 
-[[pre-run.context]]
-type = "FileContext"
-path = "pyproject.toml"
-compute_hash = true
-hash_algorithm = "sha256"
-copy = true
-move = false
-
-[[pre-run.context]]
-type = "FileContext"
-path = "poetry.lock"
-compute_hash = true
-hash_algorithm = "sha256"
-copy = true
-move = false
-
-[[pre-run.context]]
-type = "FileContext"
-path = "requirements.txt"
-compute_hash = true
-hash_algorithm = "sha256"
-copy = false
-move = true
-
-[[pre-run.context]]
-type = "GitRepositoryContext"
-name = "capsula"
-allow_dirty = true
-
-[[pre-run.context]]
-type = "EnvVarContext"
-name = "HOME"
-
-[[pre-run.context]]
-type = "CwdContext"
-
-[[pre-run.context]]
-type = "CpuContext"
-
-[[pre-run.reporter]]
-type = "JsonDumpReporter"
-
-[[in-run.watcher]]
-type = "UncaughtExceptionWatcher"
-name = "Exception"
-reraise = false
-# TODO: configure the base exception class
-
-[[in-run.watcher]]
-type = "TimeWatcher"
-name = "calculation_time"
-
-[[in-run.reporter]]
-type = "JsonDumpReporter"
-
-[[post-run.context]]
-type = "FileContext"
-path = "examples/pi.txt"
-compute_hash = true
-hash_algorithm = "sha256"
-copy = false
-move = true
-
-[[post-run.reporter]]
-type = "JsonDumpReporter"
+[post-run]
+context = [{ type = "FileContext", path = "examples/pi.txt", move = true }]
+reporter = [{ type = "JsonDumpReporter" }]

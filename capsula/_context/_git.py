@@ -42,7 +42,7 @@ class GitRepositoryContext(ContextBase):
         path: Path | str,
         diff_file: Path | str | None = None,
         search_parent_directories: bool = False,
-        allow_dirty: bool = False,
+        allow_dirty: bool = True,
     ) -> None:
         self.name = name
         self.path = Path(path)
