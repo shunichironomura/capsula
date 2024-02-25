@@ -1,5 +1,5 @@
 [pre-run]
-context = [
+contexts = [
     { type = "CommandContext", command = "poetry check --lock" },
     { type = "CommandContext", command = "pip freeze --exclude-editable > requirements.txt" },
     { type = "FileContext", path = "pyproject.toml", copy = true },
@@ -8,12 +8,12 @@ context = [
     { type = "CwdContext" },
     { type = "CpuContext" },
 ]
-reporter = [{ type = "JsonDumpReporter" }]
+reporters = [{ type = "JsonDumpReporter" }]
 
 [in-run]
-watcher = [{ type = "UncaughtExceptionWatcher" }, { type = "TimeWatcher" }]
-reporter = [{ type = "JsonDumpReporter" }]
+watchers = [{ type = "UncaughtExceptionWatcher" }, { type = "TimeWatcher" }]
+reporters = [{ type = "JsonDumpReporter" }]
 
 [post-run]
-context = [{ type = "FileContext", path = "examples/pi.txt", move = true }]
-reporter = [{ type = "JsonDumpReporter" }]
+contexts = [{ type = "FileContext", path = "examples/pi.txt", move = true }]
+reporters = [{ type = "JsonDumpReporter" }]

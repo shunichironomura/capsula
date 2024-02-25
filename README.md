@@ -25,7 +25,7 @@ Prepare a `capsula.toml` file in the root directory of your project. An example 
 ```toml
 [pre-run]
 # Contexts to be captured before the execution of the decorated function/CLI command.
-context = [
+contexts = [
     { type = "CommandContext", command = "poetry check --lock" },
     { type = "CommandContext", command = "pip freeze --exclude-editable > requirements.txt" },
     { type = "FileContext", path = "pyproject.toml", copy = true },
@@ -35,19 +35,19 @@ context = [
     { type = "CpuContext" },
 ]
 # Reporter to be used to report the captured contexts.
-reporter = [{ type = "JsonDumpReporter" }]
+reporters = [{ type = "JsonDumpReporter" }]
 
 [in-run]
 # Watchers to be used during the execution of the decorated function/CLI command.
-watcher = [{ type = "UncaughtExceptionWatcher" }, { type = "TimeWatcher" }]
+watchers = [{ type = "UncaughtExceptionWatcher" }, { type = "TimeWatcher" }]
 # Reporter to be used to report the execution status.
-reporter = [{ type = "JsonDumpReporter" }]
+reporters = [{ type = "JsonDumpReporter" }]
 
 [post-run]
 # Contexts to be captured after the execution of the decorated function/CLI command.
-context = [{ type = "FileContext", path = "examples/pi.txt", move = true }]
+contexts = [{ type = "FileContext", path = "examples/pi.txt", move = true }]
 # Reporter to be used to report the captured contexts.
-reporter = [{ type = "JsonDumpReporter" }]
+reporters = [{ type = "JsonDumpReporter" }]
 ```
 
 Then, all you need to do is decorate your Python function with the `@capsula.run` decorator and specify the `load_from_config` argument as `True`. The following is an example of a Python script that estimates the value of π using the Monte Carlo method:

@@ -71,13 +71,13 @@ def run(
                 phase_key = f"{phase}-run"
                 if phase_key not in config:
                     continue
-                for context in config[phase_key].get("context", []):  # type: ignore[literal-required]
+                for context in config[phase_key].get("contexts", []):  # type: ignore[literal-required]
                     assert phase in {"pre", "post"}, f"Invalid phase for context: {phase}"
                     run.add_context(context, mode=phase)  # type: ignore[arg-type]
-                for watcher in config[phase_key].get("watcher", []):  # type: ignore[literal-required]
+                for watcher in config[phase_key].get("watchers", []):  # type: ignore[literal-required]
                     assert phase == "in", "Watcher can only be added to the in-run phase."
                     run.add_watcher(watcher)
-                for reporter in config[phase_key].get("reporter", []):  # type: ignore[literal-required]
+                for reporter in config[phase_key].get("reporters", []):  # type: ignore[literal-required]
                     assert phase in {"pre", "in", "post"}, f"Invalid phase for reporter: {phase}"
                     run.add_reporter(reporter, mode=phase)  # type: ignore[arg-type]
 

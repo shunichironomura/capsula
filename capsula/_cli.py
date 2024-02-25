@@ -37,8 +37,8 @@ def enc(
     config = load_config(get_default_config_path())
     enc = capsula.Encapsulator()
     phase_key: Literal["pre-run", "post-run"] = f"{phase.value}-run"  # type: ignore[assignment]
-    contexts = config[phase_key]["context"]
-    reporters = config[phase_key]["reporter"]
+    contexts = config[phase_key]["contexts"]
+    reporters = config[phase_key]["reporters"]
 
     exec_info = None
     run_dir = generate_default_run_dir(exec_info=exec_info)

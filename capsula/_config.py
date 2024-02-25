@@ -31,18 +31,18 @@ def _construct_reporter(raw_config: MutableMapping[str, Any]) -> Callable[[Capsu
 
 
 class _PreRunConfig(TypedDict):
-    context: list[Callable[[CapsuleParams], ContextBase] | ContextBase]
-    reporter: list[Callable[[CapsuleParams], ReporterBase] | ReporterBase]
+    contexts: list[Callable[[CapsuleParams], ContextBase] | ContextBase]
+    reporters: list[Callable[[CapsuleParams], ReporterBase] | ReporterBase]
 
 
 class _InRunConfig(TypedDict):
-    watcher: list[Callable[[CapsuleParams], WatcherBase] | WatcherBase]
-    reporter: list[Callable[[CapsuleParams], ReporterBase] | ReporterBase]
+    watchers: list[Callable[[CapsuleParams], WatcherBase] | WatcherBase]
+    reporters: list[Callable[[CapsuleParams], ReporterBase] | ReporterBase]
 
 
 class _PostRunConfig(TypedDict):
-    context: list[Callable[[CapsuleParams], ContextBase] | ContextBase]
-    reporter: list[Callable[[CapsuleParams], ReporterBase] | ReporterBase]
+    contexts: list[Callable[[CapsuleParams], ContextBase] | ContextBase]
+    reporters: list[Callable[[CapsuleParams], ReporterBase] | ReporterBase]
 
 
 _CapsulaConfig = TypedDict(
@@ -60,20 +60,20 @@ def load_config(path: Path) -> _CapsulaConfig:
         raw_config = tomllib.load(file)
 
     config: _CapsulaConfig = {
-        "pre-run": {"context": [], "reporter": []},
-        "in-run": {"watcher": [], "reporter": []},
-        "post-run": {"context": [], "reporter": []},
+        "pre-run": {"contexts": [], "reporters": []},
+        "in-run": {"watchers": [], "reporters": []},
+        "post-run": {"contexts": [], "reporters": []},
     }
 
     if (pre_run := raw_config.get("pre-run")) is not None:
-        config["pre-run"]["context"] = list(map(_construct_context, pre_run.get("context", [])))
-        config["pre-run"]["reporter"] = list(map(_construct_reporter, pre_run.get("reporter", [])))
+        config["pre-run"]["contexts"] = list(map(_construct_context, pre_run.get("contexts", [])))
+        config["pre-run"]["reporters"] = list(map(_construct_reporter, pre_run.get("reporters", [])))
     if (in_run := raw_config.get("in-run")) is not None:
-        config["in-run"]["watcher"] = list(map(_construct_watcher, in_run.get("watcher", [])))
-        config["in-run"]["reporter"] = list(map(_construct_reporter, in_run.get("reporter", [])))
+        config["in-run"]["watchers"] = list(map(_construct_watcher, in_run.get("watchers", [])))
+        config["in-run"]["reporters"] = list(map(_construct_reporter, in_run.get("reporters", [])))
     if (post_run := raw_config.get("post-run")) is not None:
-        config["post-run"]["context"] = list(map(_construct_context, post_run.get("context", [])))
-        config["post-run"]["reporter"] = list(map(_construct_reporter, post_run.get("reporter", [])))
+        config["post-run"]["contexts"] = list(map(_construct_context, post_run.get("contexts", [])))
+        config["post-run"]["reporters"] = list(map(_construct_reporter, post_run.get("reporters", [])))
 
     return config
 
