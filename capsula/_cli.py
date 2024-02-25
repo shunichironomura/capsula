@@ -38,7 +38,7 @@ class _PhaseForEncapsulate(str, Enum):
 def enc(
     phase: Annotated[
         _PhaseForEncapsulate,
-        typer.Option(..., "--phase", "-p", help="The phase to encapsulate."),
+        typer.Option(..., "--phase", "-p", help="Which phase in the configuration to use for the encapsulation."),
     ] = _PhaseForEncapsulate.pre,
 ) -> NoReturn:
     typer.echo("Encapsulating...")
