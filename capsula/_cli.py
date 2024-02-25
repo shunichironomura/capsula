@@ -1,10 +1,11 @@
 from enum import Enum
-from typing import Annotated, Literal, NoReturn
+from typing import Literal, NoReturn
 
 import typer
 
 import capsula
 
+from ._backport import Annotated
 from ._config import load_config
 from ._context import ContextBase
 from ._run import CapsuleParams, generate_default_run_dir
