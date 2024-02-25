@@ -25,7 +25,6 @@ def calculate_pi(pre_run_capsule: capsula.Capsule, *, n_samples: int = 1_000, se
     logger.info(f"Pi estimate: {pi_estimate}")
     capsula.record("pi_estimate", pi_estimate)
     # raise CapsulaError("This is a test error.")
-    logger.info(pre_run_capsule.data)
     logger.info(f"Run name: {capsula.current_run_name()}")
 
     with (Path(__file__).parent / "pi.txt").open("w") as output_file:
