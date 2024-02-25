@@ -102,6 +102,7 @@ ignore = [
     "PLR0913", # Too many arguments to function call
     "D407",    # Missing dashed underline after section
     "ERA001",  # Commented out code
+    "FIX002",  # Fixme comment
 ]
 
 
