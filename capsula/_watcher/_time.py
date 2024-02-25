@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 class TimeWatcher(WatcherBase):
-    def __init__(self, name: str) -> None:
+    def __init__(self, name: str = "execution_time") -> None:
         self.name = name
         self.duration: timedelta | None = None
 
