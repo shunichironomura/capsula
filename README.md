@@ -50,7 +50,7 @@ context = [{ type = "FileContext", path = "examples/pi.txt", move = true }]
 reporter = [{ type = "JsonDumpReporter" }]
 ```
 
-Then, all you need to do is to decorate your Python function with the `@capsula.run` decorator and specify the `load_from_config` argument as `True`. The following is an example of a Python script that estimates the value of π using the Monte Carlo method:
+Then, all you need to do is decorate your Python function with the `@capsula.run` decorator and specify the `load_from_config` argument as `True`. The following is an example of a Python script that estimates the value of π using the Monte Carlo method:
 
 ```python
 import random
