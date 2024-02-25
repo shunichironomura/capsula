@@ -8,8 +8,7 @@ import capsula
 
 
 @capsula.run(load_from_config=True)
-@capsula.pass_pre_run_capsule
-def calculate_pi(pre_run_capsule: capsula.Capsule, *, n_samples: int = 1_000, seed: int = 42) -> None:
+def calculate_pi(n_samples: int = 1_000, seed: int = 42) -> None:
     random.seed(seed)
     xs = (random.random() for _ in range(n_samples))  # noqa: S311
     ys = (random.random() for _ in range(n_samples))  # noqa: S311
@@ -24,7 +23,7 @@ def calculate_pi(pre_run_capsule: capsula.Capsule, *, n_samples: int = 1_000, se
     print(f"Run name: {capsula.current_run_name()}")
 
     with (Path(__file__).parent / "pi.txt").open("w") as output_file:
-        output_file.write(f"Pi estimate: {pi_estimate}. Git SHA: {pre_run_capsule.data[('git', 'capsula')]['sha']}")
+        output_file.write(f"Pi estimate: {pi_estimate}.")
 
 
 if __name__ == "__main__":
