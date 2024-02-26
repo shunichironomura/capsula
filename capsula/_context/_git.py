@@ -30,7 +30,7 @@ class _GitRepositoryContextData(TypedDict):
     working_dir: PathLike[str] | str
     sha: str
     remotes: dict[str, str]
-    branch: str
+    branch: str | None
     is_dirty: bool
 
 
@@ -55,11 +55,17 @@ class GitRepositoryContext(ContextBase):
         if not self.allow_dirty and repo.is_dirty():
             raise GitRepositoryDirtyError(repo)
 
+        def get_optional_branch_name(repo: Repo) -> str | None:
+            try:
+                return repo.active_branch.name
+            except TypeError:
+                return None
+
         info: _GitRepositoryContextData = {
             "working_dir": repo.working_dir,
             "sha": repo.head.commit.hexsha,
             "remotes": {remote.name: remote.url for remote in repo.remotes},
-            "branch": repo.active_branch.name,
+            "branch": get_optional_branch_name(repo),
             "is_dirty": repo.is_dirty(),
         }
 
