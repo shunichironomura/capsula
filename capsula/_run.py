@@ -39,7 +39,7 @@ class CommandInfo(BaseModel):
 
 
 class CapsuleParams(BaseModel):
-    exec_info: FuncInfo | CommandInfo | None
+    exec_info: Union[FuncInfo, CommandInfo, None]
     run_dir: Path
     phase: Literal["pre", "in", "post"]
 
