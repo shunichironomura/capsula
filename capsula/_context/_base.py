@@ -9,6 +9,9 @@ class ContextBase(CapsuleItem):
     _subclass_registry: Final[dict[str, type[ContextBase]]] = {}
 
     def __init_subclass__(cls, **kwargs: Any) -> None:
+        if cls.__name__ in cls._subclass_registry:
+            msg = f"Duplicate context name: {cls.__name__}"
+            raise ValueError(msg)
         cls._subclass_registry[cls.__name__] = cls
         super().__init_subclass__(**kwargs)
 

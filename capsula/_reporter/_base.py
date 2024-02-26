@@ -13,6 +13,9 @@ class ReporterBase(ABC):
     _subclass_registry: Final[dict[str, type[ReporterBase]]] = {}
 
     def __init_subclass__(cls, **kwargs: Any) -> None:
+        if cls.__name__ in cls._subclass_registry:
+            msg = f"Duplicate reporter name: {cls.__name__}"
+            raise ValueError(msg)
         cls._subclass_registry[cls.__name__] = cls
         super().__init_subclass__(**kwargs)
 
