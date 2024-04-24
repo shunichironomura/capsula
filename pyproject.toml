@@ -26,6 +26,7 @@ tomli = { version = ">=2.0.1", python = "<3.11" }
 typing-extensions = { version = ">=4.7.1", python = "<3.11" }
 orjson = ">=3.9.10"
 typer = ">=0.9.0"
+slack-sdk = ">=3.27.1"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "0.3.5"
