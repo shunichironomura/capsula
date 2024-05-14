@@ -55,6 +55,7 @@ _CapsulaConfig = TypedDict(
 )
 
 
+# TODO: Treat relative paths in the config file as relative to project root
 def load_config(path: Path) -> _CapsulaConfig:
     with path.open("rb") as file:
         raw_config = tomllib.load(file)

@@ -85,12 +85,15 @@ class Run(Generic[_P, _T]):
             return None
 
     @overload
-    def __init__(self, func: Callable[_P, _T], *, pass_pre_run_capsule: Literal[False] = False) -> None:
-        ...
+    def __init__(self, func: Callable[_P, _T], *, pass_pre_run_capsule: Literal[False] = False) -> None: ...
 
     @overload
-    def __init__(self, func: Callable[Concatenate[Capsule, _P], _T], *, pass_pre_run_capsule: Literal[True]) -> None:
-        ...
+    def __init__(
+        self,
+        func: Callable[Concatenate[Capsule, _P], _T],
+        *,
+        pass_pre_run_capsule: Literal[True],
+    ) -> None: ...
 
     def __init__(
         self,
@@ -221,6 +224,7 @@ class Run(Generic[_P, _T]):
 
         in_run_enc.add_context(FunctionCallContext(self.func, args, kwargs))
 
+        # TODO: `result` will not be defined if `self.func` raises an exception and it is caught by a watcher.
         with self, in_run_enc, in_run_enc.watch():
             if self.pass_pre_run_capsule:
                 result = self.func(pre_run_capsule, *args, **kwargs)  # type: ignore[arg-type]
