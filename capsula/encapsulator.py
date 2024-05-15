@@ -89,7 +89,7 @@ class Encapsulator:
         for key, capsule_item in chain(self.contexts.items(), self.watchers.items()):
             try:
                 data[key] = capsule_item.encapsulate()
-            except Exception as e:  # noqa: PERF203,BLE001
+            except Exception as e:  # noqa: PERF203
                 if abort_on_error:
                     raise
                 fails[key] = ExceptionInfo.from_exception(e)
