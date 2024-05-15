@@ -85,12 +85,12 @@ class Run(Generic[_P, _T]):
             return None
 
     @overload
-    def __init__(self, func: Callable[_P, _T], *, pass_pre_run_capsule: Literal[False] = False) -> None:
-        ...
+    def __init__(self, func: Callable[_P, _T], *, pass_pre_run_capsule: Literal[False] = False) -> None: ...
 
     @overload
-    def __init__(self, func: Callable[Concatenate[Capsule, _P], _T], *, pass_pre_run_capsule: Literal[True]) -> None:
-        ...
+    def __init__(
+        self, func: Callable[Concatenate[Capsule, _P], _T], *, pass_pre_run_capsule: Literal[True]
+    ) -> None: ...
 
     def __init__(
         self,
