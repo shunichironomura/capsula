@@ -33,11 +33,13 @@ class FileContext(ContextBase):
         hash_algorithm: str | None = None,
         copy_to: Iterable[Path | str] | Path | str | None = None,
         move_to: Path | str | None = None,
+        ignore_missing: bool = False,
     ) -> None:
         self.path = Path(path)
         self.hash_algorithm = self._default_hash_algorithm if hash_algorithm is None else hash_algorithm
         self.compute_hash = compute_hash
         self.move_to = None if move_to is None else Path(move_to)
+        self.ignore_missing = ignore_missing
 
         if copy_to is None:
             self.copy_to: tuple[Path, ...] = ()
@@ -53,6 +55,13 @@ class FileContext(ContextBase):
             return p
 
     def encapsulate(self) -> _FileContextData:
+        if not self.path.exists():
+            if self.ignore_missing:
+                logger.warning(f"File {self.path} does not exist. Ignoring.")
+                return _FileContextData(copied_to=(), moved_to=None, hash=None)
+            else:
+                msg = f"File {self.path} does not exist."
+                raise FileNotFoundError(msg)
         self.copy_to = tuple(self._normalize_copy_dst_path(p) for p in self.copy_to)
 
         if self.compute_hash:
@@ -90,6 +99,7 @@ class FileContext(ContextBase):
         hash_algorithm: str | None = None,
         copy: bool = False,
         move: bool = False,
+        ignore_missing: bool = False,
     ) -> Callable[[CapsuleParams], FileContext]:
         if copy and move:
             warnings.warn("Both copy and move are True. Only move will be performed.", UserWarning, stacklevel=2)
@@ -103,6 +113,7 @@ class FileContext(ContextBase):
                 hash_algorithm=hash_algorithm,
                 copy_to=params.run_dir if copy else None,
                 move_to=params.run_dir if move else None,
+                ignore_missing=ignore_missing,
             )
 
         return callback
