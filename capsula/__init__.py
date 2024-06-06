@@ -20,15 +20,10 @@ __all__ = [
     "__version__",
     "context",
     "current_run_name",
-    "get_capsule_dir",
-    "get_capsule_name",
-    "monitor",
     "pass_pre_run_capsule",
     "record",
     "reporter",
     "run",
-    "set_capsule_dir",
-    "set_capsule_name",
     "watcher",
 ]
 from ._capsule import Capsule
