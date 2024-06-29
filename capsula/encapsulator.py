@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import queue
 import threading
+import warnings
 from collections import OrderedDict
 from itertools import chain
 from typing import TYPE_CHECKING, Any, Tuple, Union
@@ -92,6 +93,7 @@ class Encapsulator:
             except Exception as e:  # noqa: PERF203
                 if capsule_item.abort_on_error:
                     raise
+                warnings.warn(f"Error occurred during encapsulation of {key}: {e}. Skipping.", stacklevel=3)
                 fails[key] = ExceptionInfo.from_exception(e)
         return Capsule(data, fails)
 
