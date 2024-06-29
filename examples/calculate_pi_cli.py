@@ -1,8 +1,9 @@
+from __future__ import annotations
+
 import logging
 import random
 import sys
 from pathlib import Path
-from typing import Optional
 
 import click
 
@@ -24,7 +25,7 @@ logger = logging.getLogger(__name__)
     help="The seed to use for the random number generator passed to numpy.random.default_rng.",
     default=None,
 )
-def main(n: int, seed: Optional[int] = None) -> None:
+def main(n: int, seed: int | None = None) -> None:
     """Calculate pi using the Monte Carlo method."""
     if n < 1:
         logger.error("n must be greater than or equal to 1.")

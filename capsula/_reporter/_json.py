@@ -5,7 +5,7 @@ import traceback
 from datetime import timedelta
 from pathlib import Path
 from types import TracebackType
-from typing import TYPE_CHECKING, Any, Callable, Optional
+from typing import TYPE_CHECKING, Any, Callable
 
 import orjson
 
@@ -39,8 +39,8 @@ class JsonDumpReporter(ReporterBase):
         self,
         path: Path | str,
         *,
-        default: Optional[Callable[[Any], Any]] = None,
-        option: Optional[int] = None,
+        default: Callable[[Any], Any] | None = None,
+        option: int | None = None,
         mkdir: bool = True,
     ) -> None:
         self.path = Path(path)
@@ -80,7 +80,7 @@ class JsonDumpReporter(ReporterBase):
     def default(
         cls,
         *,
-        option: Optional[int] = None,
+        option: int | None = None,
     ) -> Callable[[CapsuleParams], JsonDumpReporter]:
         def callback(params: CapsuleParams) -> JsonDumpReporter:
             return cls(
