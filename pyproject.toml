@@ -112,6 +112,7 @@ ignore = [
     "INP001", # implicit-namespace-package
     "T201",   # print statement
     "S311",   # suspicious-non-cryptographic-random-usage
+    "PTH123", # builtin-open
 ]
 "capsula/_backport.py" = [
     "ANN202", # Missing return type annotation
