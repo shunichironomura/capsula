@@ -9,21 +9,10 @@ import capsula
 logger = logging.getLogger(__name__)
 
 
-@capsula.run()
+@capsula.run(load_from_config=True)
 @capsula.context(capsula.EnvVarContext("HOME"), mode="pre")
 @capsula.context(capsula.EnvVarContext("PATH"), mode="pre")
-@capsula.context(capsula.CwdContext(), mode="pre")
-@capsula.context(capsula.CpuContext(), mode="pre")
-@capsula.context(capsula.GitRepositoryContext.default("capsula"), mode="pre")
-@capsula.context(capsula.CommandContext("poetry check --lock"), mode="pre")
-@capsula.context(capsula.FileContext.default(Path(__file__).parents[1] / "pyproject.toml", copy=True), mode="pre")
-@capsula.context(capsula.FileContext.default(Path(__file__).parents[1] / "poetry.lock", copy=True), mode="pre")
-@capsula.context(capsula.CommandContext("pip freeze --exclude-editable > requirements.txt"), mode="pre")
-@capsula.context(capsula.FileContext.default(Path(__file__).parents[1] / "requirements.txt", move=True), mode="pre")
-@capsula.watcher(capsula.UncaughtExceptionWatcher("Exception"))
-@capsula.watcher(capsula.TimeWatcher("calculation_time"))
 @capsula.context(capsula.FileContext.default(Path(__file__).parent / "pi.txt", move=True), mode="post")
-@capsula.reporter(capsula.JsonDumpReporter.default(), mode="all")
 @capsula.pass_pre_run_capsule
 def calculate_pi(pre_run_capsule: capsula.Capsule, *, n_samples: int = 1_000, seed: int = 42) -> None:
     logger.info(f"Calculating pi with {n_samples} samples.")
