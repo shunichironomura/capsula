@@ -3,6 +3,7 @@ from __future__ import annotations
 import inspect
 import queue
 import threading
+from collections import deque
 from datetime import datetime, timezone
 from pathlib import Path
 from random import choices
@@ -101,13 +102,13 @@ class Run(Generic[_P, _T]):
         *,
         pass_pre_run_capsule: bool = False,
     ) -> None:
-        self._pre_run_context_generators: list[Callable[[CapsuleParams], ContextBase]] = []
-        self._in_run_watcher_generators: list[Callable[[CapsuleParams], WatcherBase]] = []
-        self._post_run_context_generators: list[Callable[[CapsuleParams], ContextBase]] = []
+        self._pre_run_context_generators: deque[Callable[[CapsuleParams], ContextBase]] = deque()
+        self._in_run_watcher_generators: deque[Callable[[CapsuleParams], WatcherBase]] = deque()
+        self._post_run_context_generators: deque[Callable[[CapsuleParams], ContextBase]] = deque()
 
-        self._pre_run_reporter_generators: list[Callable[[CapsuleParams], ReporterBase]] = []
-        self._in_run_reporter_generators: list[Callable[[CapsuleParams], ReporterBase]] = []
-        self._post_run_reporter_generators: list[Callable[[CapsuleParams], ReporterBase]] = []
+        self._pre_run_reporter_generators: deque[Callable[[CapsuleParams], ReporterBase]] = deque()
+        self._in_run_reporter_generators: deque[Callable[[CapsuleParams], ReporterBase]] = deque()
+        self._post_run_reporter_generators: deque[Callable[[CapsuleParams], ReporterBase]] = deque()
 
         self._pass_pre_run_capsule: bool = pass_pre_run_capsule
         self._func: Callable[_P, _T] | Callable[Concatenate[Capsule, _P], _T] = func
@@ -127,6 +128,7 @@ class Run(Generic[_P, _T]):
         context: ContextBase | Callable[[CapsuleParams], ContextBase],
         *,
         mode: Literal["pre", "post", "all"],
+        append_left: bool = False,
     ) -> None:
         def context_generator(params: CapsuleParams) -> ContextBase:
             if isinstance(context, ContextBase):
@@ -135,30 +137,49 @@ class Run(Generic[_P, _T]):
                 return context(params)
 
         if mode == "pre":
-            self._pre_run_context_generators.append(context_generator)
+            if append_left:
+                self._pre_run_context_generators.appendleft(context_generator)
+            else:
+                self._pre_run_context_generators.append(context_generator)
         elif mode == "post":
-            self._post_run_context_generators.append(context_generator)
+            if append_left:
+                self._post_run_context_generators.appendleft(context_generator)
+            else:
+                self._post_run_context_generators.append(context_generator)
         elif mode == "all":
-            self._pre_run_context_generators.append(context_generator)
-            self._post_run_context_generators.append(context_generator)
+            if append_left:
+                self._pre_run_context_generators.appendleft(context_generator)
+                self._post_run_context_generators.appendleft(context_generator)
+            else:
+                self._pre_run_context_generators.append(context_generator)
+                self._post_run_context_generators.append(context_generator)
         else:
             msg = f"mode must be one of 'pre', 'post', or 'all', not {mode}."
             raise ValueError(msg)
 
-    def add_watcher(self, watcher: WatcherBase | Callable[[CapsuleParams], WatcherBase]) -> None:
+    def add_watcher(
+        self,
+        watcher: WatcherBase | Callable[[CapsuleParams], WatcherBase],
+        *,
+        append_left: bool = False,
+    ) -> None:
         def watcher_generator(params: CapsuleParams) -> WatcherBase:
             if isinstance(watcher, WatcherBase):
                 return watcher
             else:
                 return watcher(params)
 
-        self._in_run_watcher_generators.append(watcher_generator)
+        if append_left:
+            self._in_run_watcher_generators.appendleft(watcher_generator)
+        else:
+            self._in_run_watcher_generators.append(watcher_generator)
 
-    def add_reporter(
+    def add_reporter(  # noqa: C901, PLR0912
         self,
         reporter: ReporterBase | Callable[[CapsuleParams], ReporterBase],
         *,
         mode: Literal["pre", "in", "post", "all"],
+        append_left: bool = False,
     ) -> None:
         def reporter_generator(params: CapsuleParams) -> ReporterBase:
             if isinstance(reporter, ReporterBase):
@@ -167,15 +188,29 @@ class Run(Generic[_P, _T]):
                 return reporter(params)
 
         if mode == "pre":
-            self._pre_run_reporter_generators.append(reporter_generator)
+            if append_left:
+                self._pre_run_reporter_generators.appendleft(reporter_generator)
+            else:
+                self._pre_run_reporter_generators.append(reporter_generator)
         elif mode == "in":
-            self._in_run_reporter_generators.append(reporter_generator)
+            if append_left:
+                self._in_run_reporter_generators.appendleft(reporter_generator)
+            else:
+                self._in_run_reporter_generators.append(reporter_generator)
         elif mode == "post":
-            self._post_run_reporter_generators.append(reporter_generator)
+            if append_left:
+                self._post_run_reporter_generators.appendleft(reporter_generator)
+            else:
+                self._post_run_reporter_generators.append(reporter_generator)
         elif mode == "all":
-            self._pre_run_reporter_generators.append(reporter_generator)
-            self._in_run_reporter_generators.append(reporter_generator)
-            self._post_run_reporter_generators.append(reporter_generator)
+            if append_left:
+                self._pre_run_reporter_generators.appendleft(reporter_generator)
+                self._in_run_reporter_generators.appendleft(reporter_generator)
+                self._post_run_reporter_generators.appendleft(reporter_generator)
+            else:
+                self._pre_run_reporter_generators.append(reporter_generator)
+                self._in_run_reporter_generators.append(reporter_generator)
+                self._post_run_reporter_generators.append(reporter_generator)
         else:
             msg = f"mode must be one of 'pre', 'in', 'post', or 'all', not {mode}."
             raise ValueError(msg)
