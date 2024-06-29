@@ -6,7 +6,7 @@ import capsula
 OUTPUT_FILE_PATH = Path(__file__).parent / "pi.txt"
 
 
-@capsula.run()
+@capsula.run(ignore_config=True)
 @capsula.reporter(capsula.JsonDumpReporter.default(), mode="all")
 @capsula.context(capsula.FileContext.default(OUTPUT_FILE_PATH, move=True), mode="post")
 @capsula.watcher(capsula.UncaughtExceptionWatcher("Exception"))
