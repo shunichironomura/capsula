@@ -21,10 +21,18 @@ class _CommandContextData(TypedDict):
 
 
 class CommandContext(ContextBase):
-    def __init__(self, command: str, *, cwd: Path | None = None, check: bool = True) -> None:
+    def __init__(
+        self,
+        command: str,
+        *,
+        cwd: Path | None = None,
+        check: bool = True,
+        abort_on_error: bool = True,
+    ) -> None:
         self.command = command
         self.cwd = cwd
         self.check = check
+        self.abort_on_error = abort_on_error
 
     def encapsulate(self) -> _CommandContextData:
         logger.debug(f"Running command: {self.command}")
