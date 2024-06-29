@@ -5,13 +5,12 @@ import logging
 import queue
 import threading
 from collections import deque
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from random import choices
 from string import ascii_letters, digits
-from typing import TYPE_CHECKING, Any, Callable, Dict, Generic, Literal, Tuple, TypeVar, Union, overload
-
-from pydantic import BaseModel
+from typing import TYPE_CHECKING, Any, Callable, Generic, Literal, TypeVar, Union, overload
 
 from capsula._reporter import ReporterBase
 from capsula.encapsulator import Encapsulator
@@ -32,18 +31,21 @@ _T = TypeVar("_T")
 logger = logging.getLogger(__name__)
 
 
-class FuncInfo(BaseModel):
+@dataclass
+class FuncInfo:
     func: Callable[..., Any]
-    args: Tuple[Any, ...]
-    kwargs: Dict[str, Any]
+    args: tuple[Any, ...]
+    kwargs: dict[str, Any]
 
 
-class CommandInfo(BaseModel):
+@dataclass
+class CommandInfo:
     command: str
 
 
-class CapsuleParams(BaseModel):
-    exec_info: Union[FuncInfo, CommandInfo, None]
+@dataclass
+class CapsuleParams:
+    exec_info: FuncInfo | CommandInfo | None
     run_dir: Path
     phase: Literal["pre", "in", "post"]
 
