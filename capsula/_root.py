@@ -19,7 +19,4 @@ def current_run_name() -> str:
     if run is None:
         msg = "No active run found."
         raise RuntimeError(msg)
-    if run.run_dir is None:
-        msg = "No active run directory found."
-        raise RuntimeError(msg)
     return run.run_dir.name
