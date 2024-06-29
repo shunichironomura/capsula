@@ -7,6 +7,7 @@ from capsula._capsule import CapsuleItem
 
 class ContextBase(CapsuleItem):
     _subclass_registry: Final[dict[str, type[ContextBase]]] = {}
+    abort_on_error: bool = False
 
     def __init_subclass__(cls, **kwargs: Any) -> None:
         if cls.__name__ in cls._subclass_registry:

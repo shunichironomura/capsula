@@ -26,6 +26,11 @@ class Capsule:
 
 
 class CapsuleItem(ABC):
+    @property
+    @abstractmethod
+    def abort_on_error(self) -> bool:
+        raise NotImplementedError
+
     @abstractmethod
     def encapsulate(self) -> Any:
         raise NotImplementedError
