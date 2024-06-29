@@ -24,41 +24,37 @@ Prepare a `capsula.toml` file in the root directory of your project. An example 
 
 ```toml
 [pre-run]
-# Contexts to be captured before the execution of the decorated function/CLI command.
 contexts = [
-    { type = "CommandContext", command = "poetry check --lock" },
-    { type = "CommandContext", command = "pip freeze --exclude-editable > requirements.txt" },
-    { type = "FileContext", path = "pyproject.toml", copy = true },
-    { type = "FileContext", path = "requirements.txt", move = true },
-    { type = "GitRepositoryContext", name = "capsula" },
     { type = "CwdContext" },
     { type = "CpuContext" },
+    { type = "GitRepositoryContext", name = "capsula", path = "." },
+    { type = "CommandContext", command = "poetry check --lock" },
+    { type = "FileContext", path = "pyproject.toml", copy = true },
+    { type = "FileContext", path = "poetry.lock", copy = true },
+    { type = "CommandContext", command = "pip freeze --exclude-editable > requirements.txt" },
+    { type = "FileContext", path = "requirements.txt", move = true },
 ]
-# Reporter to be used to report the captured contexts.
 reporters = [{ type = "JsonDumpReporter" }]
 
 [in-run]
-# Watchers to be used during the execution of the decorated function/CLI command.
 watchers = [{ type = "UncaughtExceptionWatcher" }, { type = "TimeWatcher" }]
-# Reporter to be used to report the execution status.
 reporters = [{ type = "JsonDumpReporter" }]
 
 [post-run]
-# Contexts to be captured after the execution of the decorated function/CLI command.
-contexts = [{ type = "FileContext", path = "examples/pi.txt", move = true }]
-# Reporter to be used to report the captured contexts.
 reporters = [{ type = "JsonDumpReporter" }]
+
 ```
 
-Then, all you need to do is decorate your Python function with the `@capsula.run` decorator and specify the `load_from_config` argument as `True`. The following is an example of a Python script that estimates the value of π using the Monte Carlo method:
+Then, all you need to do is decorate your Python function with the `@capsula.run()` decorator. You can also use the `@capsula.context()` decorator to add a context specific to the function.
+
+The following is an example of a Python script that estimates the value of π using the Monte Carlo method:
 
 ```python
 import random
-from pathlib import Path
-
 import capsula
 
-@capsula.run(load_from_config=True)
+@capsula.run()
+@capsula.context(capsula.FileContext.default("pi.txt", move=True), mode="post")
 def calculate_pi(n_samples: int = 1_000, seed: int = 42) -> None:
     random.seed(seed)
     xs = (random.random() for _ in range(n_samples))
@@ -73,7 +69,7 @@ def calculate_pi(n_samples: int = 1_000, seed: int = 42) -> None:
     capsula.record("pi_estimate", pi_estimate)
     print(f"Run name: {capsula.current_run_name()}")
 
-    with (Path(__file__).parent / "pi.txt").open("w") as output_file:
+    with open("pi.txt", "w") as output_file:
         output_file.write(f"Pi estimate: {pi_estimate}.")
 
 if __name__ == "__main__":
