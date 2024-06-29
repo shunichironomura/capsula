@@ -19,7 +19,6 @@ packages = [{ include = "capsula" }]
 
 [tool.poetry.dependencies]
 python = ">=3.8"
-pydantic = ">=2.0.2"
 py-cpuinfo = ">=9.0.0"
 gitpython = ">=3.1.31"
 tomli = { version = ">=2.0.1", python = "<3.11" }
@@ -33,7 +32,6 @@ mypy = "1.10.1"
 pytest = "8.2.2"
 coverage = "7.5.4"
 genbadge = { extras = ["coverage"], version = "1.1.1" }
-tomli-w = "1.0.0"
 
 [tool.poetry.group.examples.dependencies]
 click = ">=8.1.3"
