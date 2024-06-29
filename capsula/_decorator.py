@@ -57,7 +57,7 @@ def context(
 def run(
     run_dir: Path | Callable[[FuncInfo], Path] | None = None,
     *,
-    load_from_config: bool = False,
+    ignore_config: bool = False,
     config_path: Path | str | None = None,
 ) -> Callable[[Callable[_P, _T] | Run[_P, _T]], Run[_P, _T]]:
     run_dir = generate_default_run_dir if run_dir is None else run_dir
@@ -66,7 +66,7 @@ def run(
         run = func_or_run if isinstance(func_or_run, Run) else Run(func_or_run)
         run.set_run_dir(run_dir)
 
-        if load_from_config:
+        if not ignore_config:
             config = load_config(get_default_config_path() if config_path is None else Path(config_path))
             for phase in ("pre", "in", "post"):
                 phase_key = f"{phase}-run"

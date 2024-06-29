@@ -9,7 +9,7 @@ import capsula
 logger = logging.getLogger(__name__)
 
 
-@capsula.run(load_from_config=True)
+@capsula.run()
 @capsula.context(capsula.EnvVarContext("HOME"), mode="pre")
 @capsula.context(capsula.EnvVarContext("PATH"), mode="pre")
 @capsula.context(capsula.FileContext.default(Path(__file__).parent / "pi.txt", move=True), mode="post")
