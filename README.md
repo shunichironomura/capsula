@@ -79,53 +79,6 @@ if __name__ == "__main__":
 <details>
 <summary>Example of output <code>pre-run-report.json</code>:</summary>
 <pre><code>{
-  "command": {
-    "poetry check --lock": {
-      "command": "poetry check --lock",
-      "cwd": null,
-      "returncode": 0,
-      "stdout": "All set!\n",
-      "stderr": ""
-    },
-    "pip freeze --exclude-editable > requirements.txt": {
-      "command": "pip freeze --exclude-editable > requirements.txt",
-      "cwd": null,
-      "returncode": 0,
-      "stdout": "",
-      "stderr": ""
-    }
-  },
-  "file": {
-    "pyproject.toml": {
-      "copied_to": [
-        "vault/calculate_pi_20240225_221901_M7b3/pyproject.toml"
-      ],
-      "moved_to": null,
-      "hash": {
-        "algorithm": "sha256",
-        "digest": "6c59362587bf43411461b69675980ea338d83a468acddbc8f6cac4f2c17f7605"
-      }
-    },
-    "requirements.txt": {
-      "copied_to": [],
-      "moved_to": "vault/calculate_pi_20240225_221901_M7b3",
-      "hash": {
-        "algorithm": "sha256",
-        "digest": "99d0dbddd7f27aa25bd2d7ce3e2f4a555cdb48b039d73a6cf01fc5fa33f527e1"
-      }
-    }
-  },
-  "git": {
-    "capsula": {
-      "working_dir": "/home/nomura/ghq/github.com/shunichironomura/capsula",
-      "sha": "ff51cb6245e43253d036fcaa0b2af09c0089b783",
-      "remotes": {
-        "origin": "ssh://git@github.com/shunichironomura/capsula.git"
-      },
-      "branch": "improve-example",
-      "is_dirty": true
-    }
-  },
   "cwd": "/home/nomura/ghq/github.com/shunichironomura/capsula",
   "cpu": {
     "python_version": "3.8.17.final.0 (64 bit)",
@@ -148,7 +101,7 @@ if __name__ == "__main__":
       0
     ],
     "hz_actual": [
-      2904010000,
+      2904008000,
       0
     ],
     "stepping": 5,
@@ -194,6 +147,7 @@ if __name__ == "__main__":
       "lm",
       "mca",
       "mce",
+      "md_clear",
       "mmx",
       "movbe",
       "msr",
@@ -249,6 +203,63 @@ if __name__ == "__main__":
     "l1_instruction_cache_size": 196608,
     "l2_cache_line_size": 256,
     "l2_cache_associativity": 6
+  },
+  "git": {
+    "capsula": {
+      "working_dir": "/home/nomura/ghq/github.com/shunichironomura/capsula",
+      "sha": "db7b86d3ed95e178521cd140505f1c8b25f4f30e",
+      "remotes": {
+        "origin": "ssh://git@github.com/shunichironomura/capsula.git"
+      },
+      "branch": "update-readme",
+      "is_dirty": false
+    }
+  },
+  "command": {
+    "poetry check --lock": {
+      "command": "poetry check --lock",
+      "cwd": null,
+      "returncode": 0,
+      "stdout": "All set!\n",
+      "stderr": ""
+    },
+    "pip freeze --exclude-editable > requirements.txt": {
+      "command": "pip freeze --exclude-editable > requirements.txt",
+      "cwd": null,
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  },
+  "file": {
+    "pyproject.toml": {
+      "copied_to": [
+        "vault/calculate_pi_20240630_015823_S3vb/pyproject.toml"
+      ],
+      "moved_to": null,
+      "hash": {
+        "algorithm": "sha256",
+        "digest": "9b2ccc978e950a3a4d2b5f3d29eadab593e1ffe8cd48e7606389e214cb82c8a6"
+      }
+    },
+    "poetry.lock": {
+      "copied_to": [
+        "vault/calculate_pi_20240630_015823_S3vb/poetry.lock"
+      ],
+      "moved_to": null,
+      "hash": {
+        "algorithm": "sha256",
+        "digest": "8d89f9943c8e515340a5c8c16b17a30a749d935ffe765024acaaa81fc1ed5587"
+      }
+    },
+    "requirements.txt": {
+      "copied_to": [],
+      "moved_to": "vault/calculate_pi_20240630_015823_S3vb",
+      "hash": {
+        "algorithm": "sha256",
+        "digest": "b7a36d48fda3efc9374d7d8b0fd4d910234497e2cf229001a1c2c76fce35810c"
+      }
+    }
   }
 }</code></pre>
 </details>
@@ -259,7 +270,7 @@ if __name__ == "__main__":
   "function": {
     "calculate_pi": {
       "file_path": "examples/simple_decorator.py",
-      "first_line_no": 10,
+      "first_line_no": 6,
       "args": [],
       "kwargs": {
         "n_samples": 1000
@@ -268,15 +279,15 @@ if __name__ == "__main__":
   },
   "inside": 782,
   "pi_estimate": 3.128,
+  "time": {
+    "execution_time": "0:00:00.000568"
+  },
   "exception": {
     "exception": {
       "exc_type": null,
       "exc_value": null,
       "traceback": null
     }
-  },
-  "time": {
-    "execution_time": "0:00:00.000658"
   }
 }</code></pre>
 </details>
@@ -285,9 +296,9 @@ if __name__ == "__main__":
 <summary>Example of output <code>post-run-report.json</code>:</summary>
 <pre><code>{
   "file": {
-    "examples/pi.txt": {
+    "pi.txt": {
       "copied_to": [],
-      "moved_to": "vault/calculate_pi_20240225_221901_M7b3",
+      "moved_to": "vault/calculate_pi_20240630_015823_S3vb",
       "hash": {
         "algorithm": "sha256",
         "digest": "a64c761cb6b6f9ef1bc1f6afa6ba44d796c5c51d14df0bdc9d3ab9ced7982a74"
