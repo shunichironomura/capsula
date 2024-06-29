@@ -33,8 +33,8 @@ def main(n: int, seed: int | None = None) -> None:
     logger.info(f"Calculating pi with {n} samples.")
     logger.debug(f"Seed: {seed}")
     random.seed(seed)
-    xs = (random.random() for _ in range(n))  # noqa: S311
-    ys = (random.random() for _ in range(n))  # noqa: S311
+    xs = (random.random() for _ in range(n))
+    ys = (random.random() for _ in range(n))
     inside = sum(x * x + y * y <= 1.0 for x, y in zip(xs, ys))
 
     pi_estimate = (4.0 * inside) / n

@@ -87,8 +87,8 @@ with in_run_enc.watch():
     logger.info(f"Calculating pi with {N_SAMPLES} samples.")
     logger.debug(f"Seed: {SEED}")
     random.seed(SEED)
-    xs = (random.random() for _ in range(N_SAMPLES))  # noqa: S311
-    ys = (random.random() for _ in range(N_SAMPLES))  # noqa: S311
+    xs = (random.random() for _ in range(N_SAMPLES))
+    ys = (random.random() for _ in range(N_SAMPLES))
     inside = sum(x * x + y * y <= 1.0 for x, y in zip(xs, ys))
 
     in_run_enc.record("inside", inside)
