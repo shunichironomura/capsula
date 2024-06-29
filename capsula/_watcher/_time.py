@@ -25,10 +25,12 @@ class TimeWatcher(WatcherBase):
     @contextmanager
     def watch(self) -> Iterator[None]:
         start = time.perf_counter()
-        yield
-        end = time.perf_counter()
-        self.duration = timedelta(seconds=end - start)
-        logger.debug(f"TimeWatcher: {self.name} took {self.duration}.")
+        try:
+            yield
+        finally:
+            end = time.perf_counter()
+            self.duration = timedelta(seconds=end - start)
+            logger.debug(f"TimeWatcher: {self.name} took {self.duration}.")
 
     def default_key(self) -> tuple[str, str]:
         return ("time", self.name)

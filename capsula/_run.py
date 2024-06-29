@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import inspect
+import logging
 import queue
 import threading
 from collections import deque
@@ -27,6 +28,8 @@ if TYPE_CHECKING:
 
 _P = ParamSpec("_P")
 _T = TypeVar("_T")
+
+logger = logging.getLogger(__name__)
 
 
 class FuncInfo(BaseModel):
@@ -236,7 +239,7 @@ class Run(Generic[_P, _T]):
     ) -> None:
         self._get_run_stack().get(block=False)
 
-    def __call__(self, *args: _P.args, **kwargs: _P.kwargs) -> _T:
+    def __call__(self, *args: _P.args, **kwargs: _P.kwargs) -> _T:  # noqa: C901
         func_info = FuncInfo(func=self._func, args=args, kwargs=kwargs)
         if self._run_dir_generator is None:
             msg = "run_dir_generator must be set before calling the function."
@@ -266,26 +269,32 @@ class Run(Generic[_P, _T]):
 
         in_run_enc.add_context(FunctionCallContext(self._func, args, kwargs))
 
-        # TODO: `result` will not be defined if `self.func` raises an exception and it is caught by a watcher.
-        with self, in_run_enc, in_run_enc.watch():
-            if self._pass_pre_run_capsule:
-                result = self._func(pre_run_capsule, *args, **kwargs)  # type: ignore[arg-type]
-            else:
-                result = self._func(*args, **kwargs)
+        try:
+            with self, in_run_enc, in_run_enc.watch():
+                if self._pass_pre_run_capsule:
+                    result = self._func(pre_run_capsule, *args, **kwargs)  # type: ignore[arg-type]
+                else:
+                    result = self._func(*args, **kwargs)
+        finally:
+            in_run_capsule = in_run_enc.encapsulate()
+            for reporter_generator in self._in_run_reporter_generators:
+                reporter = reporter_generator(params)
+                try:
+                    reporter.report(in_run_capsule)
+                except Exception:
+                    logger.exception(f"Failed to report in-run capsule with reporter {reporter}.")
 
-        in_run_capsule = in_run_enc.encapsulate()
-        for reporter_generator in self._in_run_reporter_generators:
-            reporter = reporter_generator(params)
-            reporter.report(in_run_capsule)
-
-        params.phase = "post"
-        post_run_enc = Encapsulator()
-        for context_generator in self._post_run_context_generators:
-            context = context_generator(params)
-            post_run_enc.add_context(context)
-        post_run_capsule = post_run_enc.encapsulate()
-        for reporter_generator in self._post_run_reporter_generators:
-            reporter = reporter_generator(params)
-            reporter.report(post_run_capsule)
+            params.phase = "post"
+            post_run_enc = Encapsulator()
+            for context_generator in self._post_run_context_generators:
+                context = context_generator(params)
+                post_run_enc.add_context(context)
+            post_run_capsule = post_run_enc.encapsulate()
+            for reporter_generator in self._post_run_reporter_generators:
+                reporter = reporter_generator(params)
+                try:
+                    reporter.report(post_run_capsule)
+                except Exception:
+                    logger.exception(f"Failed to report post-run capsule with reporter {reporter}.")
 
         return result

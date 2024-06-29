@@ -81,7 +81,7 @@ in_run_reporter = capsula.JsonDumpReporter(capsule_directory / "in_run_report.js
 in_run_enc.add_watcher(capsula.TimeWatcher("calculation_time"))
 
 # Catch the exception raised by the encapsulated function.
-in_run_enc.add_watcher(capsula.UncaughtExceptionWatcher("Exception", base=Exception, reraise=False))
+in_run_enc.add_watcher(capsula.UncaughtExceptionWatcher("Exception", base=Exception))
 
 with in_run_enc.watch():
     logger.info(f"Calculating pi with {N_SAMPLES} samples.")

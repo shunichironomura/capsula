@@ -83,14 +83,14 @@ class Encapsulator:
             raise KeyConflictError(key)
         self.watchers[key] = watcher
 
-    def encapsulate(self, *, abort_on_error: bool = True) -> Capsule:
+    def encapsulate(self) -> Capsule:
         data = {}
         fails = {}
         for key, capsule_item in chain(self.contexts.items(), self.watchers.items()):
             try:
                 data[key] = capsule_item.encapsulate()
             except Exception as e:  # noqa: PERF203
-                if abort_on_error:
+                if capsule_item.abort_on_error:
                     raise
                 fails[key] = ExceptionInfo.from_exception(e)
         return Capsule(data, fails)

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import queue
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from collections.abc import Hashable
 from typing import TYPE_CHECKING, Any, Dict, Final, Generic, OrderedDict, TypeVar
 
@@ -12,8 +12,9 @@ if TYPE_CHECKING:
     from types import TracebackType
 
 
-class WatcherBase(CapsuleItem):
+class WatcherBase(CapsuleItem, ABC):
     _subclass_registry: Final[dict[str, type[WatcherBase]]] = {}
+    abort_on_error: bool = False
 
     def __init_subclass__(cls, **kwargs: Any) -> None:
         if cls.__name__ in cls._subclass_registry:
