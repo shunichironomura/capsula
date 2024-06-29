@@ -101,19 +101,26 @@ class Run(Generic[_P, _T]):
         *,
         pass_pre_run_capsule: bool = False,
     ) -> None:
-        self.pre_run_context_generators: list[Callable[[CapsuleParams], ContextBase]] = []
-        self.in_run_watcher_generators: list[Callable[[CapsuleParams], WatcherBase]] = []
-        self.post_run_context_generators: list[Callable[[CapsuleParams], ContextBase]] = []
+        self._pre_run_context_generators: list[Callable[[CapsuleParams], ContextBase]] = []
+        self._in_run_watcher_generators: list[Callable[[CapsuleParams], WatcherBase]] = []
+        self._post_run_context_generators: list[Callable[[CapsuleParams], ContextBase]] = []
 
-        self.pre_run_reporter_generators: list[Callable[[CapsuleParams], ReporterBase]] = []
-        self.in_run_reporter_generators: list[Callable[[CapsuleParams], ReporterBase]] = []
-        self.post_run_reporter_generators: list[Callable[[CapsuleParams], ReporterBase]] = []
+        self._pre_run_reporter_generators: list[Callable[[CapsuleParams], ReporterBase]] = []
+        self._in_run_reporter_generators: list[Callable[[CapsuleParams], ReporterBase]] = []
+        self._post_run_reporter_generators: list[Callable[[CapsuleParams], ReporterBase]] = []
 
-        self.pass_pre_run_capsule: bool = pass_pre_run_capsule
-        self.func: Callable[_P, _T] | Callable[Concatenate[Capsule, _P], _T] = func
+        self._pass_pre_run_capsule: bool = pass_pre_run_capsule
+        self._func: Callable[_P, _T] | Callable[Concatenate[Capsule, _P], _T] = func
 
-        self.run_dir_generator: Callable[[FuncInfo], Path] | None = None
-        self.run_dir: Path | None = None
+        self._run_dir_generator: Callable[[FuncInfo], Path] | None = None
+        self._run_dir: Path | None = None
+
+    @property
+    def run_dir(self) -> Path:
+        if self._run_dir is None:
+            msg = "run_dir must be set before accessing it."
+            raise ValueError(msg)
+        return self._run_dir
 
     def add_context(
         self,
@@ -128,12 +135,12 @@ class Run(Generic[_P, _T]):
                 return context(params)
 
         if mode == "pre":
-            self.pre_run_context_generators.append(context_generator)
+            self._pre_run_context_generators.append(context_generator)
         elif mode == "post":
-            self.post_run_context_generators.append(context_generator)
+            self._post_run_context_generators.append(context_generator)
         elif mode == "all":
-            self.pre_run_context_generators.append(context_generator)
-            self.post_run_context_generators.append(context_generator)
+            self._pre_run_context_generators.append(context_generator)
+            self._post_run_context_generators.append(context_generator)
         else:
             msg = f"mode must be one of 'pre', 'post', or 'all', not {mode}."
             raise ValueError(msg)
@@ -145,7 +152,7 @@ class Run(Generic[_P, _T]):
             else:
                 return watcher(params)
 
-        self.in_run_watcher_generators.append(watcher_generator)
+        self._in_run_watcher_generators.append(watcher_generator)
 
     def add_reporter(
         self,
@@ -160,15 +167,15 @@ class Run(Generic[_P, _T]):
                 return reporter(params)
 
         if mode == "pre":
-            self.pre_run_reporter_generators.append(reporter_generator)
+            self._pre_run_reporter_generators.append(reporter_generator)
         elif mode == "in":
-            self.in_run_reporter_generators.append(reporter_generator)
+            self._in_run_reporter_generators.append(reporter_generator)
         elif mode == "post":
-            self.post_run_reporter_generators.append(reporter_generator)
+            self._post_run_reporter_generators.append(reporter_generator)
         elif mode == "all":
-            self.pre_run_reporter_generators.append(reporter_generator)
-            self.in_run_reporter_generators.append(reporter_generator)
-            self.post_run_reporter_generators.append(reporter_generator)
+            self._pre_run_reporter_generators.append(reporter_generator)
+            self._in_run_reporter_generators.append(reporter_generator)
+            self._post_run_reporter_generators.append(reporter_generator)
         else:
             msg = f"mode must be one of 'pre', 'in', 'post', or 'all', not {mode}."
             raise ValueError(msg)
@@ -180,7 +187,7 @@ class Run(Generic[_P, _T]):
             else:
                 return run_dir(params)
 
-        self.run_dir_generator = run_dir_generator
+        self._run_dir_generator = run_dir_generator
 
     def __enter__(self) -> Self:
         self._get_run_stack().put(self)
@@ -195,54 +202,54 @@ class Run(Generic[_P, _T]):
         self._get_run_stack().get(block=False)
 
     def __call__(self, *args: _P.args, **kwargs: _P.kwargs) -> _T:
-        func_info = FuncInfo(func=self.func, args=args, kwargs=kwargs)
-        if self.run_dir_generator is None:
+        func_info = FuncInfo(func=self._func, args=args, kwargs=kwargs)
+        if self._run_dir_generator is None:
             msg = "run_dir_generator must be set before calling the function."
             raise ValueError(msg)
-        self.run_dir = self.run_dir_generator(func_info)
-        self.run_dir.mkdir(parents=True, exist_ok=True)
+        self._run_dir = self._run_dir_generator(func_info)
+        self._run_dir.mkdir(parents=True, exist_ok=True)
         params = CapsuleParams(
             exec_info=func_info,
-            run_dir=self.run_dir,
+            run_dir=self._run_dir,
             phase="pre",
         )
 
         pre_run_enc = Encapsulator()
-        for context_generator in self.pre_run_context_generators:
+        for context_generator in self._pre_run_context_generators:
             context = context_generator(params)
             pre_run_enc.add_context(context)
         pre_run_capsule = pre_run_enc.encapsulate()
-        for reporter_generator in self.pre_run_reporter_generators:
+        for reporter_generator in self._pre_run_reporter_generators:
             reporter = reporter_generator(params)
             reporter.report(pre_run_capsule)
 
         params.phase = "in"
         in_run_enc = Encapsulator()
-        for watcher_generator in self.in_run_watcher_generators:
+        for watcher_generator in self._in_run_watcher_generators:
             watcher = watcher_generator(params)
             in_run_enc.add_watcher(watcher)
 
-        in_run_enc.add_context(FunctionCallContext(self.func, args, kwargs))
+        in_run_enc.add_context(FunctionCallContext(self._func, args, kwargs))
 
         # TODO: `result` will not be defined if `self.func` raises an exception and it is caught by a watcher.
         with self, in_run_enc, in_run_enc.watch():
-            if self.pass_pre_run_capsule:
-                result = self.func(pre_run_capsule, *args, **kwargs)  # type: ignore[arg-type]
+            if self._pass_pre_run_capsule:
+                result = self._func(pre_run_capsule, *args, **kwargs)  # type: ignore[arg-type]
             else:
-                result = self.func(*args, **kwargs)
+                result = self._func(*args, **kwargs)
 
         in_run_capsule = in_run_enc.encapsulate()
-        for reporter_generator in self.in_run_reporter_generators:
+        for reporter_generator in self._in_run_reporter_generators:
             reporter = reporter_generator(params)
             reporter.report(in_run_capsule)
 
         params.phase = "post"
         post_run_enc = Encapsulator()
-        for context_generator in self.post_run_context_generators:
+        for context_generator in self._post_run_context_generators:
             context = context_generator(params)
             post_run_enc.add_context(context)
         post_run_capsule = post_run_enc.encapsulate()
-        for reporter_generator in self.post_run_reporter_generators:
+        for reporter_generator in self._post_run_reporter_generators:
             reporter = reporter_generator(params)
             reporter.report(post_run_capsule)
 
