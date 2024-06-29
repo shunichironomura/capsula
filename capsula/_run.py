@@ -239,7 +239,7 @@ class Run(Generic[_P, _T]):
     ) -> None:
         self._get_run_stack().get(block=False)
 
-    def __call__(self, *args: _P.args, **kwargs: _P.kwargs) -> _T:
+    def __call__(self, *args: _P.args, **kwargs: _P.kwargs) -> _T:  # noqa: C901
         func_info = FuncInfo(func=self._func, args=args, kwargs=kwargs)
         if self._run_dir_generator is None:
             msg = "run_dir_generator must be set before calling the function."
