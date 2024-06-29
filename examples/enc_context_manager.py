@@ -14,8 +14,8 @@ logging.basicConfig(level=logging.DEBUG)
 
 def calc_pi(n_samples: int, seed: int) -> float:
     random.seed(seed)
-    xs = (random.random() for _ in range(n_samples))  # noqa: S311
-    ys = (random.random() for _ in range(n_samples))  # noqa: S311
+    xs = (random.random() for _ in range(n_samples))
+    ys = (random.random() for _ in range(n_samples))
     inside = sum(x * x + y * y <= 1.0 for x, y in zip(xs, ys))
 
     capsula.record("inside", inside)
