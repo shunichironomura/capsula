@@ -28,9 +28,9 @@ class CommandContext(ContextBase):
 
     def encapsulate(self) -> _CommandContextData:
         logger.debug(f"Running command: {self.command}")
-        output = subprocess.run(
+        output = subprocess.run(  # noqa: S602
             self.command,
-            shell=True,  # noqa: S602
+            shell=True,
             text=True,
             capture_output=True,
             cwd=self.cwd,
