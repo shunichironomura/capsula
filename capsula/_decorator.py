@@ -71,15 +71,16 @@ def run(
                 phase_key = f"{phase}-run"
                 if phase_key not in config:
                     continue
-                for context in config[phase_key].get("contexts", []):  # type: ignore[literal-required]
+                for context in reversed(config[phase_key].get("contexts", [])):  # type: ignore[literal-required]
                     assert phase in {"pre", "post"}, f"Invalid phase for context: {phase}"
-                    run.add_context(context, mode=phase)  # type: ignore[arg-type]
-                for watcher in config[phase_key].get("watchers", []):  # type: ignore[literal-required]
+                    run.add_context(context, mode=phase, append_left=True)  # type: ignore[arg-type]
+                for watcher in reversed(config[phase_key].get("watchers", [])):  # type: ignore[literal-required]
                     assert phase == "in", "Watcher can only be added to the in-run phase."
+                    # No need to pass append_left=True here, as watchers are added as the outermost context manager
                     run.add_watcher(watcher)
-                for reporter in config[phase_key].get("reporters", []):  # type: ignore[literal-required]
+                for reporter in reversed(config[phase_key].get("reporters", [])):  # type: ignore[literal-required]
                     assert phase in {"pre", "in", "post"}, f"Invalid phase for reporter: {phase}"
-                    run.add_reporter(reporter, mode=phase)  # type: ignore[arg-type]
+                    run.add_reporter(reporter, mode=phase, append_left=True)  # type: ignore[arg-type]
 
         return run
 
