@@ -23,7 +23,8 @@ def watcher(
 ) -> Callable[[Callable[_P, _T] | Run[_P, _T]], Run[_P, _T]]:
     def decorator(func_or_run: Callable[_P, _T] | Run[_P, _T]) -> Run[_P, _T]:
         run = func_or_run if isinstance(func_or_run, Run) else Run(func_or_run)
-        run.add_watcher(watcher)
+        # No need to set append_left=True here, as watchers are added as the outermost context manager
+        run.add_watcher(watcher, append_left=False)
         return run
 
     return decorator
@@ -35,7 +36,7 @@ def reporter(
 ) -> Callable[[Callable[_P, _T] | Run[_P, _T]], Run[_P, _T]]:
     def decorator(func_or_run: Callable[_P, _T] | Run[_P, _T]) -> Run[_P, _T]:
         run = func_or_run if isinstance(func_or_run, Run) else Run(func_or_run)
-        run.add_reporter(reporter, mode=mode)
+        run.add_reporter(reporter, mode=mode, append_left=True)
         return run
 
     return decorator
@@ -47,7 +48,7 @@ def context(
 ) -> Callable[[Callable[_P, _T] | Run[_P, _T]], Run[_P, _T]]:
     def decorator(func_or_run: Callable[_P, _T] | Run[_P, _T]) -> Run[_P, _T]:
         run = func_or_run if isinstance(func_or_run, Run) else Run(func_or_run)
-        run.add_context(context, mode=mode)
+        run.add_context(context, mode=mode, append_left=True)
         return run
 
     return decorator
@@ -76,8 +77,8 @@ def run(
                     run.add_context(context, mode=phase, append_left=True)  # type: ignore[arg-type]
                 for watcher in reversed(config[phase_key].get("watchers", [])):  # type: ignore[literal-required]
                     assert phase == "in", "Watcher can only be added to the in-run phase."
-                    # No need to pass append_left=True here, as watchers are added as the outermost context manager
-                    run.add_watcher(watcher)
+                    # No need to set append_left=True here, as watchers are added as the outermost context manager
+                    run.add_watcher(watcher, append_left=False)
                 for reporter in reversed(config[phase_key].get("reporters", [])):  # type: ignore[literal-required]
                     assert phase in {"pre", "in", "post"}, f"Invalid phase for reporter: {phase}"
                     run.add_reporter(reporter, mode=phase, append_left=True)  # type: ignore[arg-type]
