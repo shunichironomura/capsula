@@ -11,20 +11,6 @@
         "editor.insertSpaces": true
     },
     "python.languageServer": "Pylance",
-    "cSpell.words": [
-        "autouse",
-        "capsula",
-        "dgst",
-        "figsize",
-        "globalvars",
-        "hexsha",
-        "HHMMSS",
-        "pydantic",
-        "pyproject",
-        "pytest",
-        "savefig",
-        "xlim"
-    ],
     "yaml.schemas": {
         "https://squidfunk.github.io/mkdocs-material/schema.json": "mkdocs.yml"
     },
