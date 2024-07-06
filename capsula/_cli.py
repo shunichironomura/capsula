@@ -8,7 +8,7 @@ import capsula
 from ._backport import Annotated
 from ._config import load_config
 from ._context import ContextBase
-from ._run import CapsuleParams, generate_default_run_dir
+from ._run import CapsuleParams, generate_default_run_dir, get_project_root
 from .utils import get_default_config_path
 
 app = typer.Typer()
@@ -43,7 +43,12 @@ def enc(
     exec_info = None
     run_dir = generate_default_run_dir(exec_info=exec_info)
     run_dir.mkdir(exist_ok=True, parents=True)
-    params = CapsuleParams(exec_info=exec_info, run_dir=run_dir, phase=phase.value)
+    params = CapsuleParams(
+        exec_info=exec_info,
+        run_dir=run_dir,
+        phase=phase.value,
+        project_root=get_project_root(exec_info),
+    )
 
     for context in contexts:
         enc.add_context(context if isinstance(context, ContextBase) else context(params))

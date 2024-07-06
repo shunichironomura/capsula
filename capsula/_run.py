@@ -48,6 +48,7 @@ class CapsuleParams:
     exec_info: FuncInfo | CommandInfo | None
     run_dir: Path
     phase: Literal["pre", "in", "post"]
+    project_root: Path
 
 
 ExecInfo: TypeAlias = Union[FuncInfo, CommandInfo]
@@ -55,14 +56,12 @@ ExecInfo: TypeAlias = Union[FuncInfo, CommandInfo]
 
 def generate_default_run_dir(exec_info: ExecInfo | None = None) -> Path:
     exec_name: str | None
+    project_root = get_project_root(exec_info)
     if exec_info is None:
-        project_root = search_for_project_root(Path.cwd())
         exec_name = None
     elif isinstance(exec_info, CommandInfo):
-        project_root = search_for_project_root(Path.cwd())
         exec_name = exec_info.command.split()[0]  # TODO: handle more complex commands
     elif isinstance(exec_info, FuncInfo):
-        project_root = search_for_project_root(Path(inspect.getfile(exec_info.func)))
         exec_name = exec_info.func.__name__
     else:
         msg = f"exec_info must be an instance of FuncInfo or CommandInfo, not {type(exec_info)}."
@@ -72,6 +71,16 @@ def generate_default_run_dir(exec_info: ExecInfo | None = None) -> Path:
     datetime_str = datetime.now(timezone.utc).astimezone().strftime(r"%Y%m%d_%H%M%S")
     dir_name = ("" if exec_name is None else f"{exec_name}_") + f"{datetime_str}_{random_suffix}"
     return project_root / "vault" / dir_name
+
+
+def get_project_root(exec_info: ExecInfo | None = None) -> Path:
+    if exec_info is None or isinstance(exec_info, CommandInfo):
+        return search_for_project_root(Path.cwd())
+    elif isinstance(exec_info, FuncInfo):
+        return search_for_project_root(Path(inspect.getfile(exec_info.func)))
+    else:
+        msg = f"exec_info must be an instance of FuncInfo or CommandInfo, not {type(exec_info)}."
+        raise TypeError(msg)
 
 
 class Run(Generic[_P, _T]):
@@ -252,6 +261,7 @@ class Run(Generic[_P, _T]):
             exec_info=func_info,
             run_dir=self._run_dir,
             phase="pre",
+            project_root=get_project_root(func_info),
         )
 
         pre_run_enc = Encapsulator()

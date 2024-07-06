@@ -89,11 +89,17 @@ class GitRepositoryContext(ContextBase):
         name: str | None = None,
         *,
         path: Path | str | None = None,
+        path_relative_to_project_root: bool = False,
         allow_dirty: bool | None = None,
     ) -> Callable[[CapsuleParams], GitRepositoryContext]:
         def callback(params: CapsuleParams) -> GitRepositoryContext:
-            if path is not None:
-                repo = Repo(path, search_parent_directories=False)
+            if path_relative_to_project_root and path is not None and not Path(path).is_absolute():
+                repository_path: Path | None = params.project_root / path
+            else:
+                repository_path = Path(path) if path is not None else None
+
+            if repository_path is not None:
+                repo = Repo(repository_path, search_parent_directories=False)
             else:
                 if isinstance(params.exec_info, FuncInfo):
                     repo_search_start_path = Path(inspect.getfile(params.exec_info.func)).parent
