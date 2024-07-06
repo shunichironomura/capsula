@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from ._encapsulator import Encapsulator, _CapsuleItemKey
 from ._run import Run
-from .encapsulator import Encapsulator, _CapsuleItemKey
 
 
 def record(key: _CapsuleItemKey, value: Any) -> None:

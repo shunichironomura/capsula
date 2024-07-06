@@ -38,10 +38,10 @@ from ._context import (
     PlatformContext,
 )
 from ._decorator import context, pass_pre_run_capsule, reporter, run, watcher
+from ._encapsulator import Encapsulator
 from ._reporter import JsonDumpReporter, ReporterBase
 from ._root import current_run_name, record
 from ._run import Run
 from ._version import __version__
 from ._watcher import TimeWatcher, UncaughtExceptionWatcher, WatcherBase
-from .encapsulator import Encapsulator
 from .exceptions import CapsulaConfigurationError, CapsulaError

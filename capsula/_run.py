@@ -12,11 +12,10 @@ from random import choices
 from string import ascii_letters, digits
 from typing import TYPE_CHECKING, Any, Callable, Generic, Literal, TypeVar, Union, overload
 
-from capsula._reporter import ReporterBase
-from capsula.encapsulator import Encapsulator
-
 from ._backport import Concatenate, ParamSpec, Self, TypeAlias
 from ._context import ContextBase, FunctionCallContext
+from ._encapsulator import Encapsulator
+from ._reporter import ReporterBase
 from ._watcher import WatcherBase
 from .utils import search_for_project_root
 
