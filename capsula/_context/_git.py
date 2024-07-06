@@ -32,6 +32,7 @@ class _GitRepositoryContextData(TypedDict):
     remotes: dict[str, str]
     branch: str | None
     is_dirty: bool
+    diff_file: PathLike[str] | str | None
 
 
 class GitRepositoryContext(ContextBase):
@@ -67,6 +68,7 @@ class GitRepositoryContext(ContextBase):
             "remotes": {remote.name: remote.url for remote in repo.remotes},
             "branch": get_optional_branch_name(repo),
             "is_dirty": repo.is_dirty(),
+            "diff_file": None,
         }
 
         diff_txt = repo.git.diff()
@@ -75,6 +77,7 @@ class GitRepositoryContext(ContextBase):
             with self.diff_file.open("w") as f:
                 f.write(diff_txt)
             logger.debug(f"Wrote diff to {self.diff_file}")
+            info["diff_file"] = self.diff_file
         return info
 
     def default_key(self) -> tuple[str, str]:
