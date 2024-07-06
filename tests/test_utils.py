@@ -110,9 +110,7 @@ def test_search_for_project_root_in_parent() -> None:
         child_dir.mkdir()
 
         # Test that the search correctly finds the project root in the parent directory
-        assert (
-            search_for_project_root(child_dir) == project_root
-        ), "Failed to find the project root in the parent directory"
+        assert search_for_project_root(child_dir) == project_root
 
 
 def test_search_for_project_root_not_found() -> None:
