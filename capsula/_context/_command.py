@@ -2,12 +2,14 @@ from __future__ import annotations
 
 import logging
 import subprocess
-from typing import TYPE_CHECKING, TypedDict
-
-if TYPE_CHECKING:
-    from pathlib import Path
+from pathlib import Path
+from typing import TYPE_CHECKING, Callable, TypedDict
 
 from ._base import ContextBase
+
+if TYPE_CHECKING:
+    from capsula._run import CapsuleParams
+
 
 logger = logging.getLogger(__name__)
 
@@ -55,3 +57,30 @@ class CommandContext(ContextBase):
 
     def default_key(self) -> tuple[str, str]:
         return ("command", self.command)
+
+    @classmethod
+    def default(
+        cls,
+        command: str,
+        *,
+        cwd: Path | str | None = None,
+        check: bool = True,
+        abort_on_error: bool = True,
+        cwd_relative_to_project_root: bool = False,
+    ) -> Callable[[CapsuleParams], CommandContext]:
+        def callback(params: CapsuleParams) -> CommandContext:
+            if cwd_relative_to_project_root and cwd is not None and not Path(cwd).is_absolute():
+                cwd_path: Path | None = params.project_root / cwd
+            elif cwd_relative_to_project_root and cwd is None:
+                cwd_path = params.project_root
+            else:
+                cwd_path = Path(cwd) if cwd is not None else None
+
+            return cls(
+                command,
+                cwd=cwd_path,
+                check=check,
+                abort_on_error=abort_on_error,
+            )
+
+        return callback

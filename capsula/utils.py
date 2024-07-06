@@ -74,7 +74,7 @@ def to_nested_dict(flat_dict: Mapping[Sequence[Hashable], Any]) -> dict[Hashable
     return nested_dict
 
 
-def search_for_project_root(start: Path) -> Path:
+def search_for_project_root(start: Path | str) -> Path:
     """Search for the project root directory by looking for pyproject.toml.
 
     Args:
@@ -84,12 +84,13 @@ def search_for_project_root(start: Path) -> Path:
         The project root directory.
 
     """
+    start = Path(start)
     if (start / "pyproject.toml").exists():
         return start
     if start == start.parent:
         msg = "Project root not found."
         raise FileNotFoundError(msg)
-    return search_for_project_root(start.parent)
+    return search_for_project_root(start.resolve().parent)
 
 
 def get_default_config_path() -> Path:

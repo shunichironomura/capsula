@@ -32,6 +32,7 @@ class _GitRepositoryContextData(TypedDict):
     remotes: dict[str, str]
     branch: str | None
     is_dirty: bool
+    diff_file: PathLike[str] | str | None
 
 
 class GitRepositoryContext(ContextBase):
@@ -67,6 +68,7 @@ class GitRepositoryContext(ContextBase):
             "remotes": {remote.name: remote.url for remote in repo.remotes},
             "branch": get_optional_branch_name(repo),
             "is_dirty": repo.is_dirty(),
+            "diff_file": None,
         }
 
         diff_txt = repo.git.diff()
@@ -75,6 +77,7 @@ class GitRepositoryContext(ContextBase):
             with self.diff_file.open("w") as f:
                 f.write(diff_txt)
             logger.debug(f"Wrote diff to {self.diff_file}")
+            info["diff_file"] = self.diff_file
         return info
 
     def default_key(self) -> tuple[str, str]:
@@ -86,11 +89,17 @@ class GitRepositoryContext(ContextBase):
         name: str | None = None,
         *,
         path: Path | str | None = None,
+        path_relative_to_project_root: bool = False,
         allow_dirty: bool | None = None,
     ) -> Callable[[CapsuleParams], GitRepositoryContext]:
         def callback(params: CapsuleParams) -> GitRepositoryContext:
-            if path is not None:
-                repo = Repo(path, search_parent_directories=False)
+            if path_relative_to_project_root and path is not None and not Path(path).is_absolute():
+                repository_path: Path | None = params.project_root / path
+            else:
+                repository_path = Path(path) if path is not None else None
+
+            if repository_path is not None:
+                repo = Repo(repository_path, search_parent_directories=False)
             else:
                 if isinstance(params.exec_info, FuncInfo):
                     repo_search_start_path = Path(inspect.getfile(params.exec_info.func)).parent
