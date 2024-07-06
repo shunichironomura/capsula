@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any, Callable
 
 import orjson
 
-from capsula.utils import to_nested_dict
+from capsula._utils import to_nested_dict
 
 if TYPE_CHECKING:
     from capsula._capsule import Capsule

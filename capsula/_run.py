@@ -16,8 +16,8 @@ from ._backport import Concatenate, ParamSpec, Self, TypeAlias
 from ._context import ContextBase, FunctionCallContext
 from ._encapsulator import Encapsulator
 from ._reporter import ReporterBase
+from ._utils import search_for_project_root
 from ._watcher import WatcherBase
-from .utils import search_for_project_root
 
 if TYPE_CHECKING:
     from types import TracebackType

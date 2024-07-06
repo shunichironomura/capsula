@@ -5,11 +5,11 @@ from pathlib import Path
 from rich.logging import RichHandler
 
 import capsula
-import capsula.utils
+import capsula._utils
 
 logger = logging.getLogger(__name__)
 
-PROJECT_ROOT = capsula.utils.search_for_project_root(__file__)
+PROJECT_ROOT = capsula.search_for_project_root(__file__)
 
 
 @capsula.run(ignore_config=True)

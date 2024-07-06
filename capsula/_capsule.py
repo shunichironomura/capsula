@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from collections.abc import Mapping
 
     from capsula._run import CapsuleParams
-    from capsula.utils import ExceptionInfo
+    from capsula._utils import ExceptionInfo
 
     from ._backport import Self, TypeAlias
 

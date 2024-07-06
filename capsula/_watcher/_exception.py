@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
-from capsula.utils import ExceptionInfo
+from capsula._utils import ExceptionInfo
 
 from ._base import WatcherBase
 

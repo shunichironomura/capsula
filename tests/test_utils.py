@@ -6,7 +6,7 @@ from typing import Any, Hashable, Mapping, Sequence
 
 import pytest
 
-from capsula.utils import ExceptionInfo, search_for_project_root, to_flat_dict, to_nested_dict
+from capsula._utils import ExceptionInfo, search_for_project_root, to_flat_dict, to_nested_dict
 
 
 def raise_exception() -> None:
