@@ -15,19 +15,19 @@ if TYPE_CHECKING:
 def _construct_context(raw_config: MutableMapping[str, Any]) -> Callable[[CapsuleParams], ContextBase] | ContextBase:
     context_class_name = raw_config.pop("type")
     context_class = ContextBase.get_subclass(context_class_name)
-    return context_class.default(**raw_config)
+    return context_class.builder(**raw_config)
 
 
 def _construct_watcher(raw_config: MutableMapping[str, Any]) -> Callable[[CapsuleParams], WatcherBase] | WatcherBase:
     watcher_class_name = raw_config.pop("type")
     watcher_class = WatcherBase.get_subclass(watcher_class_name)
-    return watcher_class.default(**raw_config)
+    return watcher_class.builder(**raw_config)
 
 
 def _construct_reporter(raw_config: MutableMapping[str, Any]) -> Callable[[CapsuleParams], ReporterBase] | ReporterBase:
     reporter_class_name = raw_config.pop("type")
     reporter_class = ReporterBase.get_subclass(reporter_class_name)
-    return reporter_class.default(**raw_config)
+    return reporter_class.builder(**raw_config)
 
 
 class _PreRunConfig(TypedDict):

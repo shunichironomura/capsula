@@ -77,7 +77,7 @@ class JsonDumpReporter(ReporterBase):
         self.path.write_bytes(json_bytes)
 
     @classmethod
-    def default(
+    def builder(
         cls,
         *,
         option: int | None = None,

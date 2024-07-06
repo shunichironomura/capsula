@@ -3,6 +3,8 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, Callable, Final
 
+from typing_extensions import deprecated
+
 if TYPE_CHECKING:
     from capsula._backport import Self
     from capsula._capsule import Capsule
@@ -28,8 +30,13 @@ class ReporterBase(ABC):
         raise NotImplementedError
 
     @classmethod
-    def default(cls, *args: Any, **kwargs: Any) -> Callable[[CapsuleParams], Self]:
+    def builder(cls, *args: Any, **kwargs: Any) -> Callable[[CapsuleParams], Self]:
         def callback(params: CapsuleParams) -> Self:  # type: ignore[type-var,misc] # noqa: ARG001
             return cls(*args, **kwargs)
 
         return callback
+
+    @classmethod
+    @deprecated("Use builder instead")
+    def default(cls, *args: Any, **kwargs: Any) -> Callable[[CapsuleParams], Self]:
+        return cls.builder(*args, **kwargs)

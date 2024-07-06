@@ -84,7 +84,7 @@ class GitRepositoryContext(ContextBase):
         return ("git", self.name)
 
     @classmethod
-    def default(
+    def builder(
         cls,
         name: str | None = None,
         *,

@@ -3,6 +3,8 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, Callable, Tuple, Union
 
+from typing_extensions import deprecated
+
 if TYPE_CHECKING:
     from collections.abc import Mapping
 
@@ -40,8 +42,13 @@ class CapsuleItem(ABC):
         raise NotImplementedError(msg)
 
     @classmethod
-    def default(cls, *args: Any, **kwargs: Any) -> Callable[[CapsuleParams], Self]:
+    def builder(cls, *args: Any, **kwargs: Any) -> Callable[[CapsuleParams], Self]:
         def callback(params: CapsuleParams) -> Self:  # type: ignore[type-var,misc] # noqa: ARG001
             return cls(*args, **kwargs)
 
         return callback
+
+    @classmethod
+    @deprecated("Use builder instead")
+    def default(cls, *args: Any, **kwargs: Any) -> Callable[[CapsuleParams], Self]:
+        return cls.builder(*args, **kwargs)

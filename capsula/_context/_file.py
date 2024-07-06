@@ -91,7 +91,7 @@ class FileContext(ContextBase):
         return ("file", str(self.path))
 
     @classmethod
-    def default(
+    def builder(
         cls,
         path: Path | str,
         *,

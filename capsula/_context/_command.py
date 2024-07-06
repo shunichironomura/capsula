@@ -59,7 +59,7 @@ class CommandContext(ContextBase):
         return ("command", self.command)
 
     @classmethod
-    def default(
+    def builder(
         cls,
         command: str,
         *,
