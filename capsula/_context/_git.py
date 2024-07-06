@@ -7,8 +7,8 @@ from typing import TYPE_CHECKING, Callable, TypedDict
 
 from git.repo import Repo
 
+from capsula._exceptions import CapsulaError
 from capsula._run import CommandInfo, FuncInfo
-from capsula.exceptions import CapsulaError
 
 from ._base import ContextBase
 
@@ -84,7 +84,7 @@ class GitRepositoryContext(ContextBase):
         return ("git", self.name)
 
     @classmethod
-    def default(
+    def builder(
         cls,
         name: str | None = None,
         *,

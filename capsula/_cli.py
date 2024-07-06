@@ -9,7 +9,7 @@ from ._backport import Annotated
 from ._config import load_config
 from ._context import ContextBase
 from ._run import CapsuleParams, generate_default_run_dir, get_project_root
-from .utils import get_default_config_path
+from ._utils import get_default_config_path
 
 app = typer.Typer()
 

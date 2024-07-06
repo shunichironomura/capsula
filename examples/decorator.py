@@ -5,11 +5,11 @@ from pathlib import Path
 from rich.logging import RichHandler
 
 import capsula
-import capsula.utils
+import capsula._utils
 
 logger = logging.getLogger(__name__)
 
-PROJECT_ROOT = capsula.utils.search_for_project_root(__file__)
+PROJECT_ROOT = capsula.search_for_project_root(__file__)
 
 
 @capsula.run(ignore_config=True)
@@ -17,19 +17,19 @@ PROJECT_ROOT = capsula.utils.search_for_project_root(__file__)
 @capsula.context(capsula.EnvVarContext("PATH"), mode="pre")
 @capsula.context(capsula.CwdContext(), mode="pre")
 @capsula.context(capsula.CpuContext(), mode="pre")
-@capsula.context(capsula.GitRepositoryContext.default("capsula"), mode="pre")
+@capsula.context(capsula.GitRepositoryContext.builder("capsula"), mode="pre")
 @capsula.context(capsula.CommandContext("poetry check --lock", cwd=PROJECT_ROOT), mode="pre")
-@capsula.context(capsula.FileContext.default(PROJECT_ROOT / "pyproject.toml", copy=True), mode="pre")
-@capsula.context(capsula.FileContext.default(PROJECT_ROOT / "poetry.lock", copy=True), mode="pre")
+@capsula.context(capsula.FileContext.builder(PROJECT_ROOT / "pyproject.toml", copy=True), mode="pre")
+@capsula.context(capsula.FileContext.builder(PROJECT_ROOT / "poetry.lock", copy=True), mode="pre")
 @capsula.context(
     capsula.CommandContext("pip freeze --exclude-editable > requirements.txt", cwd=PROJECT_ROOT),
     mode="pre",
 )
-@capsula.context(capsula.FileContext.default(PROJECT_ROOT / "requirements.txt", move=True), mode="pre")
+@capsula.context(capsula.FileContext.builder(PROJECT_ROOT / "requirements.txt", move=True), mode="pre")
 @capsula.watcher(capsula.UncaughtExceptionWatcher("Exception"))
 @capsula.watcher(capsula.TimeWatcher("calculation_time"))
-@capsula.context(capsula.FileContext.default("pi.txt", move=True), mode="post")
-@capsula.reporter(capsula.JsonDumpReporter.default(), mode="all")
+@capsula.context(capsula.FileContext.builder("pi.txt", move=True), mode="post")
+@capsula.reporter(capsula.JsonDumpReporter.builder(), mode="all")
 @capsula.pass_pre_run_capsule
 def calculate_pi(pre_run_capsule: capsula.Capsule, *, n_samples: int = 1_000, seed: int = 42) -> None:
     logger.info(f"Calculating pi with {n_samples} samples.")

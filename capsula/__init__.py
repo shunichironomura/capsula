@@ -24,6 +24,7 @@ __all__ = [
     "record",
     "reporter",
     "run",
+    "search_for_project_root",
     "watcher",
 ]
 from ._capsule import Capsule
@@ -38,10 +39,11 @@ from ._context import (
     PlatformContext,
 )
 from ._decorator import context, pass_pre_run_capsule, reporter, run, watcher
+from ._encapsulator import Encapsulator
+from ._exceptions import CapsulaConfigurationError, CapsulaError
 from ._reporter import JsonDumpReporter, ReporterBase
 from ._root import current_run_name, record
 from ._run import Run
+from ._utils import search_for_project_root
 from ._version import __version__
 from ._watcher import TimeWatcher, UncaughtExceptionWatcher, WatcherBase
-from .encapsulator import Encapsulator
-from .exceptions import CapsulaConfigurationError, CapsulaError

@@ -7,12 +7,12 @@ from collections import OrderedDict
 from itertools import chain
 from typing import TYPE_CHECKING, Any, Tuple, Union
 
-from capsula.utils import ExceptionInfo
+from capsula._utils import ExceptionInfo
 
 from ._capsule import Capsule
 from ._context import ContextBase
+from ._exceptions import CapsulaError
 from ._watcher import WatcherBase, WatcherGroup
-from .exceptions import CapsulaError
 
 if TYPE_CHECKING:
     from types import TracebackType

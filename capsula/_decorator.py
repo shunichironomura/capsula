@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Callable, Literal, TypeVar
 from ._backport import Concatenate, ParamSpec
 from ._config import load_config
 from ._run import CapsuleParams, FuncInfo, Run, generate_default_run_dir
-from .utils import get_default_config_path
+from ._utils import get_default_config_path
 
 if TYPE_CHECKING:
     from ._capsule import Capsule
