@@ -5,7 +5,7 @@ import pytest
 import capsula
 
 
-@pytest.fixture()
+@pytest.fixture
 def source_file(tmp_path: Path) -> Path:
     source_file = tmp_path / "source.txt"
     # Write some data to the file
