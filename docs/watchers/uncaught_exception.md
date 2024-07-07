@@ -1,0 +1,3 @@
+# `UncaughtExceptionWatcher`
+
+::: capsula.UncaughtExceptionWatcher

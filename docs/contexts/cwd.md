@@ -1,0 +1,3 @@
+# `CwdContext`
+
+::: capsula.CwdContext

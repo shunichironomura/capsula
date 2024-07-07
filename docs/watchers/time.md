@@ -1,0 +1,3 @@
+# `TimeWatcher`
+
+::: capsula.TimeWatcher

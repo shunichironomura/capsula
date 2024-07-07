@@ -1,0 +1,3 @@
+# `JsonDumpReporter`
+
+::: capsula.JsonDumpReporter

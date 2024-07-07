@@ -8,6 +8,8 @@ from ._base import ContextBase
 
 
 class CpuContext(ContextBase):
+    """Context to capture CPU information."""
+
     def encapsulate(self) -> dict[str, Any]:
         return get_cpu_info()  # type: ignore[no-any-return]
 

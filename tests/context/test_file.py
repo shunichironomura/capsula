@@ -23,12 +23,12 @@ _SOURCE_FILE_HASH = {
 
 def test_file_context_init(source_file: Path) -> None:
     fc = capsula.FileContext(path=source_file)
-    assert fc.path == source_file
-    assert fc.hash_algorithm == "sha256"
-    assert fc.compute_hash is True
-    assert fc.copy_to == ()
-    assert fc.move_to is None
-    assert fc.ignore_missing is False
+    assert fc._path == source_file
+    assert fc._hash_algorithm == "sha256"
+    assert fc._compute_hash is True
+    assert fc._copy_to == ()
+    assert fc._move_to is None
+    assert fc._ignore_missing is False
 
 
 def test_file_context_hash(source_file: Path) -> None:

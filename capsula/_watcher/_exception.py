@@ -4,6 +4,8 @@ import logging
 from contextlib import contextmanager
 from typing import TYPE_CHECKING
 
+from typing_extensions import Annotated, Doc
+
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
@@ -15,28 +17,34 @@ logger = logging.getLogger(__name__)
 
 
 class UncaughtExceptionWatcher(WatcherBase):
+    """Watcher to capture an uncaught exception.
+
+    This watcher captures an uncaught exception and stores it in the context.
+    Note that it does not consume the exception, so it will still be raised.
+    """
+
     def __init__(
         self,
-        name: str = "exception",
+        name: Annotated[str, Doc("Name of the exception. Used as a key in the output.")] = "exception",
         *,
-        base: type[BaseException] = Exception,
+        base: Annotated[type[BaseException], Doc("Base exception class to catch.")] = Exception,
     ) -> None:
-        self.name = name
-        self.base = base
-        self.exception: BaseException | None = None
+        self._name = name
+        self._base = base
+        self._exception: BaseException | None = None
 
     def encapsulate(self) -> ExceptionInfo:
-        return ExceptionInfo.from_exception(self.exception)
+        return ExceptionInfo.from_exception(self._exception)
 
     @contextmanager
     def watch(self) -> Iterator[None]:
-        self.exception = None
+        self._exception = None
         try:
             yield
-        except self.base as e:
-            logger.debug(f"UncaughtExceptionWatcher: {self.name} observed exception: {e}")
-            self.exception = e
+        except self._base as e:
+            logger.debug(f"UncaughtExceptionWatcher: {self._name} observed exception: {e}")
+            self._exception = e
             raise
 
     def default_key(self) -> tuple[str, str]:
-        return ("exception", self.name)
+        return ("exception", self._name)

@@ -1,0 +1,3 @@
+# `EnvVarContext`
+
+::: capsula.EnvVarContext

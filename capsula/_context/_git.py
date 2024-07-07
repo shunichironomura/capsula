@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Callable, TypedDict
 
 from git.repo import Repo
+from typing_extensions import Annotated, Doc
 
 from capsula._exceptions import CapsulaError
 from capsula._run import CommandInfo, FuncInfo
@@ -36,61 +37,24 @@ class _GitRepositoryContextData(TypedDict):
 
 
 class GitRepositoryContext(ContextBase):
-    def __init__(
-        self,
-        name: str,
-        *,
-        path: Path | str,
-        diff_file: Path | str | None = None,
-        search_parent_directories: bool = False,
-        allow_dirty: bool = True,
-    ) -> None:
-        self.name = name
-        self.path = Path(path)
-        self.search_parent_directories = search_parent_directories
-        self.allow_dirty = allow_dirty
-        self.diff_file = None if diff_file is None else Path(diff_file)
-
-    def encapsulate(self) -> _GitRepositoryContextData:
-        repo = Repo(self.path, search_parent_directories=self.search_parent_directories)
-        if not self.allow_dirty and repo.is_dirty():
-            raise GitRepositoryDirtyError(repo)
-
-        def get_optional_branch_name(repo: Repo) -> str | None:
-            try:
-                return repo.active_branch.name
-            except TypeError:
-                return None
-
-        info: _GitRepositoryContextData = {
-            "working_dir": repo.working_dir,
-            "sha": repo.head.commit.hexsha,
-            "remotes": {remote.name: remote.url for remote in repo.remotes},
-            "branch": get_optional_branch_name(repo),
-            "is_dirty": repo.is_dirty(),
-            "diff_file": None,
-        }
-
-        diff_txt = repo.git.diff()
-        if diff_txt:
-            assert self.diff_file is not None, "diff_file is None"
-            with self.diff_file.open("w") as f:
-                f.write(diff_txt)
-            logger.debug(f"Wrote diff to {self.diff_file}")
-            info["diff_file"] = self.diff_file
-        return info
-
-    def default_key(self) -> tuple[str, str]:
-        return ("git", self.name)
+    """Context to capture a Git repository."""
 
     @classmethod
     def builder(
         cls,
-        name: str | None = None,
+        name: Annotated[str | None, Doc("Name of the Git repository")] = None,
         *,
-        path: Path | str | None = None,
-        path_relative_to_project_root: bool = False,
-        allow_dirty: bool | None = None,
+        path: Annotated[Path | str | None, Doc("Path to the Git repository")] = None,
+        path_relative_to_project_root: Annotated[
+            bool,
+            Doc(
+                "Whether `path` is relative to the project root. Will be ignored if `path` is None or absolute. "
+                "If True, it will be interpreted as relative to the project root. "
+                "If False, `path` will be interpreted as relative to the current working directory. "
+                "It is recommended to set this to True in the configuration file.",
+            ),
+        ] = False,
+        allow_dirty: Annotated[bool, Doc("Whether to allow the repository to be dirty")] = True,
     ) -> Callable[[CapsuleParams], GitRepositoryContext]:
         def callback(params: CapsuleParams) -> GitRepositoryContext:
             if path_relative_to_project_root and path is not None and not Path(path).is_absolute():
@@ -117,7 +81,54 @@ class GitRepositoryContext(ContextBase):
                 path=Path(repo.working_dir),
                 diff_file=params.run_dir / f"{repo_name}.diff",
                 search_parent_directories=False,
-                allow_dirty=True if allow_dirty is None else allow_dirty,
+                allow_dirty=allow_dirty,
             )
 
         return callback
+
+    def __init__(
+        self,
+        name: str,
+        *,
+        path: Path | str,
+        diff_file: Path | str | None = None,
+        search_parent_directories: bool = False,
+        allow_dirty: bool = True,
+    ) -> None:
+        self._name = name
+        self._path = Path(path)
+        self._search_parent_directories = search_parent_directories
+        self._allow_dirty = allow_dirty
+        self._diff_file = None if diff_file is None else Path(diff_file)
+
+    def encapsulate(self) -> _GitRepositoryContextData:
+        repo = Repo(self._path, search_parent_directories=self._search_parent_directories)
+        if not self._allow_dirty and repo.is_dirty():
+            raise GitRepositoryDirtyError(repo)
+
+        def get_optional_branch_name(repo: Repo) -> str | None:
+            try:
+                return repo.active_branch.name
+            except TypeError:
+                return None
+
+        info: _GitRepositoryContextData = {
+            "working_dir": repo.working_dir,
+            "sha": repo.head.commit.hexsha,
+            "remotes": {remote.name: remote.url for remote in repo.remotes},
+            "branch": get_optional_branch_name(repo),
+            "is_dirty": repo.is_dirty(),
+            "diff_file": None,
+        }
+
+        diff_txt = repo.git.diff()
+        if diff_txt:
+            assert self._diff_file is not None, "diff_file is None"
+            with self._diff_file.open("w") as f:
+                f.write(diff_txt)
+            logger.debug(f"Wrote diff to {self._diff_file}")
+            info["diff_file"] = self._diff_file
+        return info
+
+    def default_key(self) -> tuple[str, str]:
+        return ("git", self._name)

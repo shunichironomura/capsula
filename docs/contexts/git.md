@@ -1,0 +1,3 @@
+# `GitRepositoryContext`
+
+::: capsula.GitRepositoryContext

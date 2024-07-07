@@ -6,6 +6,8 @@ from contextlib import contextmanager
 from datetime import timedelta
 from typing import TYPE_CHECKING
 
+from typing_extensions import Annotated, Doc
+
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
@@ -15,12 +17,15 @@ logger = logging.getLogger(__name__)
 
 
 class TimeWatcher(WatcherBase):
-    def __init__(self, name: str = "execution_time") -> None:
-        self.name = name
-        self.duration: timedelta | None = None
+    def __init__(
+        self,
+        name: Annotated[str, Doc("Name of the time watcher. Used as a key in the output.")] = "execution_time",
+    ) -> None:
+        self._name = name
+        self._duration: timedelta | None = None
 
     def encapsulate(self) -> timedelta | None:
-        return self.duration
+        return self._duration
 
     @contextmanager
     def watch(self) -> Iterator[None]:
@@ -29,8 +34,8 @@ class TimeWatcher(WatcherBase):
             yield
         finally:
             end = time.perf_counter()
-            self.duration = timedelta(seconds=end - start)
-            logger.debug(f"TimeWatcher: {self.name} took {self.duration}.")
+            self._duration = timedelta(seconds=end - start)
+            logger.debug(f"TimeWatcher: {self._name} took {self._duration}.")
 
     def default_key(self) -> tuple[str, str]:
-        return ("time", self.name)
+        return ("time", self._name)

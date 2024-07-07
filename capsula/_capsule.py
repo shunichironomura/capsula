@@ -3,7 +3,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, Callable, Tuple, Union
 
-from typing_extensions import deprecated
+from typing_extensions import Annotated, deprecated
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -50,5 +50,15 @@ class CapsuleItem(ABC):
 
     @classmethod
     @deprecated("Use builder instead")
-    def default(cls, *args: Any, **kwargs: Any) -> Callable[[CapsuleParams], Self]:
+    def default(
+        cls,
+        *args: Any,
+        **kwargs: Any,
+    ) -> Annotated[
+        Callable[[CapsuleParams], Self],
+        deprecated("""Deprecated since v0.4.0.
+
+            Use `builder` method instead.
+            """),
+    ]:
         return cls.builder(*args, **kwargs)
