@@ -6,6 +6,8 @@ from pathlib import Path
 from shutil import copyfile, move
 from typing import TYPE_CHECKING, Callable, Iterable, TypedDict
 
+from typing_extensions import Annotated, Doc
+
 from capsula._backport import file_digest
 
 from ._base import ContextBase
@@ -23,19 +25,32 @@ class _FileContextData(TypedDict):
 
 
 class FileContext(ContextBase):
+    """Context to capture a file."""
+
     _default_hash_algorithm = "sha256"
 
     @classmethod
     def builder(
         cls,
-        path: Path | str,
+        path: Annotated[Path | str, Doc("Path to the file")],
         *,
-        compute_hash: bool = True,
-        hash_algorithm: str | None = None,
-        copy: bool = False,
-        move: bool = False,
-        ignore_missing: bool = False,
-        path_relative_to_project_root: bool = False,
+        compute_hash: Annotated[bool, Doc("Whether to compute the hash of the file")] = True,
+        hash_algorithm: Annotated[
+            str | None,
+            Doc("Hash algorithm to use. This will be fed to `hashlib.file_digest` as the `digest` argument."),
+        ] = None,
+        copy: Annotated[bool, Doc("Whether to copy the file to the run directory")] = False,
+        move: Annotated[bool, Doc("Whether to move the file to the run directory")] = False,
+        ignore_missing: Annotated[bool, Doc("Whether to ignore if the file does not exist")] = False,
+        path_relative_to_project_root: Annotated[
+            bool,
+            Doc(
+                "Whether `path` is relative to the project root. Will be ignored if `path` is absolute."
+                "If True, it will be interpreted as relative to the project root. "
+                "If False, `path` will be interpreted as relative to the current working directory. "
+                "It is recommended to set this to True in the configuration file.",
+            ),
+        ] = False,
     ) -> Callable[[CapsuleParams], FileContext]:
         if copy and move:
             warnings.warn("Both copy and move are True. Only move will be performed.", UserWarning, stacklevel=2)

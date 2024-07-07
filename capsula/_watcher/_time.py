@@ -6,6 +6,8 @@ from contextlib import contextmanager
 from datetime import timedelta
 from typing import TYPE_CHECKING
 
+from typing_extensions import Annotated, Doc
+
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
@@ -15,7 +17,10 @@ logger = logging.getLogger(__name__)
 
 
 class TimeWatcher(WatcherBase):
-    def __init__(self, name: str = "execution_time") -> None:
+    def __init__(
+        self,
+        name: Annotated[str, Doc("Name of the time watcher. Used as a key in the output.")] = "execution_time",
+    ) -> None:
         self._name = name
         self._duration: timedelta | None = None
 

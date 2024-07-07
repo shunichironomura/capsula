@@ -18,6 +18,8 @@ class _PlatformContextData(TypedDict):
 
 
 class PlatformContext(ContextBase):
+    """Context to capture platform information, including Python version."""
+
     def encapsulate(self) -> _PlatformContextData:
         return {
             "machine": pf.machine(),

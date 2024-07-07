@@ -8,6 +8,7 @@ from types import TracebackType
 from typing import TYPE_CHECKING, Any, Callable
 
 import orjson
+from typing_extensions import Annotated, Doc
 
 from capsula._utils import to_nested_dict
 
@@ -35,11 +36,16 @@ def default_preset(obj: Any) -> Any:
 
 
 class JsonDumpReporter(ReporterBase):
+    """Reporter to dump the capsule to a JSON file."""
+
     @classmethod
     def builder(
         cls,
         *,
-        option: int | None = None,
+        option: Annotated[
+            int | None,
+            Doc("Option to pass to `orjson.dumps`. If not provided, `orjson.OPT_INDENT_2` will be used."),
+        ] = None,
     ) -> Callable[[CapsuleParams], JsonDumpReporter]:
         def callback(params: CapsuleParams) -> JsonDumpReporter:
             return cls(

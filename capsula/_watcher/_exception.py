@@ -4,6 +4,8 @@ import logging
 from contextlib import contextmanager
 from typing import TYPE_CHECKING
 
+from typing_extensions import Annotated, Doc
+
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
@@ -15,11 +17,17 @@ logger = logging.getLogger(__name__)
 
 
 class UncaughtExceptionWatcher(WatcherBase):
+    """Watcher to capture an uncaught exception.
+
+    This watcher captures an uncaught exception and stores it in the context.
+    Note that it does not consume the exception, so it will still be raised.
+    """
+
     def __init__(
         self,
-        name: str = "exception",
+        name: Annotated[str, Doc("Name of the exception. Used as a key in the output.")] = "exception",
         *,
-        base: type[BaseException] = Exception,
+        base: Annotated[type[BaseException], Doc("Base exception class to catch.")] = Exception,
     ) -> None:
         self._name = name
         self._base = base

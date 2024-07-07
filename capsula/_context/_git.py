@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Callable, TypedDict
 
 from git.repo import Repo
+from typing_extensions import Annotated, Doc
 
 from capsula._exceptions import CapsulaError
 from capsula._run import CommandInfo, FuncInfo
@@ -36,14 +37,24 @@ class _GitRepositoryContextData(TypedDict):
 
 
 class GitRepositoryContext(ContextBase):
+    """Context to capture a Git repository."""
+
     @classmethod
     def builder(
         cls,
-        name: str | None = None,
+        name: Annotated[str | None, Doc("Name of the Git repository")] = None,
         *,
-        path: Path | str | None = None,
-        path_relative_to_project_root: bool = False,
-        allow_dirty: bool | None = None,
+        path: Annotated[Path | str | None, Doc("Path to the Git repository")] = None,
+        path_relative_to_project_root: Annotated[
+            bool,
+            Doc(
+                "Whether `path` is relative to the project root. Will be ignored if `path` is None or absolute. "
+                "If True, it will be interpreted as relative to the project root. "
+                "If False, `path` will be interpreted as relative to the current working directory. "
+                "It is recommended to set this to True in the configuration file.",
+            ),
+        ] = False,
+        allow_dirty: Annotated[bool, Doc("Whether to allow the repository to be dirty")] = True,
     ) -> Callable[[CapsuleParams], GitRepositoryContext]:
         def callback(params: CapsuleParams) -> GitRepositoryContext:
             if path_relative_to_project_root and path is not None and not Path(path).is_absolute():
@@ -70,7 +81,7 @@ class GitRepositoryContext(ContextBase):
                 path=Path(repo.working_dir),
                 diff_file=params.run_dir / f"{repo_name}.diff",
                 search_parent_directories=False,
-                allow_dirty=True if allow_dirty is None else allow_dirty,
+                allow_dirty=allow_dirty,
             )
 
         return callback

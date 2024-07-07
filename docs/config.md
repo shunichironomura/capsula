@@ -28,7 +28,7 @@ reporters = [{ type = "JsonDumpReporter" }]
 
 This configuration file specifies the contexts, watchers, and reporters to be used in the pre-run, in-run, and post-run encapsulators. The `JsonDumpReporter` is used to dump the captured contexts into JSON files.
 
-For each context, watcher, or reporter, the `type` field specifies the class name of the context, watcher, or reporter. The other fields are the keyword arguments to the `builder` method of the class.
+For each context, watcher, or reporter, the `type` field specifies the class name of the context, watcher, or reporter. The other fields are used as the keyword arguments to the `builder` method of the class to create an instance of the class. If the class does not implement the `builder` method, the `__init__` method is used instead.
 
 ## Decorators
 

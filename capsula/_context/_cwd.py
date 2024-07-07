@@ -4,6 +4,8 @@ from ._base import ContextBase
 
 
 class CwdContext(ContextBase):
+    """Context to capture the current working directory."""
+
     def encapsulate(self) -> Path:
         return Path.cwd()
 

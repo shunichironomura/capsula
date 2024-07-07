@@ -5,6 +5,8 @@ import subprocess
 from pathlib import Path
 from typing import TYPE_CHECKING, Callable, TypedDict
 
+from typing_extensions import Annotated, Doc
+
 from ._base import ContextBase
 
 if TYPE_CHECKING:
@@ -23,15 +25,37 @@ class _CommandContextData(TypedDict):
 
 
 class CommandContext(ContextBase):
+    """Context to capture the output of a command run in a subprocess."""
+
     @classmethod
     def builder(
         cls,
-        command: str,
+        command: Annotated[str, Doc("Command to run")],
         *,
-        cwd: Path | str | None = None,
-        check: bool = True,
-        abort_on_error: bool = True,
-        cwd_relative_to_project_root: bool = False,
+        cwd: Annotated[
+            Path | str | None,
+            Doc("Working directory for the command, passed to the `cwd` argument of `subprocess.run`"),
+        ] = None,
+        check: Annotated[
+            bool,
+            Doc(
+                "Whether to raise an exception if the command returns a non-zero exit code, passed to the `check` "
+                "argument of `subprocess.run",
+            ),
+        ] = True,
+        abort_on_error: Annotated[
+            bool,
+            Doc("Whether to abort the encapsulation if the command returns a non-zero exit code"),
+        ] = True,
+        cwd_relative_to_project_root: Annotated[
+            bool,
+            Doc(
+                "Whether `cwd` argument is relative to the project root. Will be ignored if `cwd` is None or absolute. "
+                "If True, it will be interpreted as relative to the project root. "
+                "If False, `cwd` will be interpreted as relative to the current working directory. "
+                "It is recommended to set this to True in the configuration file.",
+            ),
+        ] = False,
     ) -> Callable[[CapsuleParams], CommandContext]:
         def callback(params: CapsuleParams) -> CommandContext:
             if cwd_relative_to_project_root and cwd is not None and not Path(cwd).is_absolute():
