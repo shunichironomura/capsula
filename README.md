@@ -25,7 +25,7 @@ With Capsula, you can capture:
 
 The captured contexts are dumped into JSON files for future reference and reproduction.
 
-## Usage
+## Usage example
 
 For project-wide settings, prepare a `capsula.toml` file in the root directory of your project. An example of the `capsula.toml` file is as follows:
 
@@ -61,7 +61,7 @@ import random
 import capsula
 
 @capsula.run()
-@capsula.context(capsula.FileContext.default("pi.txt", move=True), mode="post")
+@capsula.context(capsula.FileContext.builder("pi.txt", move=True), mode="post")
 def calculate_pi(n_samples: int = 1_000, seed: int = 42) -> None:
     random.seed(seed)
     xs = (random.random() for _ in range(n_samples))
@@ -82,6 +82,8 @@ def calculate_pi(n_samples: int = 1_000, seed: int = 42) -> None:
 if __name__ == "__main__":
     calculate_pi(n_samples=1_000)
 ```
+
+After running the script, a directory (`calculate_pi_20240630_015823_S3vb` in this example) will be created under the `vault` directory, and you will find the following files there:
 
 <details>
 <summary>Example of output <code>pre-run-report.json</code>:</summary>

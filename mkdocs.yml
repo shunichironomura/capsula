@@ -80,9 +80,12 @@ markdown_extensions:
   - pymdownx.tasklist:
       custom_checkbox: true
   - admonition
+  - tables
 nav:
-  - Home: index.md
-  - Usage: usage/
+  - Getting Started:
+      - Welcome!: index.md
+      - Concepts: concepts.md
+      - Configuration: config.md
   - Contexts: contexts/
   - Watchers: watchers/
   - Reporters: reporters/
