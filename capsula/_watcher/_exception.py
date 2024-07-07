@@ -21,22 +21,22 @@ class UncaughtExceptionWatcher(WatcherBase):
         *,
         base: type[BaseException] = Exception,
     ) -> None:
-        self.name = name
-        self.base = base
-        self.exception: BaseException | None = None
+        self._name = name
+        self._base = base
+        self._exception: BaseException | None = None
 
     def encapsulate(self) -> ExceptionInfo:
-        return ExceptionInfo.from_exception(self.exception)
+        return ExceptionInfo.from_exception(self._exception)
 
     @contextmanager
     def watch(self) -> Iterator[None]:
-        self.exception = None
+        self._exception = None
         try:
             yield
-        except self.base as e:
-            logger.debug(f"UncaughtExceptionWatcher: {self.name} observed exception: {e}")
-            self.exception = e
+        except self._base as e:
+            logger.debug(f"UncaughtExceptionWatcher: {self._name} observed exception: {e}")
+            self._exception = e
             raise
 
     def default_key(self) -> tuple[str, str]:
-        return ("exception", self.name)
+        return ("exception", self._name)

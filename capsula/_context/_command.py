@@ -31,32 +31,10 @@ class CommandContext(ContextBase):
         check: bool = True,
         abort_on_error: bool = True,
     ) -> None:
-        self.command = command
-        self.cwd = cwd
-        self.check = check
-        self.abort_on_error = abort_on_error
-
-    def encapsulate(self) -> _CommandContextData:
-        logger.debug(f"Running command: {self.command}")
-        output = subprocess.run(  # noqa: S602
-            self.command,
-            shell=True,
-            text=True,
-            capture_output=True,
-            cwd=self.cwd,
-            check=self.check,
-        )
-        logger.debug(f"Ran command: {self.command}. Result: {output}")
-        return {
-            "command": self.command,
-            "cwd": self.cwd,
-            "returncode": output.returncode,
-            "stdout": output.stdout,
-            "stderr": output.stderr,
-        }
-
-    def default_key(self) -> tuple[str, str]:
-        return ("command", self.command)
+        self._command = command
+        self._cwd = cwd
+        self._check = check
+        self._abort_on_error = abort_on_error
 
     @classmethod
     def builder(
@@ -84,3 +62,29 @@ class CommandContext(ContextBase):
             )
 
         return callback
+
+    @property
+    def abort_on_error(self) -> bool:
+        return self._abort_on_error
+
+    def encapsulate(self) -> _CommandContextData:
+        logger.debug(f"Running command: {self._command}")
+        output = subprocess.run(  # noqa: S602
+            self._command,
+            shell=True,
+            text=True,
+            capture_output=True,
+            cwd=self._cwd,
+            check=self._check,
+        )
+        logger.debug(f"Ran command: {self._command}. Result: {output}")
+        return {
+            "command": self._command,
+            "cwd": self._cwd,
+            "returncode": output.returncode,
+            "stdout": output.stdout,
+            "stderr": output.stderr,
+        }
+
+    def default_key(self) -> tuple[str, str]:
+        return ("command", self._command)

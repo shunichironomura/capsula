@@ -45,15 +45,15 @@ class GitRepositoryContext(ContextBase):
         search_parent_directories: bool = False,
         allow_dirty: bool = True,
     ) -> None:
-        self.name = name
-        self.path = Path(path)
-        self.search_parent_directories = search_parent_directories
-        self.allow_dirty = allow_dirty
-        self.diff_file = None if diff_file is None else Path(diff_file)
+        self._name = name
+        self._path = Path(path)
+        self._search_parent_directories = search_parent_directories
+        self._allow_dirty = allow_dirty
+        self._diff_file = None if diff_file is None else Path(diff_file)
 
     def encapsulate(self) -> _GitRepositoryContextData:
-        repo = Repo(self.path, search_parent_directories=self.search_parent_directories)
-        if not self.allow_dirty and repo.is_dirty():
+        repo = Repo(self._path, search_parent_directories=self._search_parent_directories)
+        if not self._allow_dirty and repo.is_dirty():
             raise GitRepositoryDirtyError(repo)
 
         def get_optional_branch_name(repo: Repo) -> str | None:
@@ -73,15 +73,15 @@ class GitRepositoryContext(ContextBase):
 
         diff_txt = repo.git.diff()
         if diff_txt:
-            assert self.diff_file is not None, "diff_file is None"
-            with self.diff_file.open("w") as f:
+            assert self._diff_file is not None, "diff_file is None"
+            with self._diff_file.open("w") as f:
                 f.write(diff_txt)
-            logger.debug(f"Wrote diff to {self.diff_file}")
-            info["diff_file"] = self.diff_file
+            logger.debug(f"Wrote diff to {self._diff_file}")
+            info["diff_file"] = self._diff_file
         return info
 
     def default_key(self) -> tuple[str, str]:
-        return ("git", self.name)
+        return ("git", self._name)
 
     @classmethod
     def builder(

@@ -14,7 +14,10 @@ if TYPE_CHECKING:
 
 class WatcherBase(CapsuleItem, ABC):
     _subclass_registry: Final[dict[str, type[WatcherBase]]] = {}
-    abort_on_error: bool = False
+
+    @property
+    def abort_on_error(self) -> bool:
+        return False
 
     def __init_subclass__(cls, **kwargs: Any) -> None:
         if cls.__name__ in cls._subclass_registry:

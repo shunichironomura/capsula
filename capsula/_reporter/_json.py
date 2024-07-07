@@ -43,12 +43,12 @@ class JsonDumpReporter(ReporterBase):
         option: int | None = None,
         mkdir: bool = True,
     ) -> None:
-        self.path = Path(path)
+        self._path = Path(path)
         if mkdir:
-            self.path.parent.mkdir(parents=True, exist_ok=True)
+            self._path.parent.mkdir(parents=True, exist_ok=True)
 
         if default is None:
-            self.default_for_encoder = default_preset
+            self._default_for_encoder = default_preset
         else:
 
             def _default(obj: Any) -> Any:
@@ -57,12 +57,12 @@ class JsonDumpReporter(ReporterBase):
                 except TypeError:
                     return default(obj)
 
-            self.default_for_encoder = _default
+            self._default_for_encoder = _default
 
-        self.option = option
+        self._option = option
 
     def report(self, capsule: Capsule) -> None:
-        logger.debug(f"Dumping capsule to {self.path}")
+        logger.debug(f"Dumping capsule to {self._path}")
 
         def _str_to_tuple(s: str | tuple[str, ...]) -> tuple[str, ...]:
             if isinstance(s, str):
@@ -73,8 +73,8 @@ class JsonDumpReporter(ReporterBase):
         if capsule.fails:
             nested_data["__fails"] = to_nested_dict({_str_to_tuple(k): v for k, v in capsule.fails.items()})
 
-        json_bytes = orjson.dumps(nested_data, default=self.default_for_encoder, option=self.option)
-        self.path.write_bytes(json_bytes)
+        json_bytes = orjson.dumps(nested_data, default=self._default_for_encoder, option=self._option)
+        self._path.write_bytes(json_bytes)
 
     @classmethod
     def builder(
