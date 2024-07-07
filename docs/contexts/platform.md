@@ -1,6 +1,6 @@
 # `PlatformContext`
 
-The [`PlatformContext`](../../reference/capsula/#capsula.PlatformContext) captures the Python version.
+The [`PlatformContext`](../reference/capsula/index.md#capsula.PlatformContext) captures the Python version.
 It can be created by `capsula.PlatformContext()` with no arguments.
 
 ## Configuration example

@@ -1,6 +1,6 @@
 # `FileContext`
 
-The [`FileContext`](../../reference/capsula/#capsula.FileContext) captures the file information.
+The [`FileContext`](../reference/capsula/index.md#capsula.FileContext) captures the file information.
 It can be created using the `capsula.FileContext.builder` method (recommended) or the `capsula.FileContext.__init__` method.
 
 ::: capsula.FileContext.builder

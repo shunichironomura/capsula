@@ -1,6 +1,6 @@
 # `CwdContext`
 
-The [`CwdContext`](../../reference/capsula/#capsula.CwdContext) captures the current working directory.
+The [`CwdContext`](../reference/capsula/index.md#capsula.CwdContext) captures the current working directory.
 It can be created by `capsula.CwdContext()` with no arguments.
 
 ## Configuration example

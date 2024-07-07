@@ -1,6 +1,6 @@
 # `JsonDumpReporter`
 
-The [`JsonDumpReporter`](../../reference/capsula/#capsula.JsonDumpReporter) reports the capsule in JSON format.
+The [`JsonDumpReporter`](../reference/capsula/index.md#capsula.JsonDumpReporter) reports the capsule in JSON format.
 It can be created using the `capsula.JsonDumpReporter.builder` method or the `capsula.JsonDumpReporter.__init__` method.
 
 ::: capsula.JsonDumpReporter.builder

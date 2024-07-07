@@ -1,6 +1,6 @@
 # `CpuContext`
 
-The [`CpuContext`](../../reference/capsula/#capsula.CpuContext) captures the CPU information.
+The [`CpuContext`](../reference/capsula/index.md#capsula.CpuContext) captures the CPU information.
 It can be created by `capsula.CpuContext()` with no arguments.
 
 It internally uses the [`py-cpuinfo`](https://github.com/workhorsy/py-cpuinfo) package to get the CPU information.

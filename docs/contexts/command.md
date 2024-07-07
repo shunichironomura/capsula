@@ -1,6 +1,6 @@
 # `CommandContext`
 
-The [`CommandContext`](../../reference/capsula/#capsula.CommandContext) captures the output of shell commands.
+The [`CommandContext`](../reference/capsula/index.md#capsula.CommandContext) captures the output of shell commands.
 It can be created using the `capsula.CommandContext.builder` method or the `capsula.CommandContext.__init__` method.
 
 ::: capsula.CommandContext.builder

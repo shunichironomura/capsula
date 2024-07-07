@@ -1,6 +1,6 @@
 # `UncaughtExceptionWatcher`
 
-The [`UncaughtExceptionWatcher`](../../reference/capsula/#capsula.UncaughtExceptionWatcher) monitors uncaught exceptions in the command/function.
+The [`UncaughtExceptionWatcher`](../reference/capsula/index.md#capsula.UncaughtExceptionWatcher) monitors uncaught exceptions in the command/function.
 It can be created using the `capsula.UncaughtExceptionWatcher.__init__` method.
 
 ::: capsula.UncaughtExceptionWatcher.__init__

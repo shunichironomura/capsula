@@ -1,6 +1,6 @@
 # `TimeWatcher`
 
-The [`TimeWatcher`](../../reference/capsula/#capsula.TimeWatcher) monitors the execution time of the command/function.
+The [`TimeWatcher`](../reference/capsula/index.md#capsula.TimeWatcher) monitors the execution time of the command/function.
 It can be created using the `capsula.TimeWatcher.__init__` method.
 
 ::: capsula.TimeWatcher.__init__

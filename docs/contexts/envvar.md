@@ -1,6 +1,6 @@
 # `EnvVarContext`
 
-The [`EnvVarContext`](../../reference/capsula/#capsula.EnvVarContext) captures an environment variable.
+The [`EnvVarContext`](../reference/capsula/index.md#capsula.EnvVarContext) captures an environment variable.
 It can be created using the `capsula.EnvVarContext.__init__` method.
 
 ::: capsula.EnvVarContext.__init__
