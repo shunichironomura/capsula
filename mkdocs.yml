@@ -40,6 +40,7 @@ plugins:
   - gen-files:
       scripts:
         - scripts/gen_ref_pages.py
+        - scripts/gen_index.py
   - literate-nav:
       nav_file: SUMMARY.md
   - section-index
@@ -89,7 +90,7 @@ nav:
   - Contexts: contexts/
   - Watchers: watchers/
   - Reporters: reporters/
-  # - API Reference: reference/
+  - API Reference: reference/
 extra:
   version:
     provider: mike
