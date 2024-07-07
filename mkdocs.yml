@@ -39,8 +39,7 @@ plugins:
   - search
   - gen-files:
       scripts:
-        - scripts/gen_ref_pages.py
-        - scripts/gen_index.py
+        - scripts/gen_pages.py
   - literate-nav:
       nav_file: SUMMARY.md
   - section-index
