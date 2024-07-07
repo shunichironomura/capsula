@@ -3,7 +3,7 @@ site_url: https://shunichironomura.github.io/capsula/
 theme:
   name: material
   icon:
-    logo: material/satellite-variant
+    logo: material/package-variant-closed
     repo: fontawesome/brands/github
   palette:
     # Palette toggle for automatic mode
@@ -11,8 +11,8 @@ theme:
       toggle:
         icon: material/brightness-auto
         name: Switch to light mode
-      primary: yellow
-      accent: yellow
+      primary: blue grey
+      accent: blue grey
 
       # Palette toggle for light mode
     - media: "(prefers-color-scheme: light)"
@@ -20,8 +20,8 @@ theme:
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
-      primary: yellow
-      accent: yellow
+      primary: blue grey
+      accent: blue grey
 
     # Palette toggle for dark mode
     - media: "(prefers-color-scheme: dark)"
@@ -29,8 +29,8 @@ theme:
       toggle:
         icon: material/brightness-4
         name: Switch to system preference
-      primary: yellow
-      accent: yellow
+      primary: blue grey
+      accent: blue grey
   features:
     - navigation.instant
     - navigation.tabs
@@ -89,7 +89,7 @@ nav:
   - Contexts: contexts/
   - Watchers: watchers/
   - Reporters: reporters/
-  - API Reference: reference/
+  # - API Reference: reference/
 extra:
   version:
     provider: mike
