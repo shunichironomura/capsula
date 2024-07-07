@@ -26,8 +26,8 @@ on:
     types: [opened, synchronize, reopened, ready_for_review]
 
 env:
-  PYTHON_VERSION: "3.11"
-  POETRY_VERSION: "1.7.0"
+  PYTHON_VERSION: "3.12"
+  POETRY_VERSION: "1.8.3"
 
 jobs:
   ruff:
