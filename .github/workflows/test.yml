@@ -64,10 +64,30 @@ jobs:
           poetry-version: ${{ env.POETRY_VERSION }}
 
       - name: Install dependencies
-        run: poetry install --no-interaction
+        run: poetry install --no-interaction --only dev
 
       - name: Run mypy
         run: poetry run --no-interaction -- mypy --python-version ${{ matrix.python-version }} .
+
+  build-docs:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Set up Poetry
+        uses: abatilo/actions-poetry@v3
+        with:
+          poetry-version: ${{ env.POETRY_VERSION }}
+
+      - name: Install dependencies
+        run: poetry install --no-interaction --only docs
+
+      - name: Build docs
+        run: poetry run --no-interaction mkdocs build
 
   pytest:
     if: github.event.pull_request.draft == false
@@ -107,7 +127,7 @@ jobs:
         poetry-version: ${{ env.POETRY_VERSION }}
 
     - name: Install dependencies
-      run: poetry install --no-interaction
+      run: poetry install --no-interaction --only dev
 
     - name: Run pytest
       run: poetry run --no-interaction -- coverage run --source=./capsula -m pytest ./tests --import-mode importlib
