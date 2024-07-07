@@ -1,0 +1,3 @@
+# `FileContext`
+
+::: capsula.FileContext

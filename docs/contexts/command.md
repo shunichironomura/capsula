@@ -1,0 +1,3 @@
+# `CommandContext`
+
+::: capsula.CommandContext

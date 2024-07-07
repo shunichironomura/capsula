@@ -1,0 +1,92 @@
+site_name: Capsula Documentation
+site_url: https://shunichironomura.github.io/capsula/
+theme:
+  name: material
+  icon:
+    logo: material/satellite-variant
+    repo: fontawesome/brands/github
+  palette:
+    # Palette toggle for automatic mode
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+      primary: yellow
+      accent: yellow
+
+      # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+      primary: yellow
+      accent: yellow
+
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to system preference
+      primary: yellow
+      accent: yellow
+  features:
+    - navigation.instant
+    - navigation.tabs
+    - navigation.tabs.sticky
+plugins:
+  - search
+  - gen-files:
+      scripts:
+        - scripts/gen_ref_pages.py
+  - literate-nav:
+      nav_file: SUMMARY.md
+  - section-index
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          options:
+            show_if_no_docstring: true
+            unwrap_annotated: true
+            show_root_heading: true
+            inherited_members: false
+            separate_signature: true
+            merge_init_into_class: true
+            signature_crossrefs: true
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+            group_by_category: false
+            show_signature_annotations: true
+            members_order: source
+            docstring_section_style: spacy
+            filters:
+              - "!^_[^_]"
+              - "!__init_subclass__"
+            extensions:
+              - griffe_typingdoc
+repo_url: https://github.com/shunichironomura/capsula
+repo_name: shunichironomura/capsula
+markdown_extensions:
+  - def_list
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - admonition
+nav:
+  - Home: index.md
+  - Usage: usage/
+  - Contexts: contexts/
+  - Watchers: watchers/
+  - Reporters: reporters/
+  - API Reference: reference/
+extra:
+  version:
+    provider: mike

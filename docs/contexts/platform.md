@@ -1,0 +1,3 @@
+# `PlatformContext`
+
+::: capsula.PlatformContext
