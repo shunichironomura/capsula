@@ -86,6 +86,7 @@ nav:
       - Welcome!: index.md
       - Concepts: concepts.md
       - Configuration: config.md
+      - Create your own contexts, watchers, and reporters: extending.md
   - Contexts: contexts/
   - Watchers: watchers/
   - Reporters: reporters/

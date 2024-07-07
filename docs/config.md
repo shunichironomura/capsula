@@ -71,6 +71,6 @@ For each encapsulators, the order of encapsulation is as follows:
 
 ## `builder` method or `__init__` method?
 
-The reason for using the `builder` method instead of the `__init__` method to create an instance of a context, watcher, or reporter is to use the runtime information, such as the run directory, to create the instance.
+The reason for using the `builder` method instead of the `__init__` method to create an instance of a context, watcher, or reporter is to use the runtime information, such as the run directory, to create the instance. This is why the configuration specified in the `capsula.toml` file by default uses the `builder` method to create instances of contexts, watchers, and reporters.
 
-The `builder` method returns, instead of an instance of the class, a function that takes the runtime information (`capsula._run.CapsuleParams`) as an argument and returns an instance of the class.
+The `builder` method returns, instead of an instance of the class, a function that takes the runtime information ([`capsula.CapsuleParams`](reference/capsula/index.md#capsula.CapsuleParams)) as an argument and returns an instance of the class.
