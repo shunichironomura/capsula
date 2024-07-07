@@ -291,6 +291,24 @@
   
 
       
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="reference/capsula/" class="md-tabs__link">
+          
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
     </ul>
   </div>
 </nav>
@@ -497,6 +515,27 @@
   
   <span class="md-ellipsis">
     Configuration
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="extending/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Create your own contexts, watchers, and reporters
   </span>
   
 
@@ -882,6 +921,72 @@
   
 
     
+      
+      
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    API Reference
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="reference/capsula/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    capsula
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
   </ul>
 </nav>
                   </div>
@@ -940,9 +1045,6 @@
                 
                   
 
-  
-  
-
 
 <h1 id="capsula">Capsula</h1>
 <p><a href="https://pypi.org/project/capsula/"><img alt="PyPI" src="https://img.shields.io/pypi/v/capsula" /></a>
@@ -951,6 +1053,8 @@
 <img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/capsula" />
 <img alt="Test Status" src="https://github.com/shunichironomura/capsula/workflows/Test/badge.svg?event=push&amp;branch=main" />
 <a href="https://codecov.io/gh/shunichironomura/capsula"><img alt="codecov" src="https://codecov.io/gh/shunichironomura/capsula/graph/badge.svg?token=BZXF2PPDM0" /></a>
+<a href="https://python-poetry.org/"><img alt="Poetry" src="https://img.shields.io/endpoint?url=https://python-poetry.org/badge/v0.json" /></a>
+<a href="https://github.com/astral-sh/ruff"><img alt="Ruff" src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json" /></a>
 <img alt="PyPI - Downloads" src="https://img.shields.io/pypi/dm/capsula" /></p>
 <p><em>Capsula</em>, a Latin word meaning <em>box</em>, is a Python package designed to help researchers and developers easily capture their command/function execution context for reproducibility.</p>
 <p>With Capsula, you can capture:</p>
@@ -1016,7 +1120,7 @@
 </span><span id="__span-1-23"><a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
 </span><span id="__span-1-24"><a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>    <span class="n">calculate_pi</span><span class="p">(</span><span class="n">n_samples</span><span class="o">=</span><span class="mi">1_000</span><span class="p">)</span>
 </span></code></pre></div>
-<p>After running the script, a directory (<code>calculate_pi_20240630_015823_S3vb</code> in this example) will be created under the <code>vault</code> directory, and you will find the following files there:</p>
+<p>After running the script, a directory (<code>calculate_pi_20240630_015823_S3vb</code> in this example) will be created under the <code>&lt;project-root&gt;/vault</code> directory, and you will find the following files there:</p>
 <details>
 <summary>Example of output <code>pre-run-report.json</code>:</summary>
 <pre><code>{

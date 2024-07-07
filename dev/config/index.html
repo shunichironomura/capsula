@@ -14,7 +14,7 @@
         <link rel="prev" href="../concepts/">
       
       
-        <link rel="next" href="../contexts/">
+        <link rel="next" href="../extending/">
       
       
       <link rel="icon" href="../assets/images/favicon.png">
@@ -293,6 +293,24 @@
   
 
       
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../reference/capsula/" class="md-tabs__link">
+          
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
     </ul>
   </div>
 </nav>
@@ -508,10 +526,40 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#builder-method-or-__init__-method" class="md-nav__link">
+    <span class="md-ellipsis">
+      builder method or __init__ method?
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../extending/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Create your own contexts, watchers, and reporters
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -893,6 +941,72 @@
   
 
     
+      
+      
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    API Reference
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/capsula/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    capsula
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
   </ul>
 </nav>
                   </div>
@@ -941,6 +1055,15 @@
   <a href="#order-of-encapsulation" class="md-nav__link">
     <span class="md-ellipsis">
       Order of encapsulation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#builder-method-or-__init__-method" class="md-nav__link">
+    <span class="md-ellipsis">
+      builder method or __init__ method?
     </span>
   </a>
   
@@ -1022,6 +1145,9 @@
 <li>Contexts, watchers, and reporters specified in the <code>capsula.toml</code> file, in the order of appearance (from top to bottom).</li>
 <li>Contexts, watchers, and reporters specified using the <code>@capsula.context()</code> and <code>@capsula.watcher()</code> decorators, in the order of appearance (from top to bottom).</li>
 </ol>
+<h2 id="builder-method-or-__init__-method"><code>builder</code> method or <code>__init__</code> method?</h2>
+<p>The reason for using the <code>builder</code> method instead of the <code>__init__</code> method to create an instance of a context, watcher, or reporter is to use the runtime information, such as the run directory, to create the instance. This is why the configuration specified in the <code>capsula.toml</code> file by default uses the <code>builder</code> method to create instances of contexts, watchers, and reporters.</p>
+<p>The <code>builder</code> method returns, instead of an instance of the class, a function that takes the runtime information (<a href="../reference/capsula/#capsula.CapsuleParams"><code>capsula.CapsuleParams</code></a>) as an argument and returns an instance of the class.</p>
 
 
 
