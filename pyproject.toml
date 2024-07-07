@@ -1,11 +1,12 @@
 [tool.poetry]
 name = "capsula"
 version = "0.3.0"
-description = "A Python package to capture and reproduce command execution context"
+description = "A Python package to capture command/function execution context for reproducibility."
 license = "MIT"
 authors = ["Shunichiro Nomura <nomura@space.t.u-tokyo.ac.jp>"]
 readme = "README.md"
 repository = "https://github.com/shunichironomura/capsula"
+documentation = "https://shunichironomura.github.io/capsula/"
 keywords = ["reproducibility", "cli"]
 classifiers = [
     "Development Status :: 4 - Beta",
