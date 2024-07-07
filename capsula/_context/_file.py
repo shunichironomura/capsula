@@ -25,6 +25,40 @@ class _FileContextData(TypedDict):
 class FileContext(ContextBase):
     _default_hash_algorithm = "sha256"
 
+    @classmethod
+    def builder(
+        cls,
+        path: Path | str,
+        *,
+        compute_hash: bool = True,
+        hash_algorithm: str | None = None,
+        copy: bool = False,
+        move: bool = False,
+        ignore_missing: bool = False,
+        path_relative_to_project_root: bool = False,
+    ) -> Callable[[CapsuleParams], FileContext]:
+        if copy and move:
+            warnings.warn("Both copy and move are True. Only move will be performed.", UserWarning, stacklevel=2)
+            move = True
+            copy = False
+
+        def callback(params: CapsuleParams) -> FileContext:
+            if path_relative_to_project_root and path is not None and not Path(path).is_absolute():
+                file_path = params.project_root / path
+            else:
+                file_path = Path(path)
+
+            return cls(
+                path=file_path,
+                compute_hash=compute_hash,
+                hash_algorithm=hash_algorithm,
+                copy_to=params.run_dir if copy else None,
+                move_to=params.run_dir if move else None,
+                ignore_missing=ignore_missing,
+            )
+
+        return callback
+
     def __init__(
         self,
         path: Path | str,
@@ -89,37 +123,3 @@ class FileContext(ContextBase):
 
     def default_key(self) -> tuple[str, str]:
         return ("file", str(self._path))
-
-    @classmethod
-    def builder(
-        cls,
-        path: Path | str,
-        *,
-        compute_hash: bool = True,
-        hash_algorithm: str | None = None,
-        copy: bool = False,
-        move: bool = False,
-        ignore_missing: bool = False,
-        path_relative_to_project_root: bool = False,
-    ) -> Callable[[CapsuleParams], FileContext]:
-        if copy and move:
-            warnings.warn("Both copy and move are True. Only move will be performed.", UserWarning, stacklevel=2)
-            move = True
-            copy = False
-
-        def callback(params: CapsuleParams) -> FileContext:
-            if path_relative_to_project_root and path is not None and not Path(path).is_absolute():
-                file_path = params.project_root / path
-            else:
-                file_path = Path(path)
-
-            return cls(
-                path=file_path,
-                compute_hash=compute_hash,
-                hash_algorithm=hash_algorithm,
-                copy_to=params.run_dir if copy else None,
-                move_to=params.run_dir if move else None,
-                ignore_missing=ignore_missing,
-            )
-
-        return callback

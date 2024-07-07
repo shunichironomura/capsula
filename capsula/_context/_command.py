@@ -23,19 +23,6 @@ class _CommandContextData(TypedDict):
 
 
 class CommandContext(ContextBase):
-    def __init__(
-        self,
-        command: str,
-        *,
-        cwd: Path | None = None,
-        check: bool = True,
-        abort_on_error: bool = True,
-    ) -> None:
-        self._command = command
-        self._cwd = cwd
-        self._check = check
-        self._abort_on_error = abort_on_error
-
     @classmethod
     def builder(
         cls,
@@ -62,6 +49,19 @@ class CommandContext(ContextBase):
             )
 
         return callback
+
+    def __init__(
+        self,
+        command: str,
+        *,
+        cwd: Path | None = None,
+        check: bool = True,
+        abort_on_error: bool = True,
+    ) -> None:
+        self._command = command
+        self._cwd = cwd
+        self._check = check
+        self._abort_on_error = abort_on_error
 
     @property
     def abort_on_error(self) -> bool:

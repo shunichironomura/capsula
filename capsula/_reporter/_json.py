@@ -35,6 +35,20 @@ def default_preset(obj: Any) -> Any:
 
 
 class JsonDumpReporter(ReporterBase):
+    @classmethod
+    def builder(
+        cls,
+        *,
+        option: int | None = None,
+    ) -> Callable[[CapsuleParams], JsonDumpReporter]:
+        def callback(params: CapsuleParams) -> JsonDumpReporter:
+            return cls(
+                params.run_dir / f"{params.phase}-run-report.json",
+                option=orjson.OPT_INDENT_2 if option is None else option,
+            )
+
+        return callback
+
     def __init__(
         self,
         path: Path | str,
@@ -75,17 +89,3 @@ class JsonDumpReporter(ReporterBase):
 
         json_bytes = orjson.dumps(nested_data, default=self._default_for_encoder, option=self._option)
         self._path.write_bytes(json_bytes)
-
-    @classmethod
-    def builder(
-        cls,
-        *,
-        option: int | None = None,
-    ) -> Callable[[CapsuleParams], JsonDumpReporter]:
-        def callback(params: CapsuleParams) -> JsonDumpReporter:
-            return cls(
-                params.run_dir / f"{params.phase}-run-report.json",
-                option=orjson.OPT_INDENT_2 if option is None else option,
-            )
-
-        return callback
