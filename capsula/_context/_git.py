@@ -42,9 +42,18 @@ class GitRepositoryContext(ContextBase):
     @classmethod
     def builder(
         cls,
-        name: Annotated[str | None, Doc("Name of the Git repository")] = None,
+        name: Annotated[
+            str | None,
+            Doc("Name of the Git repository. If not provided, the name of the working directory will be used."),
+        ] = None,
         *,
-        path: Annotated[Path | str | None, Doc("Path to the Git repository")] = None,
+        path: Annotated[
+            Path | str | None,
+            Doc(
+                "Path to the Git repository. If not provided, the parent directories of the file where the function is "
+                "defined will be searched for a Git repository.",
+            ),
+        ] = None,
         path_relative_to_project_root: Annotated[
             bool,
             Doc(

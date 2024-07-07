@@ -38,7 +38,7 @@ class FileContext(ContextBase):
         hash_algorithm: Annotated[
             str | None,
             Doc(
-                "Hash algorithm to use. This will be fed to `hashlib.file_digest` as the `digest` argument."
+                "Hash algorithm to use. This will be fed to `hashlib.file_digest` as the `digest` argument. "
                 "If not provided, `sha256` will be used.",
             ),
         ] = None,
@@ -48,7 +48,7 @@ class FileContext(ContextBase):
         path_relative_to_project_root: Annotated[
             bool,
             Doc(
-                "Whether `path` is relative to the project root. Will be ignored if `path` is absolute."
+                "Whether `path` is relative to the project root. Will be ignored if `path` is absolute. "
                 "If True, it will be interpreted as relative to the project root. "
                 "If False, `path` will be interpreted as relative to the current working directory. "
                 "It is recommended to set this to True in the configuration file.",
