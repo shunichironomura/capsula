@@ -10,7 +10,8 @@
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/capsula)
 
-*Capsula*, a Latin word meaning *box*, is a Python package designed to help researchers and developers easily capture their command/function execution context for reproducibility. See the [documentation](https://shunichironomura.github.io/capsula/) for more information.
+*Capsula*, a Latin word meaning *box*, is a Python package designed to help researchers and developers easily capture their command/function execution context for reproducibility.
+See the [documentation](https://shunichironomura.github.io/capsula/) for more information.
 
 With Capsula, you can capture:
 
