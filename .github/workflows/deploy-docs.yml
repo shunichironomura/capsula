@@ -1,0 +1,50 @@
+name: Deploy docs
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/deploy-docs.yml"
+      - "capsula/**"
+      - "docs/**"
+      - "scripts/gen_ref_pages.py"
+      - "mkdocs.yml"
+      - "pyproject.toml"
+
+
+env:
+  PYTHON_VERSION: "3.12"
+  POETRY_VERSION: "1.8.3"
+
+concurrency:
+  group: "deploy-docs"
+  cancel-in-progress: true
+
+jobs:
+  deploy-docs:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Set up Poetry
+        uses: abatilo/actions-poetry@v3
+        with:
+          poetry-version: ${{ env.POETRY_VERSION }}
+
+      - name: Install dependencies
+        run: poetry install --no-interaction --only docs
+
+      - name: Set up Git
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch --prune --unshallow
+
+      - name: Update the docs
+        run: poetry run --no-interaction -- mike deploy --push dev
