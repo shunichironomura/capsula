@@ -47,13 +47,13 @@ class JsonDumpReporter(ReporterBase):
             Doc("Option to pass to `orjson.dumps`. If not provided, `orjson.OPT_INDENT_2` will be used."),
         ] = None,
     ) -> Callable[[CapsuleParams], JsonDumpReporter]:
-        def callback(params: CapsuleParams) -> JsonDumpReporter:
+        def build(params: CapsuleParams) -> JsonDumpReporter:
             return cls(
                 params.run_dir / f"{params.phase}-run-report.json",
                 option=orjson.OPT_INDENT_2 if option is None else option,
             )
 
-        return callback
+        return build
 
     def __init__(
         self,

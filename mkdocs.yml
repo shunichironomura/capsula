@@ -39,7 +39,7 @@ plugins:
   - search
   - gen-files:
       scripts:
-        - scripts/gen_ref_pages.py
+        - scripts/gen_pages.py
   - literate-nav:
       nav_file: SUMMARY.md
   - section-index
@@ -86,10 +86,11 @@ nav:
       - Welcome!: index.md
       - Concepts: concepts.md
       - Configuration: config.md
+      - Create your own contexts, watchers, and reporters: extending.md
   - Contexts: contexts/
   - Watchers: watchers/
   - Reporters: reporters/
-  # - API Reference: reference/
+  - API Reference: reference/
 extra:
   version:
     provider: mike

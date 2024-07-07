@@ -31,10 +31,10 @@ class ReporterBase(ABC):
 
     @classmethod
     def builder(cls, *args: Any, **kwargs: Any) -> Callable[[CapsuleParams], Self]:
-        def callback(params: CapsuleParams) -> Self:  # type: ignore[type-var,misc] # noqa: ARG001
+        def build(params: CapsuleParams) -> Self:  # type: ignore[type-var,misc] # noqa: ARG001
             return cls(*args, **kwargs)
 
-        return callback
+        return build
 
     @classmethod
     @deprecated("Use builder instead")

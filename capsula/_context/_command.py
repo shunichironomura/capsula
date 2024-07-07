@@ -57,7 +57,7 @@ class CommandContext(ContextBase):
             ),
         ] = False,
     ) -> Callable[[CapsuleParams], CommandContext]:
-        def callback(params: CapsuleParams) -> CommandContext:
+        def build(params: CapsuleParams) -> CommandContext:
             if cwd_relative_to_project_root and cwd is not None and not Path(cwd).is_absolute():
                 cwd_path: Path | None = params.project_root / cwd
             elif cwd_relative_to_project_root and cwd is None:
@@ -72,7 +72,7 @@ class CommandContext(ContextBase):
                 abort_on_error=abort_on_error,
             )
 
-        return callback
+        return build
 
     def __init__(
         self,

@@ -42,9 +42,18 @@ class GitRepositoryContext(ContextBase):
     @classmethod
     def builder(
         cls,
-        name: Annotated[str | None, Doc("Name of the Git repository")] = None,
+        name: Annotated[
+            str | None,
+            Doc("Name of the Git repository. If not provided, the name of the working directory will be used."),
+        ] = None,
         *,
-        path: Annotated[Path | str | None, Doc("Path to the Git repository")] = None,
+        path: Annotated[
+            Path | str | None,
+            Doc(
+                "Path to the Git repository. If not provided, the parent directories of the file where the function is "
+                "defined will be searched for a Git repository.",
+            ),
+        ] = None,
         path_relative_to_project_root: Annotated[
             bool,
             Doc(
@@ -56,7 +65,7 @@ class GitRepositoryContext(ContextBase):
         ] = False,
         allow_dirty: Annotated[bool, Doc("Whether to allow the repository to be dirty")] = True,
     ) -> Callable[[CapsuleParams], GitRepositoryContext]:
-        def callback(params: CapsuleParams) -> GitRepositoryContext:
+        def build(params: CapsuleParams) -> GitRepositoryContext:
             if path_relative_to_project_root and path is not None and not Path(path).is_absolute():
                 repository_path: Path | None = params.project_root / path
             else:
@@ -84,7 +93,7 @@ class GitRepositoryContext(ContextBase):
                 allow_dirty=allow_dirty,
             )
 
-        return callback
+        return build
 
     def __init__(
         self,

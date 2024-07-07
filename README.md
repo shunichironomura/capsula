@@ -6,22 +6,25 @@
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/capsula)
 ![Test Status](https://github.com/shunichironomura/capsula/workflows/Test/badge.svg?event=push&branch=main)
 [![codecov](https://codecov.io/gh/shunichironomura/capsula/graph/badge.svg?token=BZXF2PPDM0)](https://codecov.io/gh/shunichironomura/capsula)
+[![Poetry](https://img.shields.io/endpoint?url=https://python-poetry.org/badge/v0.json)](https://python-poetry.org/)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/capsula)
 
 *Capsula*, a Latin word meaning *box*, is a Python package designed to help researchers and developers easily capture their command/function execution context for reproducibility.
+See the [documentation](https://shunichironomura.github.io/capsula/) for more information.
 
 With Capsula, you can capture:
 
-- CPU information with [`CpuContext`](contexts/cpu.md)
-- Python version with [`PlatformContext`](contexts/platform.md)
-- Current working directory with [`CwdContext`](contexts/cwd.md)
-- Git repository information (commit hash, branch, etc.) with [`GitRepositoryContext`](contexts/git.md)
-- Output of shell commands (e.g., `poetry check --lock`) with [`CommandContext`](contexts/command.md)
-- Files (e.g., output files, `pyproject.toml`, `requirements.txt`) with [`FileContext`](contexts/file.md)
-- Arguments of Python functions with [`FunctionContext`](contexts/function.md)
-- Environment variables with [`EnvVarContext`](contexts/envvar.md)
-- Uncaught exceptions with [`UncaughtExceptionWatcher`](watchers/uncaught_exception.md)
-- Execution time with [`TimeWatcher`](watchers/time.md)
+- CPU information with [`CpuContext`](docs/contexts/cpu.md)
+- Python version with [`PlatformContext`](docs/contexts/platform.md)
+- Current working directory with [`CwdContext`](docs/contexts/cwd.md)
+- Git repository information (commit hash, branch, etc.) with [`GitRepositoryContext`](docs/contexts/git.md)
+- Output of shell commands (e.g., `poetry check --lock`) with [`CommandContext`](docs/contexts/command.md)
+- Files (e.g., output files, `pyproject.toml`, `requirements.txt`) with [`FileContext`](docs/contexts/file.md)
+- Arguments of Python functions with [`FunctionContext`](docs/contexts/function.md)
+- Environment variables with [`EnvVarContext`](docs/contexts/envvar.md)
+- Uncaught exceptions with [`UncaughtExceptionWatcher`](docs/watchers/uncaught_exception.md)
+- Execution time with [`TimeWatcher`](docs/watchers/time.md)
 
 The captured contexts are dumped into JSON files for future reference and reproduction.
 
@@ -83,7 +86,7 @@ if __name__ == "__main__":
     calculate_pi(n_samples=1_000)
 ```
 
-After running the script, a directory (`calculate_pi_20240630_015823_S3vb` in this example) will be created under the `vault` directory, and you will find the following files there:
+After running the script, a directory (`calculate_pi_20240630_015823_S3vb` in this example) will be created under the `<project-root>/vault` directory, and you will find the following files there:
 
 <details>
 <summary>Example of output <code>pre-run-report.json</code>:</summary>

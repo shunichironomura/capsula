@@ -5,7 +5,6 @@ from pathlib import Path
 from rich.logging import RichHandler
 
 import capsula
-import capsula._utils
 
 logger = logging.getLogger(__name__)
 
