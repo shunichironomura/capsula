@@ -37,7 +37,10 @@ class FileContext(ContextBase):
         compute_hash: Annotated[bool, Doc("Whether to compute the hash of the file")] = True,
         hash_algorithm: Annotated[
             str | None,
-            Doc("Hash algorithm to use. This will be fed to `hashlib.file_digest` as the `digest` argument."),
+            Doc(
+                "Hash algorithm to use. This will be fed to `hashlib.file_digest` as the `digest` argument."
+                "If not provided, `sha256` will be used.",
+            ),
         ] = None,
         copy: Annotated[bool, Doc("Whether to copy the file to the run directory")] = False,
         move: Annotated[bool, Doc("Whether to move the file to the run directory")] = False,
@@ -57,7 +60,7 @@ class FileContext(ContextBase):
             move = True
             copy = False
 
-        def callback(params: CapsuleParams) -> FileContext:
+        def build(params: CapsuleParams) -> FileContext:
             if path_relative_to_project_root and path is not None and not Path(path).is_absolute():
                 file_path = params.project_root / path
             else:
@@ -72,7 +75,7 @@ class FileContext(ContextBase):
                 ignore_missing=ignore_missing,
             )
 
-        return callback
+        return build
 
     def __init__(
         self,

@@ -56,7 +56,7 @@ class GitRepositoryContext(ContextBase):
         ] = False,
         allow_dirty: Annotated[bool, Doc("Whether to allow the repository to be dirty")] = True,
     ) -> Callable[[CapsuleParams], GitRepositoryContext]:
-        def callback(params: CapsuleParams) -> GitRepositoryContext:
+        def build(params: CapsuleParams) -> GitRepositoryContext:
             if path_relative_to_project_root and path is not None and not Path(path).is_absolute():
                 repository_path: Path | None = params.project_root / path
             else:
@@ -84,7 +84,7 @@ class GitRepositoryContext(ContextBase):
                 allow_dirty=allow_dirty,
             )
 
-        return callback
+        return build
 
     def __init__(
         self,
