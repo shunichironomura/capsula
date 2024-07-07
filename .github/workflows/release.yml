@@ -5,7 +5,8 @@ on:
   workflow_dispatch:
 
 env:
-  PYTHON_VERSION: "3.11"
+  PYTHON_VERSION: "3.12"
+  POETRY_VERSION: "1.8.3"
 
 jobs:
   create-tag:
@@ -21,10 +22,10 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install poetry
+      - name: Set up Poetry
+        uses: abatilo/actions-poetry@v3
+        with:
+          poetry-version: ${{ env.POETRY_VERSION }}
 
       - name: Get the version
         id: get-version
@@ -52,10 +53,10 @@ jobs:
       with:
         python-version: ${{ env.PYTHON_VERSION }}
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install poetry
+    - name: Set up Poetry
+      uses: abatilo/actions-poetry@v3
+      with:
+        poetry-version: ${{ env.POETRY_VERSION }}
 
     - name: Publish to PyPI
       run: |
@@ -78,13 +79,41 @@ jobs:
       with:
         python-version: ${{ env.PYTHON_VERSION }}
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install poetry
-
     - name: Create a GitHub release
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
         gh release create v${{ needs.create-tag.outputs.version }} --verify-tag --generate-notes --title "v${{ needs.create-tag.outputs.version }}" --repo ${{ github.repository }} --target ${{ github.sha }}
+
+  deploy-docs:
+    name: Deploy docs
+    runs-on: ubuntu-latest
+    needs: create-tag
+    permissions:
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Set up Poetry
+      uses: abatilo/actions-poetry@v3
+      with:
+        poetry-version: ${{ env.POETRY_VERSION }}
+
+    - name: Install dependencies
+      run: poetry install --no-interaction
+
+    - name: Set up Git
+      run: |
+        git config --global user.name "github-actions"
+        git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git fetch --prune --unshallow
+
+    - name: Deploy docs
+      run: |
+        git fetch --tags
+        git checkout v${{ needs.create-tag.outputs.version }}
+        poetry run --no-interaction -- mike deploy --push --update-aliases v${{ needs.create-tag.outputs.version }} latest
