@@ -116,4 +116,4 @@ jobs:
       run: |
         git fetch --tags
         git checkout v${{ needs.create-tag.outputs.version }}
-        poetry run --no-interaction -- mike deploy --push --update-aliases v${{ needs.create-tag.outputs.version }} latest
+        poetry run --no-interaction -- mike deploy --push --update-aliases ${{ needs.create-tag.outputs.version }} latest
