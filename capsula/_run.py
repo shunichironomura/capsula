@@ -35,6 +35,7 @@ class FuncInfo:
     func: Callable[..., Any]
     args: tuple[Any, ...]
     kwargs: dict[str, Any]
+    pass_pre_run_capsule: bool
 
 
 @dataclass
@@ -250,7 +251,7 @@ class Run(Generic[_P, _T]):
         self._get_run_stack().get(block=False)
 
     def __call__(self, *args: _P.args, **kwargs: _P.kwargs) -> _T:  # noqa: C901
-        func_info = FuncInfo(func=self._func, args=args, kwargs=kwargs)
+        func_info = FuncInfo(func=self._func, args=args, kwargs=kwargs, pass_pre_run_capsule=self._pass_pre_run_capsule)
         if self._run_dir_generator is None:
             msg = "run_dir_generator must be set before calling the function."
             raise ValueError(msg)
