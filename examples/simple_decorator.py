@@ -4,6 +4,7 @@ import capsula
 
 
 @capsula.run()
+@capsula.context(capsula.FunctionContext.builder(), mode="pre")
 @capsula.context(capsula.FileContext.builder("pi.txt", move=True), mode="post")
 def calculate_pi(n_samples: int = 1_000, seed: int = 42) -> None:
     random.seed(seed)

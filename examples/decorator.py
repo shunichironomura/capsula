@@ -29,6 +29,7 @@ PROJECT_ROOT = capsula.search_for_project_root(__file__)
 @capsula.watcher(capsula.TimeWatcher("calculation_time"))
 @capsula.context(capsula.FileContext.builder("pi.txt", move=True), mode="post")
 @capsula.reporter(capsula.JsonDumpReporter.builder(), mode="all")
+@capsula.context(capsula.FunctionContext.builder(), mode="pre")
 @capsula.pass_pre_run_capsule
 def calculate_pi(pre_run_capsule: capsula.Capsule, *, n_samples: int = 1_000, seed: int = 42) -> None:
     logger.info(f"Calculating pi with {n_samples} samples.")
