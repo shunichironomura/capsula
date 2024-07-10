@@ -10,6 +10,7 @@ __all__ = [
     "Encapsulator",
     "EnvVarContext",
     "FileContext",
+    "FunctionContext",
     "GitRepositoryContext",
     "JsonDumpReporter",
     "PlatformContext",
@@ -36,6 +37,7 @@ from ._context import (
     CwdContext,
     EnvVarContext,
     FileContext,
+    FunctionContext,
     GitRepositoryContext,
     PlatformContext,
 )
