@@ -32,7 +32,13 @@ class FunctionContext(ContextBase):
                 msg = "FunctionContext can only be built from a FuncInfo."
                 raise TypeError(msg)
 
-            return cls(params.exec_info.func, args=params.exec_info.args, kwargs=params.exec_info.kwargs, ignore=ignore)
+            return cls(
+                params.exec_info.func,
+                args=params.exec_info.args,
+                kwargs=params.exec_info.kwargs,
+                ignore=ignore,
+                _remove_pre_run_capsule_before_binding=params.exec_info.pass_pre_run_capsule,
+            )
 
         return build
 
@@ -43,16 +49,22 @@ class FunctionContext(ContextBase):
         args: Sequence[Any],
         kwargs: Mapping[str, Any],
         ignore: Container[str] = (),
+        _remove_pre_run_capsule_before_binding: bool = False,
     ) -> None:
         self._function = function
         self._args = args
         self._kwargs = kwargs
         self._ignore = ignore
+        self._remove_pre_run_capsule_before_binding = _remove_pre_run_capsule_before_binding
 
     def encapsulate(self) -> _FunctionContextData:
         file_path = Path(inspect.getfile(self._function))
         _, first_line_no = inspect.getsourcelines(self._function)
         sig = inspect.signature(self._function)
+
+        if self._remove_pre_run_capsule_before_binding:
+            sig = sig.replace(parameters=tuple(p for p in sig.parameters.values() if p.name != "pre_run_capsule"))
+
         ba = sig.bind(*self._args, **self._kwargs)
         ba.apply_defaults()
         ba_wo_ignore = {k: v for k, v in ba.arguments.items() if k not in self._ignore}
