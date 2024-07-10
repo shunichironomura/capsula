@@ -2,9 +2,14 @@ from __future__ import annotations
 
 import inspect
 from pathlib import Path
-from typing import Any, Callable, Mapping, Sequence, TypedDict
+from typing import TYPE_CHECKING, Any, Callable, Mapping, Sequence, TypedDict
+
+from capsula._run import FuncInfo
 
 from ._base import ContextBase
+
+if TYPE_CHECKING:
+    from capsula._run import CapsuleParams
 
 
 class _FunctionCallContextData(TypedDict):
@@ -15,6 +20,19 @@ class _FunctionCallContextData(TypedDict):
 
 
 class FunctionCallContext(ContextBase):
+    @classmethod
+    def builder(
+        cls,
+    ) -> Callable[[CapsuleParams], FunctionCallContext]:
+        def build(params: CapsuleParams) -> FunctionCallContext:
+            if not isinstance(params.exec_info, FuncInfo):
+                msg = "FunctionCallContext can only be built from a FuncInfo."
+                raise TypeError(msg)
+
+            return cls(params.exec_info.func, params.exec_info.args, params.exec_info.kwargs)
+
+        return build
+
     def __init__(self, function: Callable[..., Any], args: Sequence[Any], kwargs: Mapping[str, Any]) -> None:
         self._function = function
         self._args = args
