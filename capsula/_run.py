@@ -13,7 +13,7 @@ from string import ascii_letters, digits
 from typing import TYPE_CHECKING, Any, Callable, Generic, Literal, TypeVar, Union, overload
 
 from ._backport import Concatenate, ParamSpec, Self, TypeAlias
-from ._context import ContextBase, FunctionContext
+from ._context import ContextBase
 from ._encapsulator import Encapsulator
 from ._reporter import ReporterBase
 from ._utils import search_for_project_root
@@ -277,8 +277,6 @@ class Run(Generic[_P, _T]):
         for watcher_generator in self._in_run_watcher_generators:
             watcher = watcher_generator(params)
             in_run_enc.add_watcher(watcher)
-
-        in_run_enc.add_context(FunctionContext(self._func, args, kwargs))
 
         try:
             with self, in_run_enc, in_run_enc.watch():
