@@ -4,6 +4,8 @@ import inspect
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Callable, Mapping, Sequence, TypedDict
 
+from typing_extensions import Annotated, Doc
+
 from capsula._run import FuncInfo
 
 from ._base import ContextBase
@@ -21,11 +23,20 @@ class _FunctionContextData(TypedDict):
 
 
 class FunctionContext(ContextBase):
+    """Context to capture a function call."""
+
     @classmethod
     def builder(
         cls,
         *,
-        ignore: Container[str] = (),
+        ignore: Annotated[
+            Container[str],
+            Doc(
+                "Parameters to ignore when capturing the arguments. "
+                "This is useful when you pass values that you don't want to be in the output, "
+                "such as a large data structure or a function that is not serializable, or a secret.",
+            ),
+        ] = (),
     ) -> Callable[[CapsuleParams], FunctionContext]:
         def build(params: CapsuleParams) -> FunctionContext:
             if not isinstance(params.exec_info, FuncInfo):
