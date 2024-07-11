@@ -1,6 +1,8 @@
 import random
 from pathlib import Path
 
+import pytest
+
 import capsula
 
 OUTPUT_FILE_PATH = Path(__file__).parent / "pi.txt"
@@ -37,5 +39,6 @@ def calculate_pi(pre_run_capsule: capsula.Capsule, *, n_samples: int = 1_000, se
         output_file.write(f"Pi estimate: {pi_estimate}. Git SHA: {pre_run_capsule.data[('git', 'capsula')]['sha']}")
 
 
+@pytest.mark.skip(reason="This test asserts very little, but contributes to most of the coverage.")
 def test_decorator_e2e() -> None:
     calculate_pi(n_samples=10)
