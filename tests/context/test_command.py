@@ -9,7 +9,7 @@ from capsula._context._command import CommandContext
 @pytest.fixture
 def command_context(tmp_path: Path) -> CommandContext:
     return CommandContext(
-        command="echo 'Hello, World!'",
+        command="echo hello",
         cwd=tmp_path,
         check=True,
         abort_on_error=True,
@@ -18,17 +18,16 @@ def command_context(tmp_path: Path) -> CommandContext:
 
 def test_command_context_encapsulate(command_context: CommandContext, tmp_path: Path) -> None:
     data = command_context.encapsulate()
-    assert data["command"] == "echo 'Hello, World!'"
+    assert data["command"] == "echo hello"
     assert data["cwd"] == tmp_path
     assert data["returncode"] == 0
-    # The output may or may not have a newline character at the end, depending on the platform
-    assert data["stdout"] in {"Hello, World!", "Hello, World!\n"}, f"stdout: {data['stdout']!r}"
-    assert data["stderr"] in {"", "\n"}, f"stderr: {data['stderr']!r}"
+    assert data["stdout"] == "hello\n", f"stdout: {data['stdout']!r}"
+    assert data["stderr"] == "", f"stderr: {data['stderr']!r}"
 
 
 def test_command_context_default_key(command_context: CommandContext) -> None:
     key = command_context.default_key()
-    assert key == ("command", "echo 'Hello, World!'")
+    assert key == ("command", "echo hello")
 
 
 @pytest.fixture
