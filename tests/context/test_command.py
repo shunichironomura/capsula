@@ -22,8 +22,8 @@ def test_command_context_encapsulate(command_context: CommandContext, tmp_path: 
     assert data["cwd"] == tmp_path
     assert data["returncode"] == 0
     # The output may or may not have a newline character at the end, depending on the platform
-    assert data["stdout"] in {"Hello, World!", "Hello, World!\n"}, f"stdout: {data['stdout']}"
-    assert data["stderr"] in {"", "\n"}, f"stderr: {data['stderr']}"
+    assert data["stdout"] in {"Hello, World!", "Hello, World!\n"}, f"stdout: {data['stdout']:r}"
+    assert data["stderr"] in {"", "\n"}, f"stderr: {data['stderr']:r}"
 
 
 def test_command_context_default_key(command_context: CommandContext) -> None:
