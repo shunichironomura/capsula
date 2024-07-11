@@ -8,9 +8,10 @@ on:
       - ".github/workflows/deploy-docs.yml"
       - "capsula/**"
       - "docs/**"
-      - "scripts/gen_ref_pages.py"
+      - "scripts/gen_pages.py"
       - "mkdocs.yml"
       - "pyproject.toml"
+      - "README.md"
 
 
 env:
