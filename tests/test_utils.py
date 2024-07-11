@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-from pathlib import Path
-from tempfile import TemporaryDirectory
-from typing import Any, Hashable, Mapping, Sequence
+from typing import TYPE_CHECKING, Any, Hashable, Mapping, Sequence
 
 import pytest
 
 from capsula._utils import ExceptionInfo, search_for_project_root, to_flat_dict, to_nested_dict
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def raise_exception() -> None:
@@ -89,35 +90,32 @@ def test_to_nested_dict_conflicts(
         to_nested_dict(flat_dict)
 
 
-def test_search_for_project_root_found() -> None:
+def test_search_for_project_root_found(tmp_path: Path) -> None:
     # Create a temporary directory simulating a project root
-    with TemporaryDirectory() as tmpdir:
-        project_root = Path(tmpdir)
-        (project_root / "pyproject.toml").touch()  # Create an empty pyproject.toml file
+    project_root = tmp_path
+    (project_root / "pyproject.toml").touch()  # Create an empty pyproject.toml file
 
-        # Test that the search correctly identifies the project root
-        assert (
-            search_for_project_root(project_root) == project_root
-        ), "Failed to identify the project root when pyproject.toml is present"
+    # Test that the search correctly identifies the project root
+    assert (
+        search_for_project_root(project_root) == project_root
+    ), "Failed to identify the project root when pyproject.toml is present"
 
 
-def test_search_for_project_root_in_parent() -> None:
+def test_search_for_project_root_in_parent(tmp_path: Path) -> None:
     # Create a temporary directory structure where the pyproject.toml is in a parent directory
-    with TemporaryDirectory() as tmpdir:
-        project_root = Path(tmpdir)
-        (project_root / "pyproject.toml").touch()  # Create an empty pyproject.toml file
-        child_dir = project_root / "child_dir"
-        child_dir.mkdir()
+    project_root = tmp_path
+    (project_root / "pyproject.toml").touch()  # Create an empty pyproject.toml file
+    child_dir = project_root / "child_dir"
+    child_dir.mkdir()
 
-        # Test that the search correctly finds the project root in the parent directory
-        assert search_for_project_root(child_dir).resolve() == project_root.resolve()
+    # Test that the search correctly finds the project root in the parent directory
+    assert search_for_project_root(child_dir).resolve() == project_root.resolve()
 
 
-def test_search_for_project_root_not_found() -> None:
+def test_search_for_project_root_not_found(tmp_path: Path) -> None:
     # Create a temporary directory structure without a pyproject.toml
-    with TemporaryDirectory() as tmpdir:
-        start_dir = Path(tmpdir)
+    start_dir = tmp_path
 
-        # Test that searching in a directory structure without pyproject.toml raises FileNotFoundError
-        with pytest.raises(FileNotFoundError, match="Project root not found."):
-            search_for_project_root(start_dir)
+    # Test that searching in a directory structure without pyproject.toml raises FileNotFoundError
+    with pytest.raises(FileNotFoundError, match="Project root not found."):
+        search_for_project_root(start_dir)
