@@ -21,8 +21,8 @@ def test_command_context_encapsulate(command_context: CommandContext, tmp_path: 
     assert data["command"] == "echo 'Hello, World!'"
     assert data["cwd"] == tmp_path
     assert data["returncode"] == 0
-    assert data["stdout"] == "Hello, World!\n"
-    assert data["stderr"] == ""
+    assert data["stdout"] == "Hello, World!\n", data["stdout"]
+    assert data["stderr"] == "", data["stderr"]
 
 
 def test_command_context_default_key(command_context: CommandContext) -> None:
