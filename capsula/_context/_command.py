@@ -82,6 +82,7 @@ class CommandContext(ContextBase):
         check: bool = True,
         abort_on_error: bool = True,
     ) -> None:
+        """Initialize the command context."""
         self._command = command
         self._cwd = cwd
         self._check = check
