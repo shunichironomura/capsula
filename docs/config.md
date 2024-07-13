@@ -34,7 +34,7 @@ For each context, watcher, or reporter, the `type` field specifies the class nam
 
 For encapsulating the pre-run, in-run, and post-run capsules for a specific function, you can use the [`@capsula.run()`](reference/capsula/index.md#capsula.run) decorator. You can also use the [`@capsula.context()`](reference/capsula/index.md#capsula.context), [`@capsula.watcher()`](reference/capsula/index.md#capsula.watcher), and [`@capsula.reporter()`](reference/capsula/index.md#capsula.reporter) decorators to add a context, watcher, or reporter that is specific to the function.
 
-The following is an example of a Python script that estimates the value of π using the Monte Carlo method. The "pi.txt" file generated inside the function is encapsulated using the `FileContext` context in the post-run encapsulator.
+The following is an example of a Python script that estimates the value of π using the Monte Carlo method. The `pi.txt` file generated inside the function is encapsulated using the `FileContext` context in the post-run encapsulator.
 
 ```python
 import random
