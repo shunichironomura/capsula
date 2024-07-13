@@ -368,3 +368,9 @@ You can install Capsula via pip:
 ```bash
 pip install capsula
 ```
+
+Or via conda:
+
+```bash
+conda install conda-forge::capsula
+```
