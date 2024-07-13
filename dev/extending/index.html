@@ -11,7 +11,7 @@
         <link rel="canonical" href="https://shunichironomura.github.io/capsula/dev/extending/">
       
       
-        <link rel="prev" href="../config/">
+        <link rel="prev" href="../helpers/">
       
       
         <link rel="next" href="../contexts/">
@@ -459,6 +459,27 @@
   
   <span class="md-ellipsis">
     Configuration
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../helpers/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Helper functions and variables
   </span>
   
 
@@ -1143,7 +1164,7 @@ You only need to create a class that inherits from the base class of the corresp
 <p>To create a watcher, you need to</p>
 <ul>
 <li>Inherit from the <code>capsula.WatcherBase</code> class. This will register the class to the Capsula watcher registry.</li>
-<li>Implement the <code>watch</code> method that returns a context manager that watches the command/function execution.</li>
+<li>Implement the <code>watch</code> method that behaves as a context manager that watches the command/function execution.</li>
 <li>Implement the <code>encapsulate</code> method that returns the watcher's output.</li>
 <li>Implement the <code>default_key</code> method that returns the default key used to store the watcher's output in the capsule.</li>
 </ul>

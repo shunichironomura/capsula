@@ -14,7 +14,7 @@
         <link rel="prev" href="../concepts/">
       
       
-        <link rel="next" href="../extending/">
+        <link rel="next" href="../helpers/">
       
       
       <link rel="icon" href="../assets/images/favicon.png">
@@ -539,6 +539,27 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../helpers/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Helper functions and variables
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -1134,14 +1155,14 @@
 <p>This configuration file specifies the contexts, watchers, and reporters to be used in the pre-run, in-run, and post-run encapsulators. The <code>JsonDumpReporter</code> is used to dump the captured contexts into JSON files.</p>
 <p>For each context, watcher, or reporter, the <code>type</code> field specifies the class name of the context, watcher, or reporter. The other fields are used as the keyword arguments to the <code>builder</code> method of the class to create an instance of the class. If the class does not implement the <code>builder</code> method, the <code>__init__</code> method is used instead.</p>
 <h2 id="decorators">Decorators</h2>
-<p>For encapsulating the pre-run, in-run, and post-run capsules for a specific function, you can use the <code>@capsula.run()</code> decorator. You can also use the <code>@capsula.context()</code>, <code>@capsula.watcher()</code>, and <code>@capsula.reporter()</code> decorators to add a context, watcher, or reporter respectively to the function.</p>
-<p>The following is an example of a Python script that estimates the value of π using the Monte Carlo method:</p>
+<p>For encapsulating the pre-run, in-run, and post-run capsules for a specific function, you can use the <a href="../reference/capsula/#capsula.run"><code>@capsula.run()</code></a> decorator. You can also use the <a href="../reference/capsula/#capsula.context"><code>@capsula.context()</code></a>, <a href="../reference/capsula/#capsula.watcher"><code>@capsula.watcher()</code></a>, and <a href="../reference/capsula/#capsula.reporter"><code>@capsula.reporter()</code></a> decorators to add a context, watcher, or reporter that is specific to the function.</p>
+<p>The following is an example of a Python script that estimates the value of π using the Monte Carlo method. The <code>pi.txt</code> file generated inside the function is encapsulated using the <code>FileContext</code> context in the post-run encapsulator.</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">import</span> <span class="nn">random</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">import</span> <span class="nn">capsula</span>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
 </span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="nd">@capsula</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="c1"># Register a `FileContext` to the post-run encapsulator.</span>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="nd">@capsula</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">capsula</span><span class="o">.</span><span class="n">FileContext</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="s2">&quot;pi.txt&quot;</span><span class="p">,</span> <span class="n">move</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;post&quot;</span><span class="p">)</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="nd">@capsula</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">capsula</span><span class="o">.</span><span class="n">FileContext</span><span class="o">.</span><span class="n">builder</span><span class="p">(</span><span class="s2">&quot;pi.txt&quot;</span><span class="p">,</span> <span class="n">move</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;post&quot;</span><span class="p">)</span>
 </span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="k">def</span> <span class="nf">calculate_pi</span><span class="p">(</span><span class="n">n_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1_000</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">42</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    <span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
 </span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    <span class="n">xs</span> <span class="o">=</span> <span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_samples</span><span class="p">))</span>
@@ -1149,16 +1170,11 @@
 </span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>    <span class="n">inside</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="n">y</span> <span class="o">&lt;=</span> <span class="mf">1.0</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">))</span>
 </span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    <span class="n">pi_estimate</span> <span class="o">=</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">inside</span><span class="p">)</span> <span class="o">/</span> <span class="n">n_samples</span>
 </span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>
-</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    <span class="c1"># You can record values to the capsule using the `record` method.</span>
-</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>    <span class="n">capsula</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="s2">&quot;pi_estimate&quot;</span><span class="p">,</span> <span class="n">pi_estimate</span><span class="p">)</span>
-</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>    <span class="c1"># You can access the current run name using the `current_run_name` function.</span>
-</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Run name: </span><span class="si">{</span><span class="n">capsula</span><span class="o">.</span><span class="n">current_run_name</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>
-</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;pi.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">output_file</span><span class="p">:</span>
-</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>        <span class="n">output_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Pi estimate: </span><span class="si">{</span><span class="n">pi_estimate</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
-</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>
-</span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-</span><span id="__span-1-23"><a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>    <span class="n">calculate_pi</span><span class="p">(</span><span class="n">n_samples</span><span class="o">=</span><span class="mi">1_000</span><span class="p">)</span>
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;pi.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">output_file</span><span class="p">:</span>
+</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>        <span class="n">output_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Pi estimate: </span><span class="si">{</span><span class="n">pi_estimate</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>
+</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>    <span class="n">calculate_pi</span><span class="p">(</span><span class="n">n_samples</span><span class="o">=</span><span class="mi">1_000</span><span class="p">)</span>
 </span></code></pre></div>
 <h2 id="order-of-encapsulation">Order of encapsulation</h2>
 <p>For each encapsulators, the order of encapsulation is as follows:</p>
@@ -1166,6 +1182,10 @@
 <li>Contexts, watchers, and reporters specified in the <code>capsula.toml</code> file, in the order of appearance (from top to bottom).</li>
 <li>Contexts, watchers, and reporters specified using the <code>@capsula.context()</code> and <code>@capsula.watcher()</code> decorators, in the order of appearance (from top to bottom).</li>
 </ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For watchers, the order of encapsulation here means the order of entering the <code>watch</code> context manager of the watcher. The order of exiting the <code>watch</code> context manager is the reverse of the order of entering the <code>watch</code> context manager.</p>
+</div>
 <h2 id="builder-method-or-__init__-method"><code>builder</code> method or <code>__init__</code> method?</h2>
 <p>The reason for using the <code>builder</code> method instead of the <code>__init__</code> method to create an instance of a context, watcher, or reporter is to use the runtime information, such as the run directory, to create the instance. This is why the configuration specified in the <code>capsula.toml</code> file by default uses the <code>builder</code> method to create instances of contexts, watchers, and reporters.</p>
 <p>The <code>builder</code> method returns, instead of an instance of the class, a function that takes the runtime information (<a href="../reference/capsula/#capsula.CapsuleParams"><code>capsula.CapsuleParams</code></a>) as an argument and returns an instance of the class.</p>
