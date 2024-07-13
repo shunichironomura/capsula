@@ -139,7 +139,7 @@ def run(
     ```python
     import capsula
 
-    @capsula.run()
+    @capsula.run() # This should come first
     @capsula.context(capsula.EnvVarContext("HOME"), mode="pre")
     ...  # Add more decorators
     def func() -> None: ...
