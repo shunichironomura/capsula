@@ -61,7 +61,7 @@ class ProjectRootContext(capsula.ContextBase):
 To create a watcher, you need to
 
 - Inherit from the `capsula.WatcherBase` class. This will register the class to the Capsula watcher registry.
-- Implement the `watch` method that returns a context manager that watches the command/function execution.
+- Implement the `watch` method that behaves as a context manager that watches the command/function execution.
 - Implement the `encapsulate` method that returns the watcher's output.
 - Implement the `default_key` method that returns the default key used to store the watcher's output in the capsule.
 
