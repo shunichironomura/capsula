@@ -5,6 +5,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Hashable
 
+from typing_extensions import Annotated, Doc
+
 if TYPE_CHECKING:
     from types import TracebackType
 
@@ -74,16 +76,10 @@ def to_nested_dict(flat_dict: Mapping[Sequence[Hashable], Any]) -> dict[Hashable
     return nested_dict
 
 
-def search_for_project_root(start: Path | str) -> Path:
-    """Search for the project root directory by looking for pyproject.toml.
-
-    Args:
-        start: The start directory to search.
-
-    Returns:
-        The project root directory.
-
-    """
+def search_for_project_root(
+    start: Annotated[Path | str, Doc("The start directory to search.")],
+) -> Annotated[Path, Doc("The project root directory.")]:
+    """Search for the project root directory by looking for pyproject.toml."""
     start = Path(start)
     if (start / "pyproject.toml").exists():
         return start

@@ -32,9 +32,9 @@ For each context, watcher, or reporter, the `type` field specifies the class nam
 
 ## Decorators
 
-For encapsulating the pre-run, in-run, and post-run capsules for a specific function, you can use the `@capsula.run()` decorator. You can also use the `@capsula.context()`, `@capsula.watcher()`, and `@capsula.reporter()` decorators to add a context, watcher, or reporter respectively to the function.
+For encapsulating the pre-run, in-run, and post-run capsules for a specific function, you can use the [`@capsula.run()`](reference/capsula/index.md#capsula.run) decorator. You can also use the [`@capsula.context()`](reference/capsula/index.md#capsula.context), [`@capsula.watcher()`](reference/capsula/index.md#capsula.watcher), and [`@capsula.reporter()`](reference/capsula/index.md#capsula.reporter) decorators to add a context, watcher, or reporter that is specific to the function.
 
-The following is an example of a Python script that estimates the value of π using the Monte Carlo method:
+The following is an example of a Python script that estimates the value of π using the Monte Carlo method. The `pi.txt` file generated inside the function is encapsulated using the `FileContext` context in the post-run encapsulator.
 
 ```python
 import random
@@ -42,18 +42,13 @@ import capsula
 
 @capsula.run()
 # Register a `FileContext` to the post-run encapsulator.
-@capsula.context(capsula.FileContext.default("pi.txt", move=True), mode="post")
+@capsula.context(capsula.FileContext.builder("pi.txt", move=True), mode="post")
 def calculate_pi(n_samples: int = 1_000, seed: int = 42) -> None:
     random.seed(seed)
     xs = (random.random() for _ in range(n_samples))
     ys = (random.random() for _ in range(n_samples))
     inside = sum(x * x + y * y <= 1.0 for x, y in zip(xs, ys))
     pi_estimate = (4.0 * inside) / n_samples
-
-    # You can record values to the capsule using the `record` method.
-    capsula.record("pi_estimate", pi_estimate)
-    # You can access the current run name using the `current_run_name` function.
-    print(f"Run name: {capsula.current_run_name()}")
 
     with open("pi.txt", "w") as output_file:
         output_file.write(f"Pi estimate: {pi_estimate}.")
@@ -68,6 +63,9 @@ For each encapsulators, the order of encapsulation is as follows:
 
 1. Contexts, watchers, and reporters specified in the `capsula.toml` file, in the order of appearance (from top to bottom).
 2. Contexts, watchers, and reporters specified using the `@capsula.context()` and `@capsula.watcher()` decorators, in the order of appearance (from top to bottom).
+
+!!! note
+    For watchers, the order of encapsulation here means the order of entering the `watch` context manager of the watcher. The order of exiting the `watch` context manager is the reverse of the order of entering the `watch` context manager.
 
 ## `builder` method or `__init__` method?
 
