@@ -374,3 +374,9 @@ Or via conda:
 ```bash
 conda install conda-forge::capsula
 ```
+
+## Licensing
+
+This project is licensed under the terms of the MIT.
+
+Additionally, this project includes code derived from the Python programming language, which is licensed under the Python Software Foundation License Version 2 (PSF-2.0). For details, see the LICENSE file.

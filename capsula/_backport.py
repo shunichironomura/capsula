@@ -15,6 +15,9 @@ import hashlib
 import sys
 from typing import TYPE_CHECKING, Callable
 
+# Acknowledgment: Portions of this module, including the `file_digest` function and relevant type definitions,
+# are derived from the Python source code and are licensed under the Python Software Foundation License Version 2.
+
 if sys.version_info >= (3, 11):
     from typing import Self
 
@@ -45,12 +48,15 @@ else:
     from typing import Protocol
 
     class _BytesIOLike(Protocol):
-        def getbuffer(self) -> Buffer: ...
+        def getbuffer(self) -> Buffer:
+            ...
 
     class _FileDigestFileObj(Protocol):
-        def readinto(self, __buf: bytearray) -> int: ...
+        def readinto(self, __buf: bytearray) -> int:
+            ...
 
-        def readable(self) -> bool: ...
+        def readable(self) -> bool:
+            ...
 
     def file_digest(
         fileobj: _BytesIOLike | _FileDigestFileObj,
