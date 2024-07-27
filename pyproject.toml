@@ -24,7 +24,7 @@ py-cpuinfo = ">=9.0.0"
 gitpython = ">=3.1.31"
 tomli = { version = ">=2.0.1", python = "<3.11" }
 typing-extensions = { version = ">=4.7.1", python = "<3.11" }
-orjson = ">=3.9.10"
+orjson = ">=3.9.15"
 typer = ">=0.9.0"
 
 [tool.poetry.group.dev.dependencies]
