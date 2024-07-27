@@ -54,9 +54,8 @@ class CapsuleParams:
 ExecInfo: TypeAlias = Union[FuncInfo, CommandInfo]
 
 
-def generate_default_run_dir(exec_info: ExecInfo | None = None) -> Path:
+def default_run_name_generator(*, exec_info: ExecInfo | None, random_str: str, current_time: datetime) -> str:
     exec_name: str | None
-    project_root = get_project_root(exec_info)
     if exec_info is None:
         exec_name = None
     elif isinstance(exec_info, CommandInfo):
@@ -67,10 +66,20 @@ def generate_default_run_dir(exec_info: ExecInfo | None = None) -> Path:
         msg = f"exec_info must be an instance of FuncInfo or CommandInfo, not {type(exec_info)}."
         raise TypeError(msg)
 
-    random_suffix = "".join(choices(ascii_letters + digits, k=4))  # noqa: S311
-    datetime_str = datetime.now(timezone.utc).astimezone().strftime(r"%Y%m%d_%H%M%S")
-    dir_name = ("" if exec_name is None else f"{exec_name}_") + f"{datetime_str}_{random_suffix}"
-    return project_root / "vault" / dir_name
+    datetime_str = current_time.astimezone().strftime(r"%Y%m%d_%H%M%S")
+    return ("" if exec_name is None else f"{exec_name}_") + f"{datetime_str}_{random_str}"
+
+
+def generate_default_run_dir(exec_info: ExecInfo | None = None) -> Path:
+    project_root = get_project_root(exec_info)
+
+    run_name = default_run_name_generator(
+        exec_info=exec_info,
+        random_str="".join(choices(ascii_letters + digits, k=4)),  # noqa: S311
+        current_time=datetime.now(timezone.utc),
+    )
+
+    return project_root / "vault" / run_name
 
 
 def get_project_root(exec_info: ExecInfo | None = None) -> Path:
