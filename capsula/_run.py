@@ -24,8 +24,8 @@ if TYPE_CHECKING:
 
     from ._capsule import Capsule
 
-_P = ParamSpec("_P")
-_T = TypeVar("_T")
+P = ParamSpec("P")
+T = TypeVar("T")
 
 logger = logging.getLogger(__name__)
 
@@ -83,7 +83,7 @@ def get_project_root(exec_info: ExecInfo | None = None) -> Path:
         raise TypeError(msg)
 
 
-class Run(Generic[_P, _T]):
+class Run(Generic[P, T]):
     _thread_local = threading.local()
 
     @classmethod
@@ -100,19 +100,19 @@ class Run(Generic[_P, _T]):
             return None
 
     @overload
-    def __init__(self, func: Callable[_P, _T], *, pass_pre_run_capsule: Literal[False] = False) -> None: ...
+    def __init__(self, func: Callable[P, T], *, pass_pre_run_capsule: Literal[False] = False) -> None: ...
 
     @overload
     def __init__(
         self,
-        func: Callable[Concatenate[Capsule, _P], _T],
+        func: Callable[Concatenate[Capsule, P], T],
         *,
         pass_pre_run_capsule: Literal[True],
     ) -> None: ...
 
     def __init__(
         self,
-        func: Callable[_P, _T] | Callable[Concatenate[Capsule, _P], _T],
+        func: Callable[P, T] | Callable[Concatenate[Capsule, P], T],
         *,
         pass_pre_run_capsule: bool = False,
     ) -> None:
@@ -125,7 +125,7 @@ class Run(Generic[_P, _T]):
         self._post_run_reporter_generators: deque[Callable[[CapsuleParams], ReporterBase]] = deque()
 
         self._pass_pre_run_capsule: bool = pass_pre_run_capsule
-        self._func: Callable[_P, _T] | Callable[Concatenate[Capsule, _P], _T] = func
+        self._func: Callable[P, T] | Callable[Concatenate[Capsule, P], T] = func
 
         self._run_dir_generator: Callable[[FuncInfo], Path] | None = None
         self._run_dir: Path | None = None
@@ -250,7 +250,7 @@ class Run(Generic[_P, _T]):
     ) -> None:
         self._get_run_stack().get(block=False)
 
-    def __call__(self, *args: _P.args, **kwargs: _P.kwargs) -> _T:  # noqa: C901
+    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> T:  # noqa: C901
         func_info = FuncInfo(func=self._func, args=args, kwargs=kwargs, pass_pre_run_capsule=self._pass_pre_run_capsule)
         if self._run_dir_generator is None:
             msg = "run_dir_generator must be set before calling the function."
