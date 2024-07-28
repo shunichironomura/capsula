@@ -181,7 +181,6 @@ def run(  # noqa: C901
         if run_dir is not _NOT_SET:
             run.set_run_dir(run_dir)  # type: ignore[arg-type]
         else:
-            assert run_name_factory is not None
             run.run_name_factory = _run_name_factory_adjusted
 
         if not ignore_config:
