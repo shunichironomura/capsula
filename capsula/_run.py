@@ -4,6 +4,7 @@ import inspect
 import logging
 import queue
 import threading
+import warnings
 from collections import deque
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -11,6 +12,10 @@ from pathlib import Path
 from random import choices
 from string import ascii_letters, digits
 from typing import TYPE_CHECKING, Any, Callable, Generic, Literal, TypeVar, Union, overload
+
+from typing_extensions import deprecated
+
+from capsula._exceptions import CapsulaUninitializedError
 
 from ._backport import Concatenate, ParamSpec, Self, TypeAlias
 from ._context import ContextBase
@@ -54,7 +59,12 @@ class CapsuleParams:
 ExecInfo: TypeAlias = Union[FuncInfo, CommandInfo]
 
 
-def default_run_name_generator(*, exec_info: ExecInfo | None, random_str: str, current_time: datetime) -> str:
+def get_vault_dir(exec_info: ExecInfo | None) -> Path:
+    project_root = get_project_root(exec_info)
+    return project_root / "vault"
+
+
+def default_run_name_factory(exec_info: ExecInfo | None, random_str: str, current_time: datetime) -> str:
     exec_name: str | None
     if exec_info is None:
         exec_name = None
@@ -71,15 +81,15 @@ def default_run_name_generator(*, exec_info: ExecInfo | None, random_str: str, c
 
 
 def generate_default_run_dir(exec_info: ExecInfo | None = None) -> Path:
-    project_root = get_project_root(exec_info)
+    vault_dir = get_vault_dir(exec_info)
 
-    run_name = default_run_name_generator(
+    run_name = default_run_name_factory(
         exec_info=exec_info,
-        random_str="".join(choices(ascii_letters + digits, k=4)),  # noqa: S311
+        random_str="".join(choices(ascii_letters + digits, k=4)),
         current_time=datetime.now(timezone.utc),
     )
 
-    return project_root / "vault" / run_name
+    return vault_dir / run_name
 
 
 def get_project_root(exec_info: ExecInfo | None = None) -> Path:
@@ -136,8 +146,11 @@ class Run(Generic[P, T]):
         self._pass_pre_run_capsule: bool = pass_pre_run_capsule
         self._func: Callable[P, T] | Callable[Concatenate[Capsule, P], T] = func
 
-        self._run_dir_generator: Callable[[FuncInfo], Path] | None = None
+        self._run_name_factory: Callable[[ExecInfo | None, str, datetime], str] | None = None
         self._run_dir: Path | None = None
+
+        # Deprecated. Will be removed in v0.7.0.
+        self._run_dir_generator: Callable[[FuncInfo], Path] | None = None
 
     @property
     def run_dir(self) -> Path:
@@ -238,6 +251,7 @@ class Run(Generic[P, T]):
             msg = f"mode must be one of 'pre', 'in', 'post', or 'all', not {mode}."
             raise ValueError(msg)
 
+    @deprecated("Use run_name_factory instead. Will be removed in v0.7.0.")
     def set_run_dir(self, run_dir: Path | Callable[[FuncInfo], Path]) -> None:
         def run_dir_generator(params: FuncInfo) -> Path:
             if isinstance(run_dir, Path):
@@ -246,6 +260,16 @@ class Run(Generic[P, T]):
                 return run_dir(params)
 
         self._run_dir_generator = run_dir_generator
+
+    @property
+    def run_name_factory(self) -> Callable[[ExecInfo | None, str, datetime], str]:
+        if self._run_name_factory is None:
+            raise CapsulaUninitializedError("run_name_factory")
+        return self._run_name_factory
+
+    @run_name_factory.setter
+    def run_name_factory(self, run_name_factory: Callable[[ExecInfo | None, str, datetime], str]) -> None:
+        self._run_name_factory = run_name_factory
 
     def __enter__(self) -> Self:
         self._get_run_stack().put(self)
@@ -258,6 +282,25 @@ class Run(Generic[P, T]):
         traceback: TracebackType | None,
     ) -> None:
         self._get_run_stack().get(block=False)
+
+    def _instanciate_run_dir(self, func_info: FuncInfo) -> Path:
+        if self._run_name_factory is not None:
+            run_name = self._run_name_factory(
+                func_info,
+                "".join(choices(ascii_letters + digits, k=4)),
+                datetime.now(timezone.utc),
+            )
+            return get_vault_dir(func_info) / run_name
+
+        if self._run_dir_generator is not None:
+            warnings.warn(
+                "run_dir_generator is deprecated. Use run_name_factory instead. Will be removed in v0.7.0.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            return self._run_dir_generator(func_info)
+
+        raise CapsulaUninitializedError("run_name_factory", "run_dir_generator")
 
     def __call__(self, *args: P.args, **kwargs: P.kwargs) -> T:  # noqa: C901
         func_info = FuncInfo(func=self._func, args=args, kwargs=kwargs, pass_pre_run_capsule=self._pass_pre_run_capsule)
