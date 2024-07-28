@@ -1,9 +1,18 @@
 import random
+from datetime import datetime
 
 import capsula
 
 
-@capsula.run()
+def my_run_name_factory(func_info: capsula.FuncInfo, random_str: str, timestamp: datetime) -> str:
+    timestamp_str = timestamp.astimezone().strftime(r"%Y%m%d_%H%M%S")
+    return (
+        f"{func_info.func.__name__}_n_samples_{func_info.bound_args['n_samples']}_seed_{func_info.bound_args['seed']}_"
+        f"{timestamp_str}_{random_str}"
+    )
+
+
+@capsula.run(run_name_factory=my_run_name_factory)
 @capsula.context(capsula.FunctionContext.builder(), mode="pre")
 @capsula.context(capsula.FileContext.builder("pi.txt", move=True), mode="post")
 def calculate_pi(n_samples: int = 1_000, seed: int = 42) -> None:
