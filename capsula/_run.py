@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from random import choices
 from string import ascii_letters, digits
-from typing import TYPE_CHECKING, Any, Callable, Generic, Literal, TypeVar, Union, overload
+from typing import TYPE_CHECKING, Any, Callable, Generic, Literal, OrderedDict, TypeVar, Union, overload
 
 from typing_extensions import deprecated
 
@@ -43,11 +43,11 @@ class FuncInfo:
     pass_pre_run_capsule: bool
 
     @property
-    def bound_args(self) -> inspect.BoundArguments:
+    def bound_args(self) -> OrderedDict[str, Any]:
         signature = inspect.signature(self.func)
         ba = signature.bind(*self.args, **self.kwargs)
         ba.apply_defaults()
-        return ba
+        return ba.arguments
 
 
 @dataclass
