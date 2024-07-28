@@ -118,6 +118,7 @@ ignore = [
     "FIX002",  # Fixme comment
     "S311",    # suspicious-non-cryptographic-random-usage
     "EM101",   # raw-string-in-exception
+    "TRY003",  # Avoid specifying long messages outside the exception class
 ]
 
 
@@ -130,7 +131,6 @@ ignore = [
 "capsula/_backport.py" = [
     "ANN202", # Missing return type annotation
     "SIM108", # Use ternary operator instead of if/else
-    "TRY003", # Avoid specifying long messages outside the exception class
     "EM102",  # Exception must not use an f-string literal, assign to variable first"
 ]
 "scripts/*" = ["INP001"]

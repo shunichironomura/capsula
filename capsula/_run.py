@@ -42,6 +42,13 @@ class FuncInfo:
     kwargs: dict[str, Any]
     pass_pre_run_capsule: bool
 
+    @property
+    def bound_args(self) -> inspect.BoundArguments:
+        signature = inspect.signature(self.func)
+        ba = signature.bind(*self.args, **self.kwargs)
+        ba.apply_defaults()
+        return ba
+
 
 @dataclass
 class CommandInfo:
@@ -64,7 +71,7 @@ def get_vault_dir(exec_info: ExecInfo | None) -> Path:
     return project_root / "vault"
 
 
-def default_run_name_factory(exec_info: ExecInfo | None, random_str: str, current_time: datetime) -> str:
+def default_run_name_factory(exec_info: ExecInfo | None, random_str: str, timestamp: datetime, /) -> str:
     exec_name: str | None
     if exec_info is None:
         exec_name = None
@@ -76,7 +83,7 @@ def default_run_name_factory(exec_info: ExecInfo | None, random_str: str, curren
         msg = f"exec_info must be an instance of FuncInfo or CommandInfo, not {type(exec_info)}."
         raise TypeError(msg)
 
-    datetime_str = current_time.astimezone().strftime(r"%Y%m%d_%H%M%S")
+    datetime_str = timestamp.astimezone().strftime(r"%Y%m%d_%H%M%S")
     return ("" if exec_name is None else f"{exec_name}_") + f"{datetime_str}_{random_str}"
 
 
@@ -84,9 +91,9 @@ def generate_default_run_dir(exec_info: ExecInfo | None = None) -> Path:
     vault_dir = get_vault_dir(exec_info)
 
     run_name = default_run_name_factory(
-        exec_info=exec_info,
-        random_str="".join(choices(ascii_letters + digits, k=4)),
-        current_time=datetime.now(timezone.utc),
+        exec_info,
+        "".join(choices(ascii_letters + digits, k=4)),
+        datetime.now(timezone.utc),
     )
 
     return vault_dir / run_name
@@ -304,11 +311,17 @@ class Run(Generic[P, T]):
 
     def __call__(self, *args: P.args, **kwargs: P.kwargs) -> T:  # noqa: C901
         func_info = FuncInfo(func=self._func, args=args, kwargs=kwargs, pass_pre_run_capsule=self._pass_pre_run_capsule)
-        if self._run_dir_generator is None:
-            msg = "run_dir_generator must be set before calling the function."
-            raise ValueError(msg)
-        self._run_dir = self._run_dir_generator(func_info)
-        self._run_dir.mkdir(parents=True, exist_ok=True)
+
+        self._run_dir = self._instanciate_run_dir(func_info)
+        try:
+            self._run_dir.mkdir(parents=True, exist_ok=False)
+        except FileExistsError:
+            logger.exception(
+                f"Run directory {self._run_dir} already exists. Aborting to prevent overwriting existing data. "
+                "Make sure that run_name_factory produces unique names.",
+            )
+            raise
+
         params = CapsuleParams(
             exec_info=func_info,
             run_dir=self._run_dir,
