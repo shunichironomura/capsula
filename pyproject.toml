@@ -116,6 +116,8 @@ ignore = [
     "D407",    # Missing dashed underline after section
     "ERA001",  # Commented out code
     "FIX002",  # Fixme comment
+    "S311",    # suspicious-non-cryptographic-random-usage
+    "EM101",   # raw-string-in-exception
 ]
 
 
@@ -123,7 +125,6 @@ ignore = [
 "examples/*" = [
     "INP001", # implicit-namespace-package
     "T201",   # print statement
-    "S311",   # suspicious-non-cryptographic-random-usage
     "PTH123", # builtin-open
 ]
 "capsula/_backport.py" = [
