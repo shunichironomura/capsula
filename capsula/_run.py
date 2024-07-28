@@ -4,13 +4,18 @@ import inspect
 import logging
 import queue
 import threading
+import warnings
 from collections import deque
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from random import choices
 from string import ascii_letters, digits
-from typing import TYPE_CHECKING, Any, Callable, Generic, Literal, TypeVar, Union, overload
+from typing import TYPE_CHECKING, Any, Callable, Generic, Literal, OrderedDict, TypeVar, Union, overload
+
+from typing_extensions import deprecated
+
+from capsula._exceptions import CapsulaUninitializedError
 
 from ._backport import Concatenate, ParamSpec, Self, TypeAlias
 from ._context import ContextBase
@@ -24,8 +29,8 @@ if TYPE_CHECKING:
 
     from ._capsule import Capsule
 
-_P = ParamSpec("_P")
-_T = TypeVar("_T")
+P = ParamSpec("P")
+T = TypeVar("T")
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +41,13 @@ class FuncInfo:
     args: tuple[Any, ...]
     kwargs: dict[str, Any]
     pass_pre_run_capsule: bool
+
+    @property
+    def bound_args(self) -> OrderedDict[str, Any]:
+        signature = inspect.signature(self.func)
+        ba = signature.bind(*self.args, **self.kwargs)
+        ba.apply_defaults()
+        return ba.arguments
 
 
 @dataclass
@@ -54,9 +66,13 @@ class CapsuleParams:
 ExecInfo: TypeAlias = Union[FuncInfo, CommandInfo]
 
 
-def generate_default_run_dir(exec_info: ExecInfo | None = None) -> Path:
-    exec_name: str | None
+def get_vault_dir(exec_info: ExecInfo | None) -> Path:
     project_root = get_project_root(exec_info)
+    return project_root / "vault"
+
+
+def default_run_name_factory(exec_info: ExecInfo | None, random_str: str, timestamp: datetime, /) -> str:
+    exec_name: str | None
     if exec_info is None:
         exec_name = None
     elif isinstance(exec_info, CommandInfo):
@@ -67,10 +83,20 @@ def generate_default_run_dir(exec_info: ExecInfo | None = None) -> Path:
         msg = f"exec_info must be an instance of FuncInfo or CommandInfo, not {type(exec_info)}."
         raise TypeError(msg)
 
-    random_suffix = "".join(choices(ascii_letters + digits, k=4))  # noqa: S311
-    datetime_str = datetime.now(timezone.utc).astimezone().strftime(r"%Y%m%d_%H%M%S")
-    dir_name = ("" if exec_name is None else f"{exec_name}_") + f"{datetime_str}_{random_suffix}"
-    return project_root / "vault" / dir_name
+    datetime_str = timestamp.astimezone().strftime(r"%Y%m%d_%H%M%S")
+    return ("" if exec_name is None else f"{exec_name}_") + f"{datetime_str}_{random_str}"
+
+
+def generate_default_run_dir(exec_info: ExecInfo | None = None) -> Path:
+    vault_dir = get_vault_dir(exec_info)
+
+    run_name = default_run_name_factory(
+        exec_info,
+        "".join(choices(ascii_letters + digits, k=4)),
+        datetime.now(timezone.utc),
+    )
+
+    return vault_dir / run_name
 
 
 def get_project_root(exec_info: ExecInfo | None = None) -> Path:
@@ -83,7 +109,7 @@ def get_project_root(exec_info: ExecInfo | None = None) -> Path:
         raise TypeError(msg)
 
 
-class Run(Generic[_P, _T]):
+class Run(Generic[P, T]):
     _thread_local = threading.local()
 
     @classmethod
@@ -100,19 +126,19 @@ class Run(Generic[_P, _T]):
             return None
 
     @overload
-    def __init__(self, func: Callable[_P, _T], *, pass_pre_run_capsule: Literal[False] = False) -> None: ...
+    def __init__(self, func: Callable[P, T], *, pass_pre_run_capsule: Literal[False] = False) -> None: ...
 
     @overload
     def __init__(
         self,
-        func: Callable[Concatenate[Capsule, _P], _T],
+        func: Callable[Concatenate[Capsule, P], T],
         *,
         pass_pre_run_capsule: Literal[True],
     ) -> None: ...
 
     def __init__(
         self,
-        func: Callable[_P, _T] | Callable[Concatenate[Capsule, _P], _T],
+        func: Callable[P, T] | Callable[Concatenate[Capsule, P], T],
         *,
         pass_pre_run_capsule: bool = False,
     ) -> None:
@@ -125,10 +151,13 @@ class Run(Generic[_P, _T]):
         self._post_run_reporter_generators: deque[Callable[[CapsuleParams], ReporterBase]] = deque()
 
         self._pass_pre_run_capsule: bool = pass_pre_run_capsule
-        self._func: Callable[_P, _T] | Callable[Concatenate[Capsule, _P], _T] = func
+        self._func: Callable[P, T] | Callable[Concatenate[Capsule, P], T] = func
 
-        self._run_dir_generator: Callable[[FuncInfo], Path] | None = None
+        self._run_name_factory: Callable[[ExecInfo | None, str, datetime], str] | None = None
         self._run_dir: Path | None = None
+
+        # Deprecated. Will be removed in v0.7.0.
+        self._run_dir_generator: Callable[[FuncInfo], Path] | None = None
 
     @property
     def run_dir(self) -> Path:
@@ -229,6 +258,7 @@ class Run(Generic[_P, _T]):
             msg = f"mode must be one of 'pre', 'in', 'post', or 'all', not {mode}."
             raise ValueError(msg)
 
+    @deprecated("Use run_name_factory instead. Will be removed in v0.7.0.")
     def set_run_dir(self, run_dir: Path | Callable[[FuncInfo], Path]) -> None:
         def run_dir_generator(params: FuncInfo) -> Path:
             if isinstance(run_dir, Path):
@@ -237,6 +267,16 @@ class Run(Generic[_P, _T]):
                 return run_dir(params)
 
         self._run_dir_generator = run_dir_generator
+
+    @property
+    def run_name_factory(self) -> Callable[[ExecInfo | None, str, datetime], str]:
+        if self._run_name_factory is None:
+            raise CapsulaUninitializedError("run_name_factory")
+        return self._run_name_factory
+
+    @run_name_factory.setter
+    def run_name_factory(self, run_name_factory: Callable[[ExecInfo | None, str, datetime], str]) -> None:
+        self._run_name_factory = run_name_factory
 
     def __enter__(self) -> Self:
         self._get_run_stack().put(self)
@@ -250,13 +290,38 @@ class Run(Generic[_P, _T]):
     ) -> None:
         self._get_run_stack().get(block=False)
 
-    def __call__(self, *args: _P.args, **kwargs: _P.kwargs) -> _T:  # noqa: C901
+    def _instanciate_run_dir(self, func_info: FuncInfo) -> Path:
+        if self._run_name_factory is not None:
+            run_name = self._run_name_factory(
+                func_info,
+                "".join(choices(ascii_letters + digits, k=4)),
+                datetime.now(timezone.utc),
+            )
+            return get_vault_dir(func_info) / run_name
+
+        if self._run_dir_generator is not None:
+            warnings.warn(
+                "run_dir_generator is deprecated. Use run_name_factory instead. Will be removed in v0.7.0.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            return self._run_dir_generator(func_info)
+
+        raise CapsulaUninitializedError("run_name_factory", "run_dir_generator")
+
+    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> T:  # noqa: C901
         func_info = FuncInfo(func=self._func, args=args, kwargs=kwargs, pass_pre_run_capsule=self._pass_pre_run_capsule)
-        if self._run_dir_generator is None:
-            msg = "run_dir_generator must be set before calling the function."
-            raise ValueError(msg)
-        self._run_dir = self._run_dir_generator(func_info)
-        self._run_dir.mkdir(parents=True, exist_ok=True)
+
+        self._run_dir = self._instanciate_run_dir(func_info)
+        try:
+            self._run_dir.mkdir(parents=True, exist_ok=False)
+        except FileExistsError:
+            logger.exception(
+                f"Run directory {self._run_dir} already exists. Aborting to prevent overwriting existing data. "
+                "Make sure that run_name_factory produces unique names.",
+            )
+            raise
+
         params = CapsuleParams(
             exec_info=func_info,
             run_dir=self._run_dir,

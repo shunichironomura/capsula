@@ -116,6 +116,9 @@ ignore = [
     "D407",    # Missing dashed underline after section
     "ERA001",  # Commented out code
     "FIX002",  # Fixme comment
+    "S311",    # suspicious-non-cryptographic-random-usage
+    "EM101",   # raw-string-in-exception
+    "TRY003",  # Avoid specifying long messages outside the exception class
 ]
 
 
@@ -123,13 +126,11 @@ ignore = [
 "examples/*" = [
     "INP001", # implicit-namespace-package
     "T201",   # print statement
-    "S311",   # suspicious-non-cryptographic-random-usage
     "PTH123", # builtin-open
 ]
 "capsula/_backport.py" = [
     "ANN202", # Missing return type annotation
     "SIM108", # Use ternary operator instead of if/else
-    "TRY003", # Avoid specifying long messages outside the exception class
     "EM102",  # Exception must not use an f-string literal, assign to variable first"
 ]
 "scripts/*" = ["INP001"]

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import warnings
 from pathlib import Path
 from typing import TYPE_CHECKING, Callable, Literal, TypeVar
 
@@ -7,10 +8,12 @@ from typing_extensions import Annotated, Doc
 
 from ._backport import Concatenate, ParamSpec
 from ._config import load_config
-from ._run import CapsuleParams, FuncInfo, Run, generate_default_run_dir
+from ._run import CapsuleParams, ExecInfo, FuncInfo, Run, default_run_name_factory, generate_default_run_dir
 from ._utils import get_default_config_path
 
 if TYPE_CHECKING:
+    from datetime import datetime
+
     from ._capsule import Capsule
     from ._context import ContextBase
     from ._reporter import ReporterBase
@@ -119,12 +122,22 @@ def context(
     return decorator
 
 
-def run(
+_NOT_SET = object()
+
+
+def run(  # noqa: C901
     run_dir: Annotated[
-        Path | Callable[[FuncInfo], Path] | None,
-        Doc("Run directory to use. If not specified, a default run directory will be generated."),
-    ] = None,
+        Path | Callable[[FuncInfo], Path] | None | object,
+        Doc(
+            "Run directory to use. If not specified, a default run directory will be generated."
+            "Deprecated: Use `run_name_factory` instead. Will be removed in v0.0.7.",
+        ),
+    ] = _NOT_SET,
     *,
+    run_name_factory: Annotated[
+        Callable[[FuncInfo, str, datetime], str] | None,
+        Doc("Function to generate the run name. If not specified, the default run name factory will be used."),
+    ] = None,
     ignore_config: Annotated[bool, Doc("Whether to ignore the configuration file.")] = False,
     config_path: Annotated[
         Path | str | None,
@@ -146,11 +159,29 @@ def run(
     ```
 
     """
-    run_dir = generate_default_run_dir if run_dir is None else run_dir
+    if run_dir is not _NOT_SET:
+        warnings.warn(
+            "The `run_dir` argument is deprecated. Use `run_name_factory` instead. "
+            "The `run_dir` argument will be removed in v0.0.7.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        run_dir = generate_default_run_dir if run_dir is None else run_dir
+    elif run_name_factory is not None:
+        # Adjust the function signature of the run name factory
+        def _run_name_factory_adjusted(info: ExecInfo | None, random_str: str, timestamp: datetime, /) -> str:
+            if isinstance(info, FuncInfo):
+                return run_name_factory(info, random_str, timestamp)
+            raise TypeError("The run name factory must accept the `FuncInfo` object as the first argument.")
+    else:
+        _run_name_factory_adjusted = default_run_name_factory
 
     def decorator(func_or_run: Callable[_P, _T] | Run[_P, _T]) -> Run[_P, _T]:
         run = func_or_run if isinstance(func_or_run, Run) else Run(func_or_run)
-        run.set_run_dir(run_dir)
+        if run_dir is not _NOT_SET:
+            run.set_run_dir(run_dir)  # type: ignore[arg-type]
+        else:
+            run.run_name_factory = _run_name_factory_adjusted
 
         if not ignore_config:
             config = load_config(get_default_config_path() if config_path is None else Path(config_path))

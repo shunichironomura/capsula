@@ -26,8 +26,8 @@ OUTPUT_FILE_PATH = Path(__file__).parent / "pi.txt"
 @capsula.pass_pre_run_capsule
 def calculate_pi(pre_run_capsule: capsula.Capsule, *, n_samples: int = 1_000, seed: int = 42) -> None:
     random.seed(seed)
-    xs = (random.random() for _ in range(n_samples))  # noqa: S311
-    ys = (random.random() for _ in range(n_samples))  # noqa: S311
+    xs = (random.random() for _ in range(n_samples))
+    ys = (random.random() for _ in range(n_samples))
     inside = sum(x * x + y * y <= 1.0 for x, y in zip(xs, ys))
 
     capsula.record("inside", inside)
