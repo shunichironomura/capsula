@@ -1,6 +1,7 @@
 __all__ = [
     "CapsulaConfigurationError",
     "CapsulaError",
+    "CapsulaUninitializedError",
     "Capsule",
     "CapsuleParams",
     "CommandContext",
@@ -43,7 +44,7 @@ from ._context import (
 )
 from ._decorator import context, pass_pre_run_capsule, reporter, run, watcher
 from ._encapsulator import Encapsulator
-from ._exceptions import CapsulaConfigurationError, CapsulaError
+from ._exceptions import CapsulaConfigurationError, CapsulaError, CapsulaUninitializedError
 from ._reporter import JsonDumpReporter, ReporterBase
 from ._root import current_run_name, record
 from ._run import CapsuleParams, Run
