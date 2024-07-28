@@ -5,12 +5,14 @@ __all__ = [
     "Capsule",
     "CapsuleParams",
     "CommandContext",
+    "CommandInfo",
     "ContextBase",
     "CpuContext",
     "CwdContext",
     "Encapsulator",
     "EnvVarContext",
     "FileContext",
+    "FuncInfo",
     "FunctionContext",
     "GitRepositoryContext",
     "JsonDumpReporter",
@@ -47,7 +49,7 @@ from ._encapsulator import Encapsulator
 from ._exceptions import CapsulaConfigurationError, CapsulaError, CapsulaUninitializedError
 from ._reporter import JsonDumpReporter, ReporterBase
 from ._root import current_run_name, record
-from ._run import CapsuleParams, Run
+from ._run import CapsuleParams, CommandInfo, FuncInfo, Run
 from ._utils import search_for_project_root
 from ._version import __version__
 from ._watcher import TimeWatcher, UncaughtExceptionWatcher, WatcherBase
