@@ -48,7 +48,7 @@ mkdocs-literate-nav = "0.6.1"
 mkdocs-section-index = "0.3.9"
 mike = "2.1.2"
 griffe-typingdoc = "0.2.5"
-black = "24.4.2"
+black = "24.8.0"
 
 [tool.poetry.scripts]
 capsula = "capsula._cli:app"
