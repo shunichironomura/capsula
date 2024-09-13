@@ -1,7 +1,8 @@
 #!/usr/bin/env -S uv run
 # /// script
-# requires-python = ">=3.11"
+# requires-python = ">=3.8"
 # dependencies = [
+#     "tomli; python_version < '3.11'",
 #     "typer",
 # ]
 # ///
@@ -9,7 +10,12 @@
 from pathlib import Path
 from typing import NoReturn
 
-import tomllib
+import sys
+if sys.version_info < (3, 11):
+    import tomli as tomllib
+else:
+    import tomllib
+
 import typer
 
 
