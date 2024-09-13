@@ -31,7 +31,7 @@ jobs:
       - name: Get the version
         id: get-version
         run: |
-          echo "version=$(./scripts/get-version.py)" >> "$GITHUB_OUTPUT"
+          echo "version=$(./scripts/get_version.py)" >> "$GITHUB_OUTPUT"
 
       - name: Create a Git tag
         run: |

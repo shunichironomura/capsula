@@ -21,6 +21,7 @@ def main(
 
     version_str = pyproject["project"]["version"]
     print(version_str)
+    raise typer.Exit(0)
 
 if __name__ == "__main__":
     typer.run(main)

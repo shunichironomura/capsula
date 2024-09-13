@@ -35,7 +35,7 @@ def main(
     with pyproject_path.open("r") as f:
         pyproject = tomlkit.load(f)
 
-    version_str = pyproject["project"]["version"]
+    version_str: str = pyproject["project"]["version"] # type: ignore[assignment, index]
     version_parts = version_str.split(".")
     if len(version_parts) != 3:
         msg = f"Version must have 3 parts, but {version_str!r} has {len(version_parts)}"
@@ -58,7 +58,7 @@ def main(
     new_version_str = f"{major}.{minor}.{patch}"
     stderr.print(f"Bumping version from {version_str!r} to {new_version_str!r}")
 
-    pyproject["project"]["version"] = new_version_str
+    pyproject["project"]["version"] = new_version_str # type: ignore[index]
 
     with pyproject_path.open("w") as f:
         tomlkit.dump(pyproject, f)
