@@ -6,7 +6,7 @@ import queue
 import threading
 import warnings
 from collections import deque
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from random import choices
@@ -109,6 +109,24 @@ def get_project_root(exec_info: ExecInfo | None = None) -> Path:
         raise TypeError(msg)
 
 
+@dataclass
+class RunDto(Generic[P, T]):
+    pass_pre_run_capsule: bool
+    func: Callable[P, T] | Callable[Concatenate[Capsule, P], T]
+    run_dir: Path | None = None
+    # Deprecated. Will be removed in v0.7.0.
+    run_dir_generator: Callable[[FuncInfo], Path] | None = None
+
+    run_name_factory: Callable[[ExecInfo | None, str, datetime], str] | None = None
+    pre_run_context_generators: deque[Callable[[CapsuleParams], ContextBase]] = field(default_factory=deque)
+    in_run_watcher_generators: deque[Callable[[CapsuleParams], WatcherBase]] = field(default_factory=deque)
+    post_run_context_generators: deque[Callable[[CapsuleParams], ContextBase]] = field(default_factory=deque)
+    pre_run_reporter_generators: deque[Callable[[CapsuleParams], ReporterBase]] = field(default_factory=deque)
+    in_run_reporter_generators: deque[Callable[[CapsuleParams], ReporterBase]] = field(default_factory=deque)
+    post_run_reporter_generators: deque[Callable[[CapsuleParams], ReporterBase]] = field(default_factory=deque)
+
+
+# TODO: Create RunDto or IncompleteRun to hold incomplete attribute data
 class Run(Generic[P, T]):
     _thread_local = threading.local()
 
@@ -299,6 +317,7 @@ class Run(Generic[P, T]):
                 "".join(choices(ascii_letters + digits, k=4)),
                 datetime.now(timezone.utc),
             )
+            # TODO: Use specified vault_dir
             return get_vault_dir(func_info) / run_name
 
         # YORE: Bump 0.7.0: Remove block.

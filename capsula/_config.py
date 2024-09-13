@@ -48,6 +48,7 @@ class _PostRunConfig(TypedDict):
 _CapsulaConfig = TypedDict(
     "_CapsulaConfig",
     {
+        "vault-dir": Path,
         "pre-run": _PreRunConfig,
         "in-run": _InRunConfig,
         "post-run": _PostRunConfig,
@@ -55,12 +56,21 @@ _CapsulaConfig = TypedDict(
 )
 
 
-# TODO: Treat relative paths in the config file as relative to project root
 def load_config(path: Path) -> _CapsulaConfig:
     with path.open("rb") as file:
         raw_config = tomllib.load(file)
 
+    project_root = path.parent
+    if "vault-dir" in raw_config:
+        if Path(raw_config["vault-dir"]).is_absolute():
+            vault_dir = Path(raw_config["vault-dir"])
+        else:
+            vault_dir = project_root / Path(raw_config["vault-dir"])
+    else:
+        vault_dir = project_root / "vault"
+
     config: _CapsulaConfig = {
+        "vault-dir": vault_dir,
         "pre-run": {"contexts": [], "reporters": []},
         "in-run": {"watchers": [], "reporters": []},
         "post-run": {"contexts": [], "reporters": []},
