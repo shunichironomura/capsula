@@ -6,7 +6,7 @@ on:
 
 env:
   PYTHON_VERSION: "3.12"
-  POETRY_VERSION: "1.8.3"
+  UV_VERSION: "0.4.9"
 
 jobs:
   create-tag:
@@ -18,19 +18,20 @@ jobs:
       version: ${{ steps.get-version.outputs.version }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v2
+        with:
+          version: ${{ env.UV_VERSION }}
+
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Set up Poetry
-        uses: abatilo/actions-poetry@v3
-        with:
-          poetry-version: ${{ env.POETRY_VERSION }}
-
       - name: Get the version
         id: get-version
         run: |
-          echo "version=$(poetry version --short)" >> "$GITHUB_OUTPUT"
+          echo "version=$(./scripts/get_version.py)" >> "$GITHUB_OUTPUT"
 
       - name: Create a Git tag
         run: |
@@ -49,22 +50,26 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - uses: actions/setup-python@v5
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v2
+      with:
+        version: ${{ env.UV_VERSION }}
+
+    - name: Setup Python
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ env.PYTHON_VERSION }}
-
-    - name: Set up Poetry
-      uses: abatilo/actions-poetry@v3
-      with:
-        poetry-version: ${{ env.POETRY_VERSION }}
 
     - name: Publish to PyPI
       run: |
         git fetch --tags
         git checkout v${{ needs.create-tag.outputs.version }}
-        poetry publish --build
+        uv build
+        uvx twine upload dist/*
       env:
-        POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_API_TOKEN }}
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
 
   create-release:
     name: Create a GitHub release
@@ -94,17 +99,19 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - uses: actions/setup-python@v5
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v2
+      with:
+        version: ${{ env.UV_VERSION }}
+
+    - name: Setup Python
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ env.PYTHON_VERSION }}
 
-    - name: Set up Poetry
-      uses: abatilo/actions-poetry@v3
-      with:
-        poetry-version: ${{ env.POETRY_VERSION }}
-
-    - name: Install dependencies
-      run: poetry install --no-interaction
+    - name: Install the project
+      run: uv sync
 
     - name: Set up Git
       run: |
@@ -116,4 +123,4 @@ jobs:
       run: |
         git fetch --tags
         git checkout v${{ needs.create-tag.outputs.version }}
-        poetry run --no-interaction -- mike deploy --push --update-aliases ${{ needs.create-tag.outputs.version }} latest
+        uv run -- mike deploy --push --update-aliases ${{ needs.create-tag.outputs.version }} latest

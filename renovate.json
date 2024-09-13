@@ -17,25 +17,13 @@
     },
     {
       "matchManagers": [
-        "poetry"
+        "pep621"
       ],
       "matchDepTypes": [
-        "docs"
+        "tool.uv.dev-dependencies"
       ],
       "addLabels": [
-        "documentation"
-      ],
-      "automerge": true
-    },
-    {
-      "matchManagers": [
-        "poetry"
-      ],
-      "matchDepTypes": [
-        "dev"
-      ],
-      "addLabels": [
-        "ci"
+        "dev dependencies"
       ],
       "automerge": true
     }

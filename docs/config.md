@@ -10,10 +10,10 @@ contexts = [
     { type = "CwdContext" },
     { type = "CpuContext" },
     { type = "GitRepositoryContext", name = "capsula", path = ".", path_relative_to_project_root = true },
-    { type = "CommandContext", command = "poetry check --lock", cwd = ".", cwd_relative_to_project_root = true },
+    { type = "CommandContext", command = "uv lock --locked", cwd = ".", cwd_relative_to_project_root = true },
     { type = "FileContext", path = "pyproject.toml", copy = true, path_relative_to_project_root = true },
-    { type = "FileContext", path = "poetry.lock", copy = true, path_relative_to_project_root = true },
-    { type = "CommandContext", command = "pip freeze --exclude-editable > requirements.txt", cwd = ".", cwd_relative_to_project_root = true },
+    { type = "FileContext", path = "uv.lock", copy = true, path_relative_to_project_root = true },
+    { type = "CommandContext", command = "uv export > requirements.txt", cwd = ".", cwd_relative_to_project_root = true },
     { type = "FileContext", path = "requirements.txt", move = true, path_relative_to_project_root = true },
 ]
 reporters = [{ type = "JsonDumpReporter" }]

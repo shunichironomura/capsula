@@ -17,9 +17,9 @@ PROJECT_ROOT = capsula.search_for_project_root(__file__)
 @capsula.context(capsula.CwdContext(), mode="pre")
 @capsula.context(capsula.CpuContext(), mode="pre")
 @capsula.context(capsula.GitRepositoryContext.builder("capsula"), mode="pre")
-@capsula.context(capsula.CommandContext("poetry check --lock", cwd=PROJECT_ROOT), mode="pre")
+@capsula.context(capsula.CommandContext("uv lock --locked", cwd=PROJECT_ROOT), mode="pre")
 @capsula.context(capsula.FileContext.builder(PROJECT_ROOT / "pyproject.toml", copy=True), mode="pre")
-@capsula.context(capsula.FileContext.builder(PROJECT_ROOT / "poetry.lock", copy=True), mode="pre")
+@capsula.context(capsula.FileContext.builder(PROJECT_ROOT / "uv.lock", copy=True), mode="pre")
 @capsula.context(
     capsula.CommandContext("pip freeze --exclude-editable > requirements.txt", cwd=PROJECT_ROOT),
     mode="pre",

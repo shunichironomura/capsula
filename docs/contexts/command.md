@@ -13,7 +13,7 @@ It can be created using the `capsula.CommandContext.builder` method or the `caps
 ```toml
 [pre-run]
 contexts = [
-  { type = "CommandContext", command = "poetry check --lock", cwd = ".", cwd_relative_to_project_root = true },
+  { type = "CommandContext", command = "uv lock --locked", cwd = ".", cwd_relative_to_project_root = true },
 ]
 ```
 
@@ -24,7 +24,7 @@ import capsula
 PROJECT_ROOT = capsula.search_for_project_root(__file__)
 
 @capsula.run()
-@capsula.context(capsula.CommandContext("poetry check --lock", cwd=PROJECT_ROOT), mode="pre")
+@capsula.context(capsula.CommandContext("uv lock --locked", cwd=PROJECT_ROOT), mode="pre")
 def func(): ...
 ```
 
@@ -33,11 +33,11 @@ def func(): ...
 The following is an example of the output of the `CommandContext`, reported by the [`JsonDumpReporter`](../reporters/json_dump.md):
 
 ```json
-"poetry check --lock": {
-  "command": "poetry check --lock",
-  "cwd": "/home/nomura/ghq/github.com/shunichironomura/capsula",
+"uv lock --locked": {
+  "command": "uv lock --locked",
+  "cwd": "/Users/nomura/ghq/github.com/shunichironomura/capsula",
   "returncode": 0,
-  "stdout": "All set!\n",
-  "stderr": ""
+  "stdout": "",
+  "stderr": "Resolved 73 packages in 0.35ms\n"
 }
 ```
