@@ -39,7 +39,7 @@ capsula = "capsula._cli:app"
 
 [tool.uv]
 dev-dependencies = [
-    "ruff==0.6.3",
+    "ruff==0.6.5",
     "mypy==1.11.2",
     "pytest==8.3.2",
     "coverage==7.6.1",
