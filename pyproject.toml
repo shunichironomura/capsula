@@ -136,5 +136,5 @@ ignore = [
     "SIM108", # Use ternary operator instead of if/else
     "EM102",  # Exception must not use an f-string literal, assign to variable first"
 ]
-"scripts/*" = ["INP001"]
+"scripts/*" = ["INP001", "EXE003", "T201"]
 "tests/**" = ["SLF001"]
