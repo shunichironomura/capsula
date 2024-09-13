@@ -57,7 +57,7 @@ dev-dependencies = [
     "black==24.8.0",
     # For examples
     "click==8.1.7",
-    "rich==13.8.0",
+    "rich==13.8.1",
     "tomlkit==0.13.2",
 ]
 
