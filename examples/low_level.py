@@ -47,7 +47,7 @@ pre_run_enc.add_context(capsula.PlatformContext())
 pre_run_enc.add_context(capsula.CwdContext())
 pre_run_enc.add_context(capsula.EnvVarContext("HOME"), key=("env", "HOME"))
 pre_run_enc.add_context(capsula.EnvVarContext("PATH"))  # Default key will be used
-pre_run_enc.add_context(capsula.CommandContext("poetry check --lock"))
+pre_run_enc.add_context(capsula.CommandContext("uv lock --locked"))
 # This will have a side effect
 pre_run_enc.add_context(capsula.CommandContext("pip freeze --exclude-editable > requirements.txt"))
 pre_run_enc.add_context(
@@ -65,7 +65,7 @@ pre_run_enc.add_context(
     ),
 )
 pre_run_enc.add_context(
-    capsula.FileContext(Path(__file__).parents[1] / "poetry.lock", hash_algorithm="sha256", copy_to=capsule_directory),
+    capsula.FileContext(Path(__file__).parents[1] / "uv.lock", hash_algorithm="sha256", copy_to=capsule_directory),
 )
 
 pre_run_capsule = pre_run_enc.encapsulate()
