@@ -27,7 +27,7 @@ on:
 
 env:
   PYTHON_VERSION: "3.12"
-  POETRY_VERSION: "1.8.3"
+  UV_VERSION: "0.4.9"
 
 jobs:
   ruff:
@@ -41,7 +41,7 @@ jobs:
       - name: Extract Ruff version from pyproject.toml
         id: extract-ruff-version
         run: |
-          echo "ruff_version=$(python -c "import tomllib;f=open('pyproject.toml', 'rb');print(tomllib.load(f)['tool']['poetry']['group']['dev']['dependencies']['ruff']);f.close()")" >> "$GITHUB_OUTPUT"
+          echo "ruff_version=$(python -c "import tomllib;f=open('pyproject.toml', 'rb');print(next(iter(version.strip() for package, version in (dep.split('==') for dep in tomllib.load(f)['tool']['uv']['dev-dependencies'] if '==' in dep) if package.strip() == 'ruff')));f.close()")" >> "$GITHUB_OUTPUT"
       - uses: chartboost/ruff-action@v1
         with:
           version: ${{ steps.extract-ruff-version.outputs.ruff_version }}
@@ -54,40 +54,42 @@ jobs:
         python-version: ["3.13-dev", "3.12", "3.11", "3.10", "3.9", "3.8"]
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v2
+        with:
+          version: ${{ env.UV_VERSION }}
+
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Set up Poetry
-        uses: abatilo/actions-poetry@v3
-        with:
-          poetry-version: ${{ env.POETRY_VERSION }}
-
-      - name: Install dependencies
-        run: poetry install --no-interaction
+      - name: Install the project
+        run: uv sync
 
       - name: Run mypy
-        run: poetry run --no-interaction -- mypy .
+        run: uv run -- mypy .
 
   build-docs:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v2
+        with:
+          version: ${{ env.UV_VERSION }}
+
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Set up Poetry
-        uses: abatilo/actions-poetry@v3
-        with:
-          poetry-version: ${{ env.POETRY_VERSION }}
-
-      - name: Install dependencies
-        run: poetry install --no-interaction
+      - name: Install the project
+        run: uv sync
 
       - name: Build docs
-        run: poetry run --no-interaction mkdocs build
+        run: uv run -- mkdocs build
 
   pytest:
     if: github.event.pull_request.draft == false
@@ -116,26 +118,26 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Install uv
+      uses: astral-sh/setup-uv@v2
+      with:
+        version: ${{ env.UV_VERSION }}
+
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: Set up Poetry
-      uses: abatilo/actions-poetry@v3
-      with:
-        poetry-version: ${{ env.POETRY_VERSION }}
-
-    - name: Install dependencies
-      run: poetry install --no-interaction
+    - name: Install the project
+      run: uv sync
 
     - name: Run pytest
-      run: poetry run --no-interaction -- coverage run --source=./capsula -m pytest ./tests --import-mode importlib
+      run: uv run -- coverage run --source=./capsula -m pytest ./tests --import-mode importlib
 
     - name: Generate coverage report
       run: |
-        poetry run --no-interaction -- coverage report -m
-        poetry run --no-interaction -- coverage xml -o ./coverage.xml
+        uv run -- coverage report -m
+        uv run -- coverage xml -o ./coverage.xml
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4
