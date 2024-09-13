@@ -7,10 +7,10 @@
 # ]
 # ///
 
+import sys
 from pathlib import Path
 from typing import NoReturn
 
-import sys
 if sys.version_info < (3, 11):
     import tomli as tomllib
 else:
