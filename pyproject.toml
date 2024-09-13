@@ -58,6 +58,7 @@ dev-dependencies = [
     # For examples
     "click==8.1.7",
     "rich==13.8.0",
+    "tomlkit==0.13.2",
 ]
 
 [tool.coverage.report]
