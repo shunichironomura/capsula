@@ -43,7 +43,7 @@ jobs:
     - name: Bump version
       id: bump-version
       run: |
-        new_version=$(uv run ./scripts/bump-version.py ./pyproject.toml ${{ github.event.inputs.bump_rule }})
+        new_version=$(./scripts/bump-version.py ./pyproject.toml ${{ github.event.inputs.bump_rule }})
         echo "new_version=$new_version" >> "$GITHUB_OUTPUT"
         echo "Bumped version to v$new_version" >> $GITHUB_STEP_SUMMARY
 

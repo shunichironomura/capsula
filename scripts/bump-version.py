@@ -1,3 +1,4 @@
+#!/usr/bin/env -S uv run
 # /// script
 # requires-python = ">=3.8"
 # dependencies = [
@@ -6,6 +7,7 @@
 #     "typer",
 # ]
 # ///
+
 from enum import Enum
 from pathlib import Path
 from typing import NoReturn
@@ -63,6 +65,7 @@ def main(
     stderr.print(f"Updated {pyproject_path}")
 
     stdout.print(new_version_str)
+    raise typer.Exit(0)
 
 
 if __name__ == "__main__":
