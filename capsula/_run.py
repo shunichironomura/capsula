@@ -121,7 +121,6 @@ class RunDto(Generic[P, T]):
     post_run_reporter_generators: deque[Callable[[CapsuleParams], ReporterBase]] = field(default_factory=deque)
 
 
-# TODO: Create RunDto or IncompleteRun to hold incomplete attribute data
 class Run(Generic[P, T]):
     _thread_local = threading.local()
 
