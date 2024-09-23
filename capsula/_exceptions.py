@@ -14,3 +14,8 @@ class CapsulaConfigurationError(CapsulaError):
 class CapsulaUninitializedError(CapsulaError):
     def __init__(self, *uninitialized_names: str) -> None:
         super().__init__(f"Uninitialized objects: {', '.join(uninitialized_names)}")
+
+
+class CapsulaNoRunError(CapsulaError):
+    def __init__(self) -> None:
+        super().__init__("No run is active")
