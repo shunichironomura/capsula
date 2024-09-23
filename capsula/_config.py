@@ -48,7 +48,7 @@ class _PostRunConfig(TypedDict):
 _CapsulaConfig = TypedDict(
     "_CapsulaConfig",
     {
-        "vault-dir": Path,
+        "vault-dir": Path | None,
         "pre-run": _PreRunConfig,
         "in-run": _InRunConfig,
         "post-run": _PostRunConfig,
@@ -67,7 +67,7 @@ def load_config(path: Path) -> _CapsulaConfig:
         else:
             vault_dir = project_root / Path(raw_config["vault-dir"])
     else:
-        vault_dir = project_root / "vault"
+        vault_dir = None
 
     config: _CapsulaConfig = {
         "vault-dir": vault_dir,
