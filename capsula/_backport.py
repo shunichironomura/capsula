@@ -18,45 +18,43 @@ from typing import TYPE_CHECKING, Callable
 # Acknowledgment: Portions of this module, including the `file_digest` function and relevant type definitions,
 # are derived from the Python source code and are licensed under the Python Software Foundation License Version 2.
 
-if sys.version_info >= (3, 11):
+# YORE: EOL 3.10: Replace block with lines 5-7.
+if sys.version_info < (3, 11):
+    import tomli as tomllib
+    from typing_extensions import Self
+else:
     from typing import Self
 
     import tomllib
-else:
-    import tomli as tomllib
-    from typing_extensions import Self
 
-if sys.version_info >= (3, 10):
-    from typing import Concatenate, ParamSpec, TypeAlias
-else:
+# YORE: EOL 3.9: Replace block with line 4.
+if sys.version_info < (3, 10):
     from typing_extensions import Concatenate, ParamSpec, TypeAlias
-
-if sys.version_info >= (3, 9):
-    from contextlib import AbstractContextManager
-    from typing import Annotated
 else:
+    from typing import Concatenate, ParamSpec, TypeAlias
+
+# YORE: EOL 3.8: Replace block with lines 6-7.
+if sys.version_info < (3, 9):
     from typing import ContextManager as AbstractContextManager
 
     from typing_extensions import Annotated
-
-
-if sys.version_info >= (3, 11):
-    file_digest = hashlib.file_digest
 else:
+    from contextlib import AbstractContextManager
+    from typing import Annotated
+
+# YORE: EOL 3.10: Replace block with line 59.
+if sys.version_info < (3, 11):
     if TYPE_CHECKING:
         from typing_extensions import Buffer
     from typing import Protocol
 
     class _BytesIOLike(Protocol):
-        def getbuffer(self) -> Buffer:
-            ...
+        def getbuffer(self) -> Buffer: ...
 
     class _FileDigestFileObj(Protocol):
-        def readinto(self, __buf: bytearray) -> int:
-            ...
+        def readinto(self, __buf: bytearray) -> int: ...
 
-        def readable(self) -> bool:
-            ...
+        def readable(self) -> bool: ...
 
     def file_digest(
         fileobj: _BytesIOLike | _FileDigestFileObj,
@@ -102,3 +100,5 @@ else:
             digestobj.update(view[:size])
 
         return digestobj
+else:
+    file_digest = hashlib.file_digest
