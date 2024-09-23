@@ -3,8 +3,6 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, Callable, Tuple, Union
 
-from typing_extensions import Annotated, deprecated
-
 if TYPE_CHECKING:
     from collections.abc import Mapping
 
@@ -47,19 +45,3 @@ class CapsuleItem(ABC):
             return cls(*args, **kwargs)
 
         return build
-
-    # YORE: Bump 0.6.0: Remove block.
-    @classmethod
-    @deprecated("Use `builder` instead. Deprecated since v0.4.0 and will be removed in v0.6.0.")
-    def default(
-        cls,
-        *args: Any,
-        **kwargs: Any,
-    ) -> Annotated[
-        Callable[[CapsuleParams], Self],
-        deprecated("""Deprecated since v0.4.0 and will be removed in v0.6.0.
-
-            Use `builder` method instead.
-            """),
-    ]:
-        return cls.builder(*args, **kwargs)
