@@ -80,7 +80,6 @@ def search_for_project_root(
     start: Annotated[Path | str, Doc("The start directory to search.")],
 ) -> Annotated[Path, Doc("The project root directory.")]:
     """Search for the project root directory by looking for pyproject.toml."""
-    # TODO: Allow projects without pyproject.toml file
     start = Path(start)
     if (start / "pyproject.toml").exists():
         return start

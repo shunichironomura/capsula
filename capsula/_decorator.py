@@ -144,10 +144,6 @@ def run(  # noqa: C901
         Path | str | None,
         Doc("Path to the configuration file. If not specified, the default configuration file will be used."),
     ] = None,
-    vault_dir: Annotated[
-        Path | str | None,
-        Doc("Path to the vault directory."),
-    ] = None,
 ) -> Annotated[Callable[[Callable[_P, _T] | Run[_P, _T]], Run[_P, _T]], Doc("Decorator to create a `Run` object.")]:
     """Decorator to create a `Run` object.
 
@@ -162,15 +158,6 @@ def run(  # noqa: C901
     ...  # Add more decorators
     def func() -> None: ...
     ```
-
-    The run directory is determined by the following priority:
-    1. If `run_dir` argument is set, it will be used as the run directory.
-    2a. If `vault_dir` argument is set, it will be used as the vault directory.
-    2b. If `ignore_config` argument is True and `vault-dir` field is present in the config file,
-       it will be used as the vault directory.
-    2c. The default vault directory is used.
-    3a. If `run_name_factory` argument is set, it will be used as the run name.
-    3b. The default run name factory is used.
 
     """
     if run_dir is not _NOT_SET:

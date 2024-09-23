@@ -1,5 +1,3 @@
-vault-dir = "vault"
-
 [pre-run]
 contexts = [
     { type = "CwdContext" },
