@@ -111,8 +111,6 @@ class RunDto(Generic[P, T]):
     pass_pre_run_capsule: bool
     func: Callable[P, T] | Callable[Concatenate[Capsule, P], T]
     run_dir: Path | None = None
-    # Deprecated. Will be removed in v0.7.0.
-    run_dir_generator: Callable[[FuncInfo], Path] | None = None
 
     run_name_factory: Callable[[ExecInfo | None, str, datetime], str] | None = None
     pre_run_context_generators: deque[Callable[[CapsuleParams], ContextBase]] = field(default_factory=deque)
