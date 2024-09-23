@@ -17,6 +17,7 @@ from capsula._exceptions import CapsulaUninitializedError
 from ._backport import Concatenate, ParamSpec, Self, TypeAlias
 from ._context import ContextBase
 from ._encapsulator import Encapsulator
+from ._exceptions import CapsulaNoRunError
 from ._reporter import ReporterBase
 from ._utils import search_for_project_root
 from ._watcher import WatcherBase
@@ -230,11 +231,11 @@ class Run(Generic[P, T]):
         return cls._thread_local.run_stack  # type: ignore[no-any-return]
 
     @classmethod
-    def get_current(cls) -> Self | None:
+    def get_current(cls) -> Self:
         try:
             return cls._get_run_stack().queue[-1]
-        except IndexError:
-            return None
+        except IndexError as e:
+            raise CapsulaNoRunError from e
 
     def __init__(
         self,
