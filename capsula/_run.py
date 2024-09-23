@@ -3,6 +3,7 @@ from __future__ import annotations
 import inspect
 import logging
 import queue
+import subprocess
 import threading
 from collections import deque
 from dataclasses import dataclass, field
@@ -406,3 +407,19 @@ class Run(Generic[P, T]):
             _post_run_capsule = self.post_run(params)
 
         return result
+
+    def exec_command(self) -> tuple[subprocess.CompletedProcess[str], CapsuleParams]:
+        assert self._command is not None
+        command_info = CommandInfo(command=self._command)
+        params, _pre_run_capsule = self.pre_run(command_info)
+
+        def func() -> subprocess.CompletedProcess[str]:
+            assert self._command is not None
+            return subprocess.run(self._command, check=False, capture_output=True, text=True)  # noqa: S603
+
+        try:
+            result = self.in_run(params, func)
+        finally:
+            _post_run_capsule = self.post_run(params)
+
+        return result, params
