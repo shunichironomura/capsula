@@ -4,7 +4,6 @@ import inspect
 import logging
 import queue
 import threading
-import warnings
 from collections import deque
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -12,8 +11,6 @@ from pathlib import Path
 from random import choices
 from string import ascii_letters, digits
 from typing import TYPE_CHECKING, Any, Callable, Generic, Literal, OrderedDict, TypeVar, Union, overload
-
-from typing_extensions import deprecated
 
 from capsula._exceptions import CapsulaUninitializedError
 
@@ -174,10 +171,6 @@ class Run(Generic[P, T]):
         self._run_name_factory: Callable[[ExecInfo | None, str, datetime], str] | None = None
         self._run_dir: Path | None = None
 
-        # Deprecated. Will be removed in v0.7.0.
-        # YORE: Bump 0.7.0: Remove block.
-        self._run_dir_generator: Callable[[FuncInfo], Path] | None = None
-
     @property
     def run_dir(self) -> Path:
         if self._run_dir is None:
@@ -277,17 +270,6 @@ class Run(Generic[P, T]):
             msg = f"mode must be one of 'pre', 'in', 'post', or 'all', not {mode}."
             raise ValueError(msg)
 
-    # YORE: Bump 0.7.0: Remove block.
-    @deprecated("Use run_name_factory instead. Will be removed in v0.7.0.")
-    def set_run_dir(self, run_dir: Path | Callable[[FuncInfo], Path]) -> None:
-        def run_dir_generator(params: FuncInfo) -> Path:
-            if isinstance(run_dir, Path):
-                return run_dir
-            else:
-                return run_dir(params)
-
-        self._run_dir_generator = run_dir_generator
-
     @property
     def run_name_factory(self) -> Callable[[ExecInfo | None, str, datetime], str]:
         if self._run_name_factory is None:
@@ -319,15 +301,6 @@ class Run(Generic[P, T]):
             )
             # TODO: Use specified vault_dir
             return get_vault_dir(func_info) / run_name
-
-        # YORE: Bump 0.7.0: Remove block.
-        if self._run_dir_generator is not None:
-            warnings.warn(
-                "run_dir_generator is deprecated. Use run_name_factory instead. Will be removed in v0.7.0.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            return self._run_dir_generator(func_info)
 
         raise CapsulaUninitializedError("run_name_factory", "run_dir_generator")
 

@@ -126,14 +126,6 @@ _NOT_SET = object()
 
 
 def run(  # noqa: C901
-    # YORE: Bump 0.7.0: Remove lines 1-7.
-    run_dir: Annotated[
-        Path | Callable[[FuncInfo], Path] | None | object,
-        Doc(
-            "Run directory to use. If not specified, a default run directory will be generated."
-            "Deprecated: Use `run_name_factory` instead. Will be removed in v0.0.7.",
-        ),
-    ] = _NOT_SET,
     *,
     run_name_factory: Annotated[
         Callable[[FuncInfo, str, datetime], str] | None,
