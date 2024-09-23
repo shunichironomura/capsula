@@ -56,6 +56,7 @@ class CommandInfo:
 @dataclass
 class CapsuleParams:
     exec_info: FuncInfo | CommandInfo | None
+    run_name: str
     run_dir: Path
     phase: Literal["pre", "in", "post"]
     project_root: Path
@@ -64,7 +65,7 @@ class CapsuleParams:
 ExecInfo: TypeAlias = Union[FuncInfo, CommandInfo]
 
 
-def get_vault_dir(exec_info: ExecInfo | None) -> Path:
+def get_default_vault_dir(exec_info: ExecInfo | None) -> Path:
     project_root = get_project_root(exec_info)
     return project_root / "vault"
 
@@ -83,18 +84,6 @@ def default_run_name_factory(exec_info: ExecInfo | None, random_str: str, timest
 
     datetime_str = timestamp.astimezone().strftime(r"%Y%m%d_%H%M%S")
     return ("" if exec_name is None else f"{exec_name}_") + f"{datetime_str}_{random_str}"
-
-
-def generate_default_run_dir(exec_info: ExecInfo | None = None) -> Path:
-    vault_dir = get_vault_dir(exec_info)
-
-    run_name = default_run_name_factory(
-        exec_info,
-        "".join(choices(ascii_letters + digits, k=4)),
-        datetime.now(timezone.utc),
-    )
-
-    return vault_dir / run_name
 
 
 def get_project_root(exec_info: ExecInfo | None = None) -> Path:
@@ -322,6 +311,7 @@ class Run(Generic[P, T]):
 
         params = CapsuleParams(
             exec_info=func_info,
+            run_name=run_name,
             run_dir=self._run_dir,
             phase="pre",
             project_root=get_project_root(func_info),

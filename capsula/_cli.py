@@ -1,4 +1,7 @@
+from datetime import datetime, timezone
 from enum import Enum
+from random import choices
+from string import ascii_letters, digits
 from typing import Literal, NoReturn
 
 import typer
@@ -8,7 +11,12 @@ import capsula
 from ._backport import Annotated
 from ._config import load_config
 from ._context import ContextBase
-from ._run import CapsuleParams, generate_default_run_dir, get_project_root
+from ._run import (
+    CapsuleParams,
+    default_run_name_factory,
+    get_default_vault_dir,
+    get_project_root,
+)
 from ._utils import get_default_config_path
 
 app = typer.Typer()
@@ -41,10 +49,20 @@ def enc(
     reporters = config[phase_key]["reporters"]
 
     exec_info = None
-    run_dir = generate_default_run_dir(exec_info=exec_info)
+
+    vault_dir = get_default_vault_dir(exec_info)
+
+    run_name = default_run_name_factory(
+        exec_info,
+        "".join(choices(ascii_letters + digits, k=4)),
+        datetime.now(timezone.utc),
+    )
+
+    run_dir = vault_dir / run_name
     run_dir.mkdir(exist_ok=True, parents=True)
     params = CapsuleParams(
         exec_info=exec_info,
+        run_name=run_name,
         run_dir=run_dir,
         phase=phase.value,
         project_root=get_project_root(exec_info),
