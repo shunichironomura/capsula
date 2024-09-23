@@ -24,7 +24,10 @@
     ],
     "python.testing.pytestArgs": [
         "tests",
-        "--color=yes"
+        "-v",
+        "-s",
+        "--color=yes",
+        "--log-cli-level=INFO",
     ],
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true
