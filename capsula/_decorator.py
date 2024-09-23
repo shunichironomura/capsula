@@ -7,7 +7,15 @@ from typing_extensions import Annotated, Doc
 
 from ._backport import Concatenate, ParamSpec
 from ._config import load_config
-from ._run import CapsuleParams, ExecInfo, FuncInfo, Run, default_run_name_factory
+from ._run import (
+    CapsuleParams,
+    ExecInfo,
+    FuncInfo,
+    Run,
+    RunDtoNoPassPreRunCapsule,
+    RunDtoPassPreRunCapsule,
+    default_run_name_factory,
+)
 from ._utils import get_default_config_path
 
 if TYPE_CHECKING:
@@ -18,8 +26,8 @@ if TYPE_CHECKING:
     from ._reporter import ReporterBase
     from ._watcher import WatcherBase
 
-_P = ParamSpec("_P")
-_T = TypeVar("_T")
+P = ParamSpec("P")
+T = TypeVar("T")
 
 
 def watcher(
@@ -28,7 +36,10 @@ def watcher(
         Doc("Watcher or a builder function to create a watcher from the capsule parameters."),
     ],
 ) -> Annotated[
-    Callable[[Callable[_P, _T] | Run[_P, _T]], Run[_P, _T]],
+    Callable[
+        [Callable[P, T] | RunDtoNoPassPreRunCapsule[P, T] | RunDtoPassPreRunCapsule[P, T]],
+        RunDtoNoPassPreRunCapsule[P, T] | RunDtoPassPreRunCapsule[P, T],
+    ],
     Doc("Decorator to add a watcher to the in-run phase of the run."),
 ]:
     """Decorator to add a watcher to the in-run phase of the run.
@@ -44,11 +55,17 @@ def watcher(
 
     """
 
-    def decorator(func_or_run: Callable[_P, _T] | Run[_P, _T]) -> Run[_P, _T]:
-        run = func_or_run if isinstance(func_or_run, Run) else Run(func_or_run)
+    def decorator(
+        func_or_run: Callable[P, T] | RunDtoNoPassPreRunCapsule[P, T] | RunDtoPassPreRunCapsule[P, T],
+    ) -> RunDtoNoPassPreRunCapsule[P, T] | RunDtoPassPreRunCapsule[P, T]:
+        run_dto = (
+            func_or_run
+            if isinstance(func_or_run, (RunDtoNoPassPreRunCapsule, RunDtoPassPreRunCapsule))
+            else RunDtoNoPassPreRunCapsule(func=func_or_run)
+        )
         # No need to set append_left=True here, as watchers are added as the outermost context manager
-        run.add_watcher(watcher, append_left=False)
-        return run
+        run_dto.add_watcher(watcher, append_left=False)
+        return run_dto
 
     return decorator
 
@@ -63,7 +80,10 @@ def reporter(
         Doc("Phase to add the reporter. Specify 'all' to add to all phases."),
     ],
 ) -> Annotated[
-    Callable[[Callable[_P, _T] | Run[_P, _T]], Run[_P, _T]],
+    Callable[
+        [Callable[P, T] | RunDtoNoPassPreRunCapsule[P, T] | RunDtoPassPreRunCapsule[P, T]],
+        RunDtoNoPassPreRunCapsule[P, T] | RunDtoPassPreRunCapsule[P, T],
+    ],
     Doc("Decorator to add a reporter to the specified phase of the run."),
 ]:
     """Decorator to add a reporter to the specified phase of the run.
@@ -79,8 +99,14 @@ def reporter(
 
     """
 
-    def decorator(func_or_run: Callable[_P, _T] | Run[_P, _T]) -> Run[_P, _T]:
-        run = func_or_run if isinstance(func_or_run, Run) else Run(func_or_run)
+    def decorator(
+        func_or_run: Callable[P, T] | RunDtoNoPassPreRunCapsule[P, T] | RunDtoPassPreRunCapsule[P, T],
+    ) -> RunDtoNoPassPreRunCapsule[P, T] | RunDtoPassPreRunCapsule[P, T]:
+        run = (
+            func_or_run
+            if isinstance(func_or_run, (RunDtoPassPreRunCapsule, RunDtoNoPassPreRunCapsule))
+            else RunDtoNoPassPreRunCapsule(func=func_or_run)
+        )
         run.add_reporter(reporter, mode=mode, append_left=True)
         return run
 
@@ -97,7 +123,10 @@ def context(
         Doc("Phase to add the context. Specify 'all' to add to all phases."),
     ],
 ) -> Annotated[
-    Callable[[Callable[_P, _T] | Run[_P, _T]], Run[_P, _T]],
+    Callable[
+        [Callable[P, T] | RunDtoNoPassPreRunCapsule[P, T] | RunDtoPassPreRunCapsule[P, T]],
+        RunDtoNoPassPreRunCapsule[P, T] | RunDtoPassPreRunCapsule[P, T],
+    ],
     Doc("Decorator to add a context to the specified phase of the run."),
 ]:
     """Decorator to add a context to the specified phase of the run.
@@ -113,8 +142,14 @@ def context(
 
     """
 
-    def decorator(func_or_run: Callable[_P, _T] | Run[_P, _T]) -> Run[_P, _T]:
-        run = func_or_run if isinstance(func_or_run, Run) else Run(func_or_run)
+    def decorator(
+        func_or_run: Callable[P, T] | RunDtoNoPassPreRunCapsule[P, T] | RunDtoPassPreRunCapsule[P, T],
+    ) -> RunDtoNoPassPreRunCapsule[P, T] | RunDtoPassPreRunCapsule[P, T]:
+        run = (
+            func_or_run
+            if isinstance(func_or_run, (RunDtoNoPassPreRunCapsule, RunDtoPassPreRunCapsule))
+            else RunDtoNoPassPreRunCapsule(func=func_or_run)
+        )
         run.add_context(context, mode=mode, append_left=True)
         return run
 
@@ -139,7 +174,10 @@ def run(  # noqa: C901
         Path | str | None,
         Doc("Path to the vault directory."),
     ] = None,
-) -> Annotated[Callable[[Callable[_P, _T] | Run[_P, _T]], Run[_P, _T]], Doc("Decorator to create a `Run` object.")]:
+) -> Annotated[
+    Callable[[Callable[P, T] | RunDtoNoPassPreRunCapsule[P, T] | RunDtoPassPreRunCapsule[P, T]], Run[P, T]],
+    Doc("Decorator to create a `Run` object."),
+]:
     """Decorator to create a `Run` object.
 
     Place this decorator at the outermost position of the decorators.
@@ -173,9 +211,15 @@ def run(  # noqa: C901
     else:
         _run_name_factory_adjusted = default_run_name_factory
 
-    def decorator(func_or_run: Callable[_P, _T] | Run[_P, _T]) -> Run[_P, _T]:
-        run = func_or_run if isinstance(func_or_run, Run) else Run(func_or_run)
-        run.run_name_factory = _run_name_factory_adjusted
+    def decorator(
+        func_or_run: Callable[P, T] | RunDtoNoPassPreRunCapsule[P, T] | RunDtoPassPreRunCapsule[P, T],
+    ) -> Run[P, T]:
+        run_dto = (
+            func_or_run
+            if isinstance(func_or_run, (RunDtoNoPassPreRunCapsule, RunDtoPassPreRunCapsule))
+            else RunDtoNoPassPreRunCapsule(func=func_or_run)
+        )
+        run_dto.run_name_factory = _run_name_factory_adjusted
 
         if not ignore_config:
             config = load_config(get_default_config_path() if config_path is None else Path(config_path))
@@ -185,23 +229,23 @@ def run(  # noqa: C901
                     continue
                 for context in reversed(config[phase_key].get("contexts", [])):  # type: ignore[literal-required]
                     assert phase in {"pre", "post"}, f"Invalid phase for context: {phase}"
-                    run.add_context(context, mode=phase, append_left=True)  # type: ignore[arg-type]
+                    run_dto.add_context(context, mode=phase, append_left=True)  # type: ignore[arg-type]
                 for watcher in reversed(config[phase_key].get("watchers", [])):  # type: ignore[literal-required]
                     assert phase == "in", "Watcher can only be added to the in-run phase."
                     # No need to set append_left=True here, as watchers are added as the outermost context manager
-                    run.add_watcher(watcher, append_left=False)
+                    run_dto.add_watcher(watcher, append_left=False)
                 for reporter in reversed(config[phase_key].get("reporters", [])):  # type: ignore[literal-required]
                     assert phase in {"pre", "in", "post"}, f"Invalid phase for reporter: {phase}"
-                    run.add_reporter(reporter, mode=phase, append_left=True)  # type: ignore[arg-type]
+                    run_dto.add_reporter(reporter, mode=phase, append_left=True)  # type: ignore[arg-type]
 
-        return run
+        return Run(run_dto)
 
     return decorator
 
 
 def pass_pre_run_capsule(
-    func: Annotated[Callable[Concatenate[Capsule, _P], _T], Doc("Function to decorate.")],
-) -> Annotated[Run[_P, _T], Doc("Decorated function as a `Run` object.")]:
+    func: Annotated[Callable[Concatenate[Capsule, P], T], Doc("Function to decorate.")],
+) -> Annotated[RunDtoPassPreRunCapsule[P, T], Doc("Decorated function as a `Run` object.")]:
     """Decorator to pass the pre-run capsule to the function.
 
     This decorator must be placed closer to the function than the other decorators such as
@@ -222,4 +266,4 @@ def pass_pre_run_capsule(
         git_sha = pre_run_capsule.data[("git", "my-repo")]["sha"]
     ```
     """
-    return Run(func, pass_pre_run_capsule=True)
+    return RunDtoPassPreRunCapsule(func=func)

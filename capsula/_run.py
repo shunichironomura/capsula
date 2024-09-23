@@ -10,7 +10,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from random import choices
 from string import ascii_letters, digits
-from typing import TYPE_CHECKING, Any, Callable, Generic, Literal, OrderedDict, TypeVar, Union, overload
+from typing import TYPE_CHECKING, Any, Callable, Generic, Literal, OrderedDict, TypeVar, Union
 
 from capsula._exceptions import CapsulaUninitializedError
 
@@ -106,12 +106,9 @@ def get_project_root(exec_info: ExecInfo | None = None) -> Path:
         raise TypeError(msg)
 
 
-@dataclass
-class RunDto(Generic[P, T]):
-    pass_pre_run_capsule: bool
-    func: Callable[P, T] | Callable[Concatenate[Capsule, P], T]
+@dataclass(kw_only=True, slots=True)
+class _RunDtoBase:
     run_dir: Path | None = None
-
     run_name_factory: Callable[[ExecInfo | None, str, datetime], str] | None = None
     pre_run_context_generators: deque[Callable[[CapsuleParams], ContextBase]] = field(default_factory=deque)
     in_run_watcher_generators: deque[Callable[[CapsuleParams], WatcherBase]] = field(default_factory=deque)
@@ -119,6 +116,108 @@ class RunDto(Generic[P, T]):
     pre_run_reporter_generators: deque[Callable[[CapsuleParams], ReporterBase]] = field(default_factory=deque)
     in_run_reporter_generators: deque[Callable[[CapsuleParams], ReporterBase]] = field(default_factory=deque)
     post_run_reporter_generators: deque[Callable[[CapsuleParams], ReporterBase]] = field(default_factory=deque)
+
+    def add_context(
+        self,
+        context: ContextBase | Callable[[CapsuleParams], ContextBase],
+        *,
+        mode: Literal["pre", "post", "all"],
+        append_left: bool = False,
+    ) -> None:
+        def context_generator(params: CapsuleParams) -> ContextBase:
+            if isinstance(context, ContextBase):
+                return context
+            else:
+                return context(params)
+
+        if mode == "pre":
+            if append_left:
+                self.pre_run_context_generators.appendleft(context_generator)
+            else:
+                self.pre_run_context_generators.append(context_generator)
+        elif mode == "post":
+            if append_left:
+                self.post_run_context_generators.appendleft(context_generator)
+            else:
+                self.post_run_context_generators.append(context_generator)
+        elif mode == "all":
+            if append_left:
+                self.pre_run_context_generators.appendleft(context_generator)
+                self.post_run_context_generators.appendleft(context_generator)
+            else:
+                self.pre_run_context_generators.append(context_generator)
+                self.post_run_context_generators.append(context_generator)
+        else:
+            msg = f"mode must be one of 'pre', 'post', or 'all', not {mode}."
+            raise ValueError(msg)
+
+    def add_watcher(
+        self,
+        watcher: WatcherBase | Callable[[CapsuleParams], WatcherBase],
+        *,
+        append_left: bool = False,
+    ) -> None:
+        def watcher_generator(params: CapsuleParams) -> WatcherBase:
+            if isinstance(watcher, WatcherBase):
+                return watcher
+            else:
+                return watcher(params)
+
+        if append_left:
+            self.in_run_watcher_generators.appendleft(watcher_generator)
+        else:
+            self.in_run_watcher_generators.append(watcher_generator)
+
+    def add_reporter(  # noqa: C901, PLR0912
+        self,
+        reporter: ReporterBase | Callable[[CapsuleParams], ReporterBase],
+        *,
+        mode: Literal["pre", "in", "post", "all"],
+        append_left: bool = False,
+    ) -> None:
+        def reporter_generator(params: CapsuleParams) -> ReporterBase:
+            if isinstance(reporter, ReporterBase):
+                return reporter
+            else:
+                return reporter(params)
+
+        if mode == "pre":
+            if append_left:
+                self.pre_run_reporter_generators.appendleft(reporter_generator)
+            else:
+                self.pre_run_reporter_generators.append(reporter_generator)
+        elif mode == "in":
+            if append_left:
+                self.in_run_reporter_generators.appendleft(reporter_generator)
+            else:
+                self.in_run_reporter_generators.append(reporter_generator)
+        elif mode == "post":
+            if append_left:
+                self.post_run_reporter_generators.appendleft(reporter_generator)
+            else:
+                self.post_run_reporter_generators.append(reporter_generator)
+        elif mode == "all":
+            if append_left:
+                self.pre_run_reporter_generators.appendleft(reporter_generator)
+                self.in_run_reporter_generators.appendleft(reporter_generator)
+                self.post_run_reporter_generators.appendleft(reporter_generator)
+            else:
+                self.pre_run_reporter_generators.append(reporter_generator)
+                self.in_run_reporter_generators.append(reporter_generator)
+                self.post_run_reporter_generators.append(reporter_generator)
+        else:
+            msg = f"mode must be one of 'pre', 'in', 'post', or 'all', not {mode}."
+            raise ValueError(msg)
+
+
+@dataclass(kw_only=True, slots=True)
+class RunDtoPassPreRunCapsule(_RunDtoBase, Generic[P, T]):
+    func: Callable[Concatenate[Capsule, P], T]
+
+
+@dataclass(kw_only=True, slots=True)
+class RunDtoNoPassPreRunCapsule(_RunDtoBase, Generic[P, T]):
+    func: Callable[P, T]
 
 
 class Run(Generic[P, T]):
@@ -137,35 +236,27 @@ class Run(Generic[P, T]):
         except IndexError:
             return None
 
-    @overload
-    def __init__(self, func: Callable[P, T], *, pass_pre_run_capsule: Literal[False] = False) -> None: ...
-
-    @overload
     def __init__(
         self,
-        func: Callable[Concatenate[Capsule, P], T],
-        *,
-        pass_pre_run_capsule: Literal[True],
-    ) -> None: ...
-
-    def __init__(
-        self,
-        func: Callable[P, T] | Callable[Concatenate[Capsule, P], T],
-        *,
-        pass_pre_run_capsule: bool = False,
+        run_dto: RunDtoPassPreRunCapsule[P, T] | RunDtoNoPassPreRunCapsule[P, T],
+        /,
     ) -> None:
-        self._pre_run_context_generators: deque[Callable[[CapsuleParams], ContextBase]] = deque()
-        self._in_run_watcher_generators: deque[Callable[[CapsuleParams], WatcherBase]] = deque()
-        self._post_run_context_generators: deque[Callable[[CapsuleParams], ContextBase]] = deque()
+        self._pre_run_context_generators = run_dto.pre_run_context_generators
+        self._in_run_watcher_generators = run_dto.in_run_watcher_generators
+        self._post_run_context_generators = run_dto.post_run_context_generators
 
-        self._pre_run_reporter_generators: deque[Callable[[CapsuleParams], ReporterBase]] = deque()
-        self._in_run_reporter_generators: deque[Callable[[CapsuleParams], ReporterBase]] = deque()
-        self._post_run_reporter_generators: deque[Callable[[CapsuleParams], ReporterBase]] = deque()
+        self._pre_run_reporter_generators = run_dto.pre_run_reporter_generators
+        self._in_run_reporter_generators = run_dto.in_run_reporter_generators
+        self._post_run_reporter_generators = run_dto.post_run_reporter_generators
 
-        self._pass_pre_run_capsule: bool = pass_pre_run_capsule
-        self._func: Callable[P, T] | Callable[Concatenate[Capsule, P], T] = func
+        self._pass_pre_run_capsule: bool = isinstance(run_dto, RunDtoPassPreRunCapsule)
+        self._func: Callable[P, T] | Callable[Concatenate[Capsule, P], T] = run_dto.func
 
-        self._run_name_factory: Callable[[ExecInfo | None, str, datetime], str] | None = None
+        if run_dto.run_name_factory is None:
+            raise CapsulaUninitializedError("run_name_factory")
+
+        self._run_name_factory: Callable[[ExecInfo | None, str, datetime], str] = run_dto.run_name_factory
+
         self._run_dir: Path | None = None
 
     @property
@@ -174,108 +265,6 @@ class Run(Generic[P, T]):
             msg = "run_dir must be set before accessing it."
             raise ValueError(msg)
         return self._run_dir
-
-    def add_context(
-        self,
-        context: ContextBase | Callable[[CapsuleParams], ContextBase],
-        *,
-        mode: Literal["pre", "post", "all"],
-        append_left: bool = False,
-    ) -> None:
-        def context_generator(params: CapsuleParams) -> ContextBase:
-            if isinstance(context, ContextBase):
-                return context
-            else:
-                return context(params)
-
-        if mode == "pre":
-            if append_left:
-                self._pre_run_context_generators.appendleft(context_generator)
-            else:
-                self._pre_run_context_generators.append(context_generator)
-        elif mode == "post":
-            if append_left:
-                self._post_run_context_generators.appendleft(context_generator)
-            else:
-                self._post_run_context_generators.append(context_generator)
-        elif mode == "all":
-            if append_left:
-                self._pre_run_context_generators.appendleft(context_generator)
-                self._post_run_context_generators.appendleft(context_generator)
-            else:
-                self._pre_run_context_generators.append(context_generator)
-                self._post_run_context_generators.append(context_generator)
-        else:
-            msg = f"mode must be one of 'pre', 'post', or 'all', not {mode}."
-            raise ValueError(msg)
-
-    def add_watcher(
-        self,
-        watcher: WatcherBase | Callable[[CapsuleParams], WatcherBase],
-        *,
-        append_left: bool = False,
-    ) -> None:
-        def watcher_generator(params: CapsuleParams) -> WatcherBase:
-            if isinstance(watcher, WatcherBase):
-                return watcher
-            else:
-                return watcher(params)
-
-        if append_left:
-            self._in_run_watcher_generators.appendleft(watcher_generator)
-        else:
-            self._in_run_watcher_generators.append(watcher_generator)
-
-    def add_reporter(  # noqa: C901, PLR0912
-        self,
-        reporter: ReporterBase | Callable[[CapsuleParams], ReporterBase],
-        *,
-        mode: Literal["pre", "in", "post", "all"],
-        append_left: bool = False,
-    ) -> None:
-        def reporter_generator(params: CapsuleParams) -> ReporterBase:
-            if isinstance(reporter, ReporterBase):
-                return reporter
-            else:
-                return reporter(params)
-
-        if mode == "pre":
-            if append_left:
-                self._pre_run_reporter_generators.appendleft(reporter_generator)
-            else:
-                self._pre_run_reporter_generators.append(reporter_generator)
-        elif mode == "in":
-            if append_left:
-                self._in_run_reporter_generators.appendleft(reporter_generator)
-            else:
-                self._in_run_reporter_generators.append(reporter_generator)
-        elif mode == "post":
-            if append_left:
-                self._post_run_reporter_generators.appendleft(reporter_generator)
-            else:
-                self._post_run_reporter_generators.append(reporter_generator)
-        elif mode == "all":
-            if append_left:
-                self._pre_run_reporter_generators.appendleft(reporter_generator)
-                self._in_run_reporter_generators.appendleft(reporter_generator)
-                self._post_run_reporter_generators.appendleft(reporter_generator)
-            else:
-                self._pre_run_reporter_generators.append(reporter_generator)
-                self._in_run_reporter_generators.append(reporter_generator)
-                self._post_run_reporter_generators.append(reporter_generator)
-        else:
-            msg = f"mode must be one of 'pre', 'in', 'post', or 'all', not {mode}."
-            raise ValueError(msg)
-
-    @property
-    def run_name_factory(self) -> Callable[[ExecInfo | None, str, datetime], str]:
-        if self._run_name_factory is None:
-            raise CapsulaUninitializedError("run_name_factory")
-        return self._run_name_factory
-
-    @run_name_factory.setter
-    def run_name_factory(self, run_name_factory: Callable[[ExecInfo | None, str, datetime], str]) -> None:
-        self._run_name_factory = run_name_factory
 
     def __enter__(self) -> Self:
         self._get_run_stack().put(self)
@@ -289,22 +278,18 @@ class Run(Generic[P, T]):
     ) -> None:
         self._get_run_stack().get(block=False)
 
-    def _instanciate_run_dir(self, func_info: FuncInfo) -> Path:
-        if self._run_name_factory is not None:
-            run_name = self._run_name_factory(
-                func_info,
-                "".join(choices(ascii_letters + digits, k=4)),
-                datetime.now(timezone.utc),
-            )
-            # TODO: Use specified vault_dir
-            return get_vault_dir(func_info) / run_name
-
-        raise CapsulaUninitializedError("run_name_factory", "run_dir_generator")
-
     def __call__(self, *args: P.args, **kwargs: P.kwargs) -> T:  # noqa: C901
         func_info = FuncInfo(func=self._func, args=args, kwargs=kwargs, pass_pre_run_capsule=self._pass_pre_run_capsule)
 
-        self._run_dir = self._instanciate_run_dir(func_info)
+        # Generate the run name
+        run_name = self._run_name_factory(
+            func_info,
+            "".join(choices(ascii_letters + digits, k=4)),
+            datetime.now(timezone.utc),
+        )
+        # TODO: Config vault_dir
+        self._run_dir = get_vault_dir(func_info) / run_name
+
         try:
             self._run_dir.mkdir(parents=True, exist_ok=False)
         except FileExistsError:
