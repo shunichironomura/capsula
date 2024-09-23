@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 PROJECT_ROOT = capsula.search_for_project_root(__file__)
 
 
-@capsula.run(ignore_config=True)
+@capsula.run(ignore_config=True, vault_dir=Path(__file__).parent / "vault")
 @capsula.context(capsula.EnvVarContext("HOME"), mode="pre")
 @capsula.context(capsula.EnvVarContext("PATH"), mode="pre")
 @capsula.context(capsula.CwdContext(), mode="pre")
@@ -20,10 +20,7 @@ PROJECT_ROOT = capsula.search_for_project_root(__file__)
 @capsula.context(capsula.CommandContext("uv lock --locked", cwd=PROJECT_ROOT), mode="pre")
 @capsula.context(capsula.FileContext.builder(PROJECT_ROOT / "pyproject.toml", copy=True), mode="pre")
 @capsula.context(capsula.FileContext.builder(PROJECT_ROOT / "uv.lock", copy=True), mode="pre")
-@capsula.context(
-    capsula.CommandContext("pip freeze --exclude-editable > requirements.txt", cwd=PROJECT_ROOT),
-    mode="pre",
-)
+@capsula.context(capsula.CommandContext("uv export > requirements.txt", cwd=PROJECT_ROOT), mode="pre")
 @capsula.context(capsula.FileContext.builder(PROJECT_ROOT / "requirements.txt", move=True), mode="pre")
 @capsula.watcher(capsula.UncaughtExceptionWatcher("Exception"))
 @capsula.watcher(capsula.TimeWatcher("calculation_time"))
@@ -53,7 +50,7 @@ def calculate_pi(pre_run_capsule: capsula.Capsule, *, n_samples: int = 1_000, se
 
 if __name__ == "__main__":
     logging.basicConfig(
-        level=logging.DEBUG,
+        level=logging.INFO,
         format="%(message)s",
         datefmt="[%X]",
         handlers=[RichHandler(show_time=False, show_path=True)],

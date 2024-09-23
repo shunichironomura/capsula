@@ -4,22 +4,20 @@ import inspect
 import logging
 import queue
 import threading
-import warnings
 from collections import deque
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from random import choices
 from string import ascii_letters, digits
-from typing import TYPE_CHECKING, Any, Callable, Generic, Literal, OrderedDict, TypeVar, Union, overload
-
-from typing_extensions import deprecated
+from typing import TYPE_CHECKING, Any, Callable, Generic, Literal, OrderedDict, TypeVar, Union
 
 from capsula._exceptions import CapsulaUninitializedError
 
 from ._backport import Concatenate, ParamSpec, Self, TypeAlias
 from ._context import ContextBase
 from ._encapsulator import Encapsulator
+from ._exceptions import CapsulaError, CapsulaNoRunError
 from ._reporter import ReporterBase
 from ._utils import search_for_project_root
 from ._watcher import WatcherBase
@@ -109,63 +107,16 @@ def get_project_root(exec_info: ExecInfo | None = None) -> Path:
         raise TypeError(msg)
 
 
-class Run(Generic[P, T]):
-    _thread_local = threading.local()
-
-    @classmethod
-    def _get_run_stack(cls) -> queue.LifoQueue[Self]:
-        if not hasattr(cls._thread_local, "run_stack"):
-            cls._thread_local.run_stack = queue.LifoQueue()
-        return cls._thread_local.run_stack  # type: ignore[no-any-return]
-
-    @classmethod
-    def get_current(cls) -> Self | None:
-        try:
-            return cls._get_run_stack().queue[-1]
-        except IndexError:
-            return None
-
-    @overload
-    def __init__(self, func: Callable[P, T], *, pass_pre_run_capsule: Literal[False] = False) -> None: ...
-
-    @overload
-    def __init__(
-        self,
-        func: Callable[Concatenate[Capsule, P], T],
-        *,
-        pass_pre_run_capsule: Literal[True],
-    ) -> None: ...
-
-    def __init__(
-        self,
-        func: Callable[P, T] | Callable[Concatenate[Capsule, P], T],
-        *,
-        pass_pre_run_capsule: bool = False,
-    ) -> None:
-        self._pre_run_context_generators: deque[Callable[[CapsuleParams], ContextBase]] = deque()
-        self._in_run_watcher_generators: deque[Callable[[CapsuleParams], WatcherBase]] = deque()
-        self._post_run_context_generators: deque[Callable[[CapsuleParams], ContextBase]] = deque()
-
-        self._pre_run_reporter_generators: deque[Callable[[CapsuleParams], ReporterBase]] = deque()
-        self._in_run_reporter_generators: deque[Callable[[CapsuleParams], ReporterBase]] = deque()
-        self._post_run_reporter_generators: deque[Callable[[CapsuleParams], ReporterBase]] = deque()
-
-        self._pass_pre_run_capsule: bool = pass_pre_run_capsule
-        self._func: Callable[P, T] | Callable[Concatenate[Capsule, P], T] = func
-
-        self._run_name_factory: Callable[[ExecInfo | None, str, datetime], str] | None = None
-        self._run_dir: Path | None = None
-
-        # Deprecated. Will be removed in v0.7.0.
-        # YORE: Bump 0.7.0: Remove block.
-        self._run_dir_generator: Callable[[FuncInfo], Path] | None = None
-
-    @property
-    def run_dir(self) -> Path:
-        if self._run_dir is None:
-            msg = "run_dir must be set before accessing it."
-            raise ValueError(msg)
-        return self._run_dir
+@dataclass
+class _RunDtoBase:
+    run_name_factory: Callable[[ExecInfo | None, str, datetime], str] | None = None
+    vault_dir: Path | None = None
+    pre_run_context_generators: deque[Callable[[CapsuleParams], ContextBase]] = field(default_factory=deque)
+    in_run_watcher_generators: deque[Callable[[CapsuleParams], WatcherBase]] = field(default_factory=deque)
+    post_run_context_generators: deque[Callable[[CapsuleParams], ContextBase]] = field(default_factory=deque)
+    pre_run_reporter_generators: deque[Callable[[CapsuleParams], ReporterBase]] = field(default_factory=deque)
+    in_run_reporter_generators: deque[Callable[[CapsuleParams], ReporterBase]] = field(default_factory=deque)
+    post_run_reporter_generators: deque[Callable[[CapsuleParams], ReporterBase]] = field(default_factory=deque)
 
     def add_context(
         self,
@@ -182,21 +133,21 @@ class Run(Generic[P, T]):
 
         if mode == "pre":
             if append_left:
-                self._pre_run_context_generators.appendleft(context_generator)
+                self.pre_run_context_generators.appendleft(context_generator)
             else:
-                self._pre_run_context_generators.append(context_generator)
+                self.pre_run_context_generators.append(context_generator)
         elif mode == "post":
             if append_left:
-                self._post_run_context_generators.appendleft(context_generator)
+                self.post_run_context_generators.appendleft(context_generator)
             else:
-                self._post_run_context_generators.append(context_generator)
+                self.post_run_context_generators.append(context_generator)
         elif mode == "all":
             if append_left:
-                self._pre_run_context_generators.appendleft(context_generator)
-                self._post_run_context_generators.appendleft(context_generator)
+                self.pre_run_context_generators.appendleft(context_generator)
+                self.post_run_context_generators.appendleft(context_generator)
             else:
-                self._pre_run_context_generators.append(context_generator)
-                self._post_run_context_generators.append(context_generator)
+                self.pre_run_context_generators.append(context_generator)
+                self.post_run_context_generators.append(context_generator)
         else:
             msg = f"mode must be one of 'pre', 'post', or 'all', not {mode}."
             raise ValueError(msg)
@@ -214,9 +165,9 @@ class Run(Generic[P, T]):
                 return watcher(params)
 
         if append_left:
-            self._in_run_watcher_generators.appendleft(watcher_generator)
+            self.in_run_watcher_generators.appendleft(watcher_generator)
         else:
-            self._in_run_watcher_generators.append(watcher_generator)
+            self.in_run_watcher_generators.append(watcher_generator)
 
     def add_reporter(  # noqa: C901, PLR0912
         self,
@@ -233,52 +184,94 @@ class Run(Generic[P, T]):
 
         if mode == "pre":
             if append_left:
-                self._pre_run_reporter_generators.appendleft(reporter_generator)
+                self.pre_run_reporter_generators.appendleft(reporter_generator)
             else:
-                self._pre_run_reporter_generators.append(reporter_generator)
+                self.pre_run_reporter_generators.append(reporter_generator)
         elif mode == "in":
             if append_left:
-                self._in_run_reporter_generators.appendleft(reporter_generator)
+                self.in_run_reporter_generators.appendleft(reporter_generator)
             else:
-                self._in_run_reporter_generators.append(reporter_generator)
+                self.in_run_reporter_generators.append(reporter_generator)
         elif mode == "post":
             if append_left:
-                self._post_run_reporter_generators.appendleft(reporter_generator)
+                self.post_run_reporter_generators.appendleft(reporter_generator)
             else:
-                self._post_run_reporter_generators.append(reporter_generator)
+                self.post_run_reporter_generators.append(reporter_generator)
         elif mode == "all":
             if append_left:
-                self._pre_run_reporter_generators.appendleft(reporter_generator)
-                self._in_run_reporter_generators.appendleft(reporter_generator)
-                self._post_run_reporter_generators.appendleft(reporter_generator)
+                self.pre_run_reporter_generators.appendleft(reporter_generator)
+                self.in_run_reporter_generators.appendleft(reporter_generator)
+                self.post_run_reporter_generators.appendleft(reporter_generator)
             else:
-                self._pre_run_reporter_generators.append(reporter_generator)
-                self._in_run_reporter_generators.append(reporter_generator)
-                self._post_run_reporter_generators.append(reporter_generator)
+                self.pre_run_reporter_generators.append(reporter_generator)
+                self.in_run_reporter_generators.append(reporter_generator)
+                self.post_run_reporter_generators.append(reporter_generator)
         else:
             msg = f"mode must be one of 'pre', 'in', 'post', or 'all', not {mode}."
             raise ValueError(msg)
 
-    # YORE: Bump 0.7.0: Remove block.
-    @deprecated("Use run_name_factory instead. Will be removed in v0.7.0.")
-    def set_run_dir(self, run_dir: Path | Callable[[FuncInfo], Path]) -> None:
-        def run_dir_generator(params: FuncInfo) -> Path:
-            if isinstance(run_dir, Path):
-                return run_dir
-            else:
-                return run_dir(params)
 
-        self._run_dir_generator = run_dir_generator
+@dataclass
+class RunDtoPassPreRunCapsule(_RunDtoBase, Generic[P, T]):
+    func: Callable[Concatenate[Capsule, P], T] | None = None
+
+
+@dataclass
+class RunDtoNoPassPreRunCapsule(_RunDtoBase, Generic[P, T]):
+    func: Callable[P, T] | None = None
+
+
+class Run(Generic[P, T]):
+    _thread_local = threading.local()
+
+    @classmethod
+    def _get_run_stack(cls) -> queue.LifoQueue[Self]:
+        if not hasattr(cls._thread_local, "run_stack"):
+            cls._thread_local.run_stack = queue.LifoQueue()
+        return cls._thread_local.run_stack  # type: ignore[no-any-return]
+
+    @classmethod
+    def get_current(cls) -> Self:
+        try:
+            return cls._get_run_stack().queue[-1]
+        except IndexError as e:
+            raise CapsulaNoRunError from e
+
+    def __init__(
+        self,
+        run_dto: RunDtoPassPreRunCapsule[P, T] | RunDtoNoPassPreRunCapsule[P, T],
+        /,
+    ) -> None:
+        self._pre_run_context_generators = run_dto.pre_run_context_generators
+        self._in_run_watcher_generators = run_dto.in_run_watcher_generators
+        self._post_run_context_generators = run_dto.post_run_context_generators
+
+        self._pre_run_reporter_generators = run_dto.pre_run_reporter_generators
+        self._in_run_reporter_generators = run_dto.in_run_reporter_generators
+        self._post_run_reporter_generators = run_dto.post_run_reporter_generators
+
+        self._pass_pre_run_capsule: bool = isinstance(run_dto, RunDtoPassPreRunCapsule)
+
+        if run_dto.func is None:
+            raise CapsulaUninitializedError("func")
+        self._func: Callable[P, T] | Callable[Concatenate[Capsule, P], T] = run_dto.func
+
+        if run_dto.run_name_factory is None:
+            raise CapsulaUninitializedError("run_name_factory")
+        self._run_name_factory: Callable[[ExecInfo | None, str, datetime], str] = run_dto.run_name_factory
+
+        if run_dto.vault_dir is None:
+            raise CapsulaUninitializedError("vault_dir")
+        self._vault_dir: Path = run_dto.vault_dir
+
+        self._run_dir: Path | None = None
 
     @property
-    def run_name_factory(self) -> Callable[[ExecInfo | None, str, datetime], str]:
-        if self._run_name_factory is None:
-            raise CapsulaUninitializedError("run_name_factory")
-        return self._run_name_factory
-
-    @run_name_factory.setter
-    def run_name_factory(self, run_name_factory: Callable[[ExecInfo | None, str, datetime], str]) -> None:
-        self._run_name_factory = run_name_factory
+    def run_dir(self) -> Path:
+        if self._run_dir is None:
+            msg = "run_dir must be set before accessing it."
+            raise ValueError(msg)
+        return self._run_dir
 
     def __enter__(self) -> Self:
         self._get_run_stack().put(self)
@@ -292,30 +285,31 @@ class Run(Generic[P, T]):
     ) -> None:
         self._get_run_stack().get(block=False)
 
-    def _instanciate_run_dir(self, func_info: FuncInfo) -> Path:
-        if self._run_name_factory is not None:
-            run_name = self._run_name_factory(
-                func_info,
-                "".join(choices(ascii_letters + digits, k=4)),
-                datetime.now(timezone.utc),
-            )
-            return get_vault_dir(func_info) / run_name
+    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> T:  # noqa: C901, PLR0912, PLR0915
+        if self._vault_dir.exists():
+            if not self._vault_dir.is_dir():
+                msg = f"Vault directory {self._vault_dir} exists but is not a directory."
+                raise CapsulaError(msg)
+        else:
+            self._vault_dir.mkdir(parents=True, exist_ok=False)
+            # If this is a new vault directory, create a .gitignore file in it
+            # and write "*" to it
+            gitignore_path = self._vault_dir / ".gitignore"
+            with gitignore_path.open("w") as gitignore_file:
+                gitignore_file.write("*\n")
+        logger.info(f"Vault directory: {self._vault_dir}")
 
-        # YORE: Bump 0.7.0: Remove block.
-        if self._run_dir_generator is not None:
-            warnings.warn(
-                "run_dir_generator is deprecated. Use run_name_factory instead. Will be removed in v0.7.0.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            return self._run_dir_generator(func_info)
-
-        raise CapsulaUninitializedError("run_name_factory", "run_dir_generator")
-
-    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> T:  # noqa: C901
         func_info = FuncInfo(func=self._func, args=args, kwargs=kwargs, pass_pre_run_capsule=self._pass_pre_run_capsule)
 
-        self._run_dir = self._instanciate_run_dir(func_info)
+        # Generate the run name
+        run_name = self._run_name_factory(
+            func_info,
+            "".join(choices(ascii_letters + digits, k=4)),
+            datetime.now(timezone.utc),
+        )
+        logger.info(f"Run name: {run_name}")
+
+        self._run_dir = self._vault_dir / run_name
         try:
             self._run_dir.mkdir(parents=True, exist_ok=False)
         except FileExistsError:
@@ -324,6 +318,7 @@ class Run(Generic[P, T]):
                 "Make sure that run_name_factory produces unique names.",
             )
             raise
+        logger.info(f"Run directory: {self._run_dir}")
 
         params = CapsuleParams(
             exec_info=func_info,

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import warnings
+import inspect
 from pathlib import Path
 from typing import TYPE_CHECKING, Callable, Literal, TypeVar
 
@@ -8,8 +8,16 @@ from typing_extensions import Annotated, Doc
 
 from ._backport import Concatenate, ParamSpec
 from ._config import load_config
-from ._run import CapsuleParams, ExecInfo, FuncInfo, Run, default_run_name_factory, generate_default_run_dir
-from ._utils import get_default_config_path
+from ._run import (
+    CapsuleParams,
+    ExecInfo,
+    FuncInfo,
+    Run,
+    RunDtoNoPassPreRunCapsule,
+    RunDtoPassPreRunCapsule,
+    default_run_name_factory,
+)
+from ._utils import get_default_config_path, search_for_project_root
 
 if TYPE_CHECKING:
     from datetime import datetime
@@ -19,8 +27,8 @@ if TYPE_CHECKING:
     from ._reporter import ReporterBase
     from ._watcher import WatcherBase
 
-_P = ParamSpec("_P")
-_T = TypeVar("_T")
+P = ParamSpec("P")
+T = TypeVar("T")
 
 
 def watcher(
@@ -29,7 +37,10 @@ def watcher(
         Doc("Watcher or a builder function to create a watcher from the capsule parameters."),
     ],
 ) -> Annotated[
-    Callable[[Callable[_P, _T] | Run[_P, _T]], Run[_P, _T]],
+    Callable[
+        [Callable[P, T] | RunDtoNoPassPreRunCapsule[P, T] | RunDtoPassPreRunCapsule[P, T]],
+        RunDtoNoPassPreRunCapsule[P, T] | RunDtoPassPreRunCapsule[P, T],
+    ],
     Doc("Decorator to add a watcher to the in-run phase of the run."),
 ]:
     """Decorator to add a watcher to the in-run phase of the run.
@@ -45,11 +56,17 @@ def watcher(
 
     """
 
-    def decorator(func_or_run: Callable[_P, _T] | Run[_P, _T]) -> Run[_P, _T]:
-        run = func_or_run if isinstance(func_or_run, Run) else Run(func_or_run)
+    def decorator(
+        func_or_run: Callable[P, T] | RunDtoNoPassPreRunCapsule[P, T] | RunDtoPassPreRunCapsule[P, T],
+    ) -> RunDtoNoPassPreRunCapsule[P, T] | RunDtoPassPreRunCapsule[P, T]:
+        run_dto = (
+            func_or_run
+            if isinstance(func_or_run, (RunDtoNoPassPreRunCapsule, RunDtoPassPreRunCapsule))
+            else RunDtoNoPassPreRunCapsule(func=func_or_run)
+        )
         # No need to set append_left=True here, as watchers are added as the outermost context manager
-        run.add_watcher(watcher, append_left=False)
-        return run
+        run_dto.add_watcher(watcher, append_left=False)
+        return run_dto
 
     return decorator
 
@@ -64,7 +81,10 @@ def reporter(
         Doc("Phase to add the reporter. Specify 'all' to add to all phases."),
     ],
 ) -> Annotated[
-    Callable[[Callable[_P, _T] | Run[_P, _T]], Run[_P, _T]],
+    Callable[
+        [Callable[P, T] | RunDtoNoPassPreRunCapsule[P, T] | RunDtoPassPreRunCapsule[P, T]],
+        RunDtoNoPassPreRunCapsule[P, T] | RunDtoPassPreRunCapsule[P, T],
+    ],
     Doc("Decorator to add a reporter to the specified phase of the run."),
 ]:
     """Decorator to add a reporter to the specified phase of the run.
@@ -80,8 +100,14 @@ def reporter(
 
     """
 
-    def decorator(func_or_run: Callable[_P, _T] | Run[_P, _T]) -> Run[_P, _T]:
-        run = func_or_run if isinstance(func_or_run, Run) else Run(func_or_run)
+    def decorator(
+        func_or_run: Callable[P, T] | RunDtoNoPassPreRunCapsule[P, T] | RunDtoPassPreRunCapsule[P, T],
+    ) -> RunDtoNoPassPreRunCapsule[P, T] | RunDtoPassPreRunCapsule[P, T]:
+        run = (
+            func_or_run
+            if isinstance(func_or_run, (RunDtoPassPreRunCapsule, RunDtoNoPassPreRunCapsule))
+            else RunDtoNoPassPreRunCapsule(func=func_or_run)
+        )
         run.add_reporter(reporter, mode=mode, append_left=True)
         return run
 
@@ -98,7 +124,10 @@ def context(
         Doc("Phase to add the context. Specify 'all' to add to all phases."),
     ],
 ) -> Annotated[
-    Callable[[Callable[_P, _T] | Run[_P, _T]], Run[_P, _T]],
+    Callable[
+        [Callable[P, T] | RunDtoNoPassPreRunCapsule[P, T] | RunDtoPassPreRunCapsule[P, T]],
+        RunDtoNoPassPreRunCapsule[P, T] | RunDtoPassPreRunCapsule[P, T],
+    ],
     Doc("Decorator to add a context to the specified phase of the run."),
 ]:
     """Decorator to add a context to the specified phase of the run.
@@ -114,8 +143,14 @@ def context(
 
     """
 
-    def decorator(func_or_run: Callable[_P, _T] | Run[_P, _T]) -> Run[_P, _T]:
-        run = func_or_run if isinstance(func_or_run, Run) else Run(func_or_run)
+    def decorator(
+        func_or_run: Callable[P, T] | RunDtoNoPassPreRunCapsule[P, T] | RunDtoPassPreRunCapsule[P, T],
+    ) -> RunDtoNoPassPreRunCapsule[P, T] | RunDtoPassPreRunCapsule[P, T]:
+        run = (
+            func_or_run
+            if isinstance(func_or_run, (RunDtoNoPassPreRunCapsule, RunDtoPassPreRunCapsule))
+            else RunDtoNoPassPreRunCapsule(func=func_or_run)
+        )
         run.add_context(context, mode=mode, append_left=True)
         return run
 
@@ -126,14 +161,6 @@ _NOT_SET = object()
 
 
 def run(  # noqa: C901
-    # YORE: Bump 0.7.0: Remove lines 1-7.
-    run_dir: Annotated[
-        Path | Callable[[FuncInfo], Path] | None | object,
-        Doc(
-            "Run directory to use. If not specified, a default run directory will be generated."
-            "Deprecated: Use `run_name_factory` instead. Will be removed in v0.0.7.",
-        ),
-    ] = _NOT_SET,
     *,
     run_name_factory: Annotated[
         Callable[[FuncInfo, str, datetime], str] | None,
@@ -144,7 +171,14 @@ def run(  # noqa: C901
         Path | str | None,
         Doc("Path to the configuration file. If not specified, the default configuration file will be used."),
     ] = None,
-) -> Annotated[Callable[[Callable[_P, _T] | Run[_P, _T]], Run[_P, _T]], Doc("Decorator to create a `Run` object.")]:
+    vault_dir: Annotated[
+        Path | str | None,
+        Doc("Path to the vault directory."),
+    ] = None,
+) -> Annotated[
+    Callable[[Callable[P, T] | RunDtoNoPassPreRunCapsule[P, T] | RunDtoPassPreRunCapsule[P, T]], Run[P, T]],
+    Doc("Decorator to create a `Run` object."),
+]:
     """Decorator to create a `Run` object.
 
     Place this decorator at the outermost position of the decorators.
@@ -159,16 +193,18 @@ def run(  # noqa: C901
     def func() -> None: ...
     ```
 
+    The vault directory is determined by the following priority:
+    1. If `vault_dir` argument is set, it will be used as the vault directory.
+    2. If `ignore_config` argument is False and `vault-dir` field is present in the config file,
+       it will be used as the vault directory.
+    3. The default vault directory is used.
+
+    The run name factory is determined by the following priority:
+    1. If `run_name_factory` argument is set, it will be used as the run name.
+    2. The default run name factory is used.
+
     """
-    if run_dir is not _NOT_SET:
-        warnings.warn(
-            "The `run_dir` argument is deprecated. Use `run_name_factory` instead. "
-            "The `run_dir` argument will be removed in v0.0.7.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        run_dir = generate_default_run_dir if run_dir is None else run_dir
-    elif run_name_factory is not None:
+    if run_name_factory is not None:
         # Adjust the function signature of the run name factory
         def _run_name_factory_adjusted(info: ExecInfo | None, random_str: str, timestamp: datetime, /) -> str:
             if isinstance(info, FuncInfo):
@@ -177,12 +213,16 @@ def run(  # noqa: C901
     else:
         _run_name_factory_adjusted = default_run_name_factory
 
-    def decorator(func_or_run: Callable[_P, _T] | Run[_P, _T]) -> Run[_P, _T]:
-        run = func_or_run if isinstance(func_or_run, Run) else Run(func_or_run)
-        if run_dir is not _NOT_SET:
-            run.set_run_dir(run_dir)  # type: ignore[arg-type]
-        else:
-            run.run_name_factory = _run_name_factory_adjusted
+    def decorator(
+        func_or_run: Callable[P, T] | RunDtoNoPassPreRunCapsule[P, T] | RunDtoPassPreRunCapsule[P, T],
+    ) -> Run[P, T]:
+        run_dto = (
+            func_or_run
+            if isinstance(func_or_run, (RunDtoNoPassPreRunCapsule, RunDtoPassPreRunCapsule))
+            else RunDtoNoPassPreRunCapsule(func=func_or_run)
+        )
+        run_dto.run_name_factory = _run_name_factory_adjusted
+        run_dto.vault_dir = Path(vault_dir) if vault_dir is not None else None
 
         if not ignore_config:
             config = load_config(get_default_config_path() if config_path is None else Path(config_path))
@@ -192,23 +232,31 @@ def run(  # noqa: C901
                     continue
                 for context in reversed(config[phase_key].get("contexts", [])):  # type: ignore[literal-required]
                     assert phase in {"pre", "post"}, f"Invalid phase for context: {phase}"
-                    run.add_context(context, mode=phase, append_left=True)  # type: ignore[arg-type]
+                    run_dto.add_context(context, mode=phase, append_left=True)  # type: ignore[arg-type]
                 for watcher in reversed(config[phase_key].get("watchers", [])):  # type: ignore[literal-required]
                     assert phase == "in", "Watcher can only be added to the in-run phase."
                     # No need to set append_left=True here, as watchers are added as the outermost context manager
-                    run.add_watcher(watcher, append_left=False)
+                    run_dto.add_watcher(watcher, append_left=False)
                 for reporter in reversed(config[phase_key].get("reporters", [])):  # type: ignore[literal-required]
                     assert phase in {"pre", "in", "post"}, f"Invalid phase for reporter: {phase}"
-                    run.add_reporter(reporter, mode=phase, append_left=True)  # type: ignore[arg-type]
+                    run_dto.add_reporter(reporter, mode=phase, append_left=True)  # type: ignore[arg-type]
 
-        return run
+            run_dto.vault_dir = config["vault-dir"] if run_dto.vault_dir is None else run_dto.vault_dir
+
+        # Set the vault directory if it is not set by the config file
+        if run_dto.vault_dir is None:
+            assert run_dto.func is not None
+            project_root = search_for_project_root(Path(inspect.getfile(run_dto.func)))
+            run_dto.vault_dir = project_root / "vault"
+
+        return Run(run_dto)
 
     return decorator
 
 
 def pass_pre_run_capsule(
-    func: Annotated[Callable[Concatenate[Capsule, _P], _T], Doc("Function to decorate.")],
-) -> Annotated[Run[_P, _T], Doc("Decorated function as a `Run` object.")]:
+    func: Annotated[Callable[Concatenate[Capsule, P], T], Doc("Function to decorate.")],
+) -> Annotated[RunDtoPassPreRunCapsule[P, T], Doc("Decorated function as a `Run` object.")]:
     """Decorator to pass the pre-run capsule to the function.
 
     This decorator must be placed closer to the function than the other decorators such as
@@ -229,4 +277,4 @@ def pass_pre_run_capsule(
         git_sha = pre_run_capsule.data[("git", "my-repo")]["sha"]
     ```
     """
-    return Run(func, pass_pre_run_capsule=True)
+    return RunDtoPassPreRunCapsule(func=func)
