@@ -222,6 +222,7 @@ def run(  # noqa: C901
             else RunDtoNoPassPreRunCapsule(func=func_or_run)
         )
         run_dto.run_name_factory = _run_name_factory_adjusted
+        run_dto.vault_dir = Path(vault_dir) if vault_dir is not None else None
 
         if not ignore_config:
             config = load_config(get_default_config_path() if config_path is None else Path(config_path))
@@ -240,7 +241,7 @@ def run(  # noqa: C901
                     assert phase in {"pre", "in", "post"}, f"Invalid phase for reporter: {phase}"
                     run_dto.add_reporter(reporter, mode=phase, append_left=True)  # type: ignore[arg-type]
 
-            run_dto.vault_dir = config["vault-dir"]
+            run_dto.vault_dir = config["vault-dir"] if run_dto.vault_dir is None else run_dto.vault_dir
 
         # Set the vault directory if it is not set by the config file
         if run_dto.vault_dir is None:

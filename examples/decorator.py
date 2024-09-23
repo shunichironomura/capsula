@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 PROJECT_ROOT = capsula.search_for_project_root(__file__)
 
 
-@capsula.run(ignore_config=True)
+@capsula.run(ignore_config=True, vault_dir=Path(__file__).parent / "vault")
 @capsula.context(capsula.EnvVarContext("HOME"), mode="pre")
 @capsula.context(capsula.EnvVarContext("PATH"), mode="pre")
 @capsula.context(capsula.CwdContext(), mode="pre")
