@@ -48,15 +48,16 @@ class CapsuleItem(ABC):
 
         return build
 
+    # YORE: Bump 0.6.0: Remove block.
     @classmethod
-    @deprecated("Use builder instead")
+    @deprecated("Use `builder` instead. Deprecated since v0.4.0 and will be removed in v0.6.0.")
     def default(
         cls,
         *args: Any,
         **kwargs: Any,
     ) -> Annotated[
         Callable[[CapsuleParams], Self],
-        deprecated("""Deprecated since v0.4.0.
+        deprecated("""Deprecated since v0.4.0 and will be removed in v0.6.0.
 
             Use `builder` method instead.
             """),

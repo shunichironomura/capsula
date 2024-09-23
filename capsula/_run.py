@@ -157,6 +157,7 @@ class Run(Generic[P, T]):
         self._run_dir: Path | None = None
 
         # Deprecated. Will be removed in v0.7.0.
+        # YORE: Bump 0.7.0: Remove block.
         self._run_dir_generator: Callable[[FuncInfo], Path] | None = None
 
     @property
@@ -258,6 +259,7 @@ class Run(Generic[P, T]):
             msg = f"mode must be one of 'pre', 'in', 'post', or 'all', not {mode}."
             raise ValueError(msg)
 
+    # YORE: Bump 0.7.0: Remove block.
     @deprecated("Use run_name_factory instead. Will be removed in v0.7.0.")
     def set_run_dir(self, run_dir: Path | Callable[[FuncInfo], Path]) -> None:
         def run_dir_generator(params: FuncInfo) -> Path:
@@ -299,6 +301,7 @@ class Run(Generic[P, T]):
             )
             return get_vault_dir(func_info) / run_name
 
+        # YORE: Bump 0.7.0: Remove block.
         if self._run_dir_generator is not None:
             warnings.warn(
                 "run_dir_generator is deprecated. Use run_name_factory instead. Will be removed in v0.7.0.",
