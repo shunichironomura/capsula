@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import inspect
 from pathlib import Path
 from typing import TYPE_CHECKING, Callable, Literal, TypeVar
 
@@ -16,7 +17,7 @@ from ._run import (
     RunDtoPassPreRunCapsule,
     default_run_name_factory,
 )
-from ._utils import get_default_config_path
+from ._utils import get_default_config_path, search_for_project_root
 
 if TYPE_CHECKING:
     from datetime import datetime
@@ -192,14 +193,15 @@ def run(  # noqa: C901
     def func() -> None: ...
     ```
 
-    The run directory is determined by the following priority:
-    1. If `run_dir` argument is set, it will be used as the run directory.
-    2a. If `vault_dir` argument is set, it will be used as the vault directory.
-    2b. If `ignore_config` argument is True and `vault-dir` field is present in the config file,
+    The vault directory is determined by the following priority:
+    1. If `vault_dir` argument is set, it will be used as the vault directory.
+    2. If `ignore_config` argument is False and `vault-dir` field is present in the config file,
        it will be used as the vault directory.
-    2c. The default vault directory is used.
-    3a. If `run_name_factory` argument is set, it will be used as the run name.
-    3b. The default run name factory is used.
+    3. The default vault directory is used.
+
+    The run name factory is determined by the following priority:
+    1. If `run_name_factory` argument is set, it will be used as the run name.
+    2. The default run name factory is used.
 
     """
     if run_name_factory is not None:
@@ -237,6 +239,13 @@ def run(  # noqa: C901
                 for reporter in reversed(config[phase_key].get("reporters", [])):  # type: ignore[literal-required]
                     assert phase in {"pre", "in", "post"}, f"Invalid phase for reporter: {phase}"
                     run_dto.add_reporter(reporter, mode=phase, append_left=True)  # type: ignore[arg-type]
+
+            run_dto.vault_dir = config["vault-dir"]
+
+        # Set the vault directory if it is not set by the config file
+        if run_dto.vault_dir is None:
+            project_root = search_for_project_root(Path(inspect.getfile(run_dto.func)))
+            run_dto.vault_dir = project_root / "vault"
 
         return Run(run_dto)
 

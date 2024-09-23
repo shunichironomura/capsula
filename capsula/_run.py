@@ -17,7 +17,7 @@ from capsula._exceptions import CapsulaUninitializedError
 from ._backport import Concatenate, ParamSpec, Self, TypeAlias
 from ._context import ContextBase
 from ._encapsulator import Encapsulator
-from ._exceptions import CapsulaNoRunError
+from ._exceptions import CapsulaError, CapsulaNoRunError
 from ._reporter import ReporterBase
 from ._utils import search_for_project_root
 from ._watcher import WatcherBase
@@ -109,8 +109,8 @@ def get_project_root(exec_info: ExecInfo | None = None) -> Path:
 
 @dataclass(kw_only=True, slots=True)
 class _RunDtoBase:
-    run_dir: Path | None = None
     run_name_factory: Callable[[ExecInfo | None, str, datetime], str] | None = None
+    vault_dir: Path | None = None
     pre_run_context_generators: deque[Callable[[CapsuleParams], ContextBase]] = field(default_factory=deque)
     in_run_watcher_generators: deque[Callable[[CapsuleParams], WatcherBase]] = field(default_factory=deque)
     post_run_context_generators: deque[Callable[[CapsuleParams], ContextBase]] = field(default_factory=deque)
@@ -255,8 +255,11 @@ class Run(Generic[P, T]):
 
         if run_dto.run_name_factory is None:
             raise CapsulaUninitializedError("run_name_factory")
-
         self._run_name_factory: Callable[[ExecInfo | None, str, datetime], str] = run_dto.run_name_factory
+
+        if run_dto.vault_dir is None:
+            raise CapsulaUninitializedError("vault_dir")
+        self._vault_dir: Path = run_dto.vault_dir
 
         self._run_dir: Path | None = None
 
@@ -279,7 +282,20 @@ class Run(Generic[P, T]):
     ) -> None:
         self._get_run_stack().get(block=False)
 
-    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> T:  # noqa: C901
+    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> T:  # noqa: C901, PLR0912, PLR0915
+        if self._vault_dir.exists():
+            if not self._vault_dir.is_dir():
+                msg = f"Vault directory {self._vault_dir} exists but is not a directory."
+                raise CapsulaError(msg)
+        else:
+            self._vault_dir.mkdir(parents=True, exist_ok=False)
+            # If this is a new vault directory, create a .gitignore file in it
+            # and write "*" to it
+            gitignore_path = self._vault_dir / ".gitignore"
+            with gitignore_path.open("w") as gitignore_file:
+                gitignore_file.write("*\n")
+        logger.info(f"Vault directory: {self._vault_dir}")
+
         func_info = FuncInfo(func=self._func, args=args, kwargs=kwargs, pass_pre_run_capsule=self._pass_pre_run_capsule)
 
         # Generate the run name
@@ -288,9 +304,9 @@ class Run(Generic[P, T]):
             "".join(choices(ascii_letters + digits, k=4)),
             datetime.now(timezone.utc),
         )
-        # TODO: Config vault_dir
-        self._run_dir = get_vault_dir(func_info) / run_name
+        logger.info(f"Run name: {run_name}")
 
+        self._run_dir = self._vault_dir / run_name
         try:
             self._run_dir.mkdir(parents=True, exist_ok=False)
         except FileExistsError:
@@ -299,6 +315,7 @@ class Run(Generic[P, T]):
                 "Make sure that run_name_factory produces unique names.",
             )
             raise
+        logger.info(f"Run directory: {self._run_dir}")
 
         params = CapsuleParams(
             exec_info=func_info,
