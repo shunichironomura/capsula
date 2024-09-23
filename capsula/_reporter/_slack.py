@@ -37,7 +37,7 @@ class SlackReporter(ReporterBase):
         self._token = token
         self._run_name = run_name
 
-    def report(self, capsule: Capsule) -> None:
+    def report(self, capsule: Capsule) -> None:  # noqa: ARG002
         client = WebClient(token=self._token)
         thread_ts = SlackReporter._run_name_to_thread_ts.get(self._run_name)
         if self._phase == "pre":
