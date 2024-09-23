@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, MutableMapping, TypedDict
+from typing import TYPE_CHECKING, Any, Callable, MutableMapping, Optional, TypedDict
 
 from ._backport import tomllib
 from ._context import ContextBase
@@ -48,7 +48,7 @@ class _PostRunConfig(TypedDict):
 _CapsulaConfig = TypedDict(
     "_CapsulaConfig",
     {
-        "vault-dir": Path | None,
+        "vault-dir": Optional[Path],
         "pre-run": _PreRunConfig,
         "in-run": _InRunConfig,
         "post-run": _PostRunConfig,

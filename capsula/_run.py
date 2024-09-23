@@ -107,7 +107,7 @@ def get_project_root(exec_info: ExecInfo | None = None) -> Path:
         raise TypeError(msg)
 
 
-@dataclass(kw_only=True, slots=True)
+@dataclass
 class _RunDtoBase:
     run_name_factory: Callable[[ExecInfo | None, str, datetime], str] | None = None
     vault_dir: Path | None = None
@@ -211,14 +211,14 @@ class _RunDtoBase:
             raise ValueError(msg)
 
 
-@dataclass(kw_only=True, slots=True)
+@dataclass
 class RunDtoPassPreRunCapsule(_RunDtoBase, Generic[P, T]):
-    func: Callable[Concatenate[Capsule, P], T]
+    func: Callable[Concatenate[Capsule, P], T] | None = None
 
 
-@dataclass(kw_only=True, slots=True)
+@dataclass
 class RunDtoNoPassPreRunCapsule(_RunDtoBase, Generic[P, T]):
-    func: Callable[P, T]
+    func: Callable[P, T] | None = None
 
 
 class Run(Generic[P, T]):
@@ -251,6 +251,9 @@ class Run(Generic[P, T]):
         self._post_run_reporter_generators = run_dto.post_run_reporter_generators
 
         self._pass_pre_run_capsule: bool = isinstance(run_dto, RunDtoPassPreRunCapsule)
+
+        if run_dto.func is None:
+            raise CapsulaUninitializedError("func")
         self._func: Callable[P, T] | Callable[Concatenate[Capsule, P], T] = run_dto.func
 
         if run_dto.run_name_factory is None:

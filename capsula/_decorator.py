@@ -244,6 +244,7 @@ def run(  # noqa: C901
 
         # Set the vault directory if it is not set by the config file
         if run_dto.vault_dir is None:
+            assert run_dto.func is not None
             project_root = search_for_project_root(Path(inspect.getfile(run_dto.func)))
             run_dto.vault_dir = project_root / "vault"
 
