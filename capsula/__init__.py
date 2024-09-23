@@ -19,6 +19,7 @@ __all__ = [
     "PlatformContext",
     "ReporterBase",
     "Run",
+    "SlackReporter",
     "TimeWatcher",
     "UncaughtExceptionWatcher",
     "WatcherBase",
@@ -47,7 +48,7 @@ from ._context import (
 from ._decorator import context, pass_pre_run_capsule, reporter, run, watcher
 from ._encapsulator import Encapsulator
 from ._exceptions import CapsulaConfigurationError, CapsulaError, CapsulaUninitializedError
-from ._reporter import JsonDumpReporter, ReporterBase
+from ._reporter import JsonDumpReporter, ReporterBase, SlackReporter
 from ._root import current_run_name, record
 from ._run import CapsuleParams, CommandInfo, FuncInfo, Run
 from ._utils import search_for_project_root
