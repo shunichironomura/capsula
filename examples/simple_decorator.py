@@ -1,5 +1,8 @@
+import logging
 import random
 from datetime import datetime
+
+from rich.logging import RichHandler
 
 import capsula
 
@@ -34,4 +37,11 @@ def calculate_pi(n_samples: int = 1_000, seed: int = 42) -> None:
 
 
 if __name__ == "__main__":
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(message)s",
+        datefmt="[%X]",
+        handlers=[RichHandler(show_time=False, show_path=True)],
+    )
+
     calculate_pi(n_samples=1_000)
