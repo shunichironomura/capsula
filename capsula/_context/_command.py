@@ -56,6 +56,14 @@ class CommandContext(ContextBase):
                 "It is recommended to set this to True in the configuration file.",
             ),
         ] = False,
+        shell: Annotated[
+            bool,
+            Doc(
+                "Whether to run the command using the shell. If True, the command will be run using the shell. "
+                "If False, the command will be run directly. "
+                "For more information, see the `shell` argument of `subprocess.run`. ",
+            ),
+        ] = True,
     ) -> Callable[[CapsuleParams], CommandContext]:
         def build(params: CapsuleParams) -> CommandContext:
             if cwd_relative_to_project_root and cwd is not None and not Path(cwd).is_absolute():
@@ -70,6 +78,7 @@ class CommandContext(ContextBase):
                 cwd=cwd_path,
                 check=check,
                 abort_on_error=abort_on_error,
+                shell=shell,
             )
 
         return build
@@ -81,12 +90,14 @@ class CommandContext(ContextBase):
         cwd: Path | None = None,
         check: bool = True,
         abort_on_error: bool = True,
+        shell: bool = True,
     ) -> None:
         """Initialize the command context."""
         self._command = command
         self._cwd = cwd
         self._check = check
         self._abort_on_error = abort_on_error
+        self._shell = shell
 
     @property
     def abort_on_error(self) -> bool:
@@ -94,9 +105,9 @@ class CommandContext(ContextBase):
 
     def encapsulate(self) -> _CommandContextData:
         logger.debug(f"Running command: {self._command}")
-        output = subprocess.run(  # noqa: S602
+        output = subprocess.run(  # noqa: S603
             self._command,
-            shell=True,
+            shell=self._shell,
             text=True,
             capture_output=True,
             cwd=self._cwd,
