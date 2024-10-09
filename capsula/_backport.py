@@ -33,15 +33,6 @@ if sys.version_info < (3, 10):
 else:
     from typing import Concatenate, ParamSpec, TypeAlias
 
-# YORE: EOL 3.8: Replace block with lines 6-7.
-if sys.version_info < (3, 9):
-    from typing import ContextManager as AbstractContextManager
-
-    from typing_extensions import Annotated
-else:
-    from contextlib import AbstractContextManager
-    from typing import Annotated
-
 # YORE: EOL 3.10: Replace block with line 59.
 if sys.version_info < (3, 11):
     if TYPE_CHECKING:

@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import inspect
 from pathlib import Path
-from typing import TYPE_CHECKING, Callable, Literal, TypeVar
+from typing import TYPE_CHECKING, Annotated, Callable, Literal, TypeVar
 
-from typing_extensions import Annotated, Doc
+from typing_extensions import Doc
 
 from ._backport import Concatenate, ParamSpec
 from ._config import load_config

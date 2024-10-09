@@ -3,12 +3,13 @@ from __future__ import annotations
 import queue
 from abc import ABC, abstractmethod
 from collections.abc import Hashable
-from typing import TYPE_CHECKING, Any, Dict, Final, Generic, OrderedDict, TypeVar
+from contextlib import AbstractContextManager
+from typing import TYPE_CHECKING, Any, Dict, Final, Generic, TypeVar
 
-from capsula._backport import AbstractContextManager
 from capsula._capsule import CapsuleItem
 
 if TYPE_CHECKING:
+    from collections import OrderedDict
     from types import TracebackType
 
 

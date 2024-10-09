@@ -2,11 +2,12 @@ from __future__ import annotations
 
 import logging
 import warnings
+from collections.abc import Iterable
 from pathlib import Path
 from shutil import copyfile, move
-from typing import TYPE_CHECKING, Callable, Iterable, TypedDict
+from typing import TYPE_CHECKING, Annotated, Callable, TypedDict
 
-from typing_extensions import Annotated, Doc
+from typing_extensions import Doc
 
 from capsula._backport import file_digest
 

@@ -7,14 +7,13 @@ from enum import Enum
 from pathlib import Path
 from random import choices
 from string import ascii_letters, digits
-from typing import Any, List, Literal, NoReturn, Optional
+from typing import Annotated, Any, List, Literal, NoReturn, Optional
 
 import typer
 from rich.console import Console
 
 import capsula
 
-from ._backport import Annotated
 from ._config import load_config
 from ._context import ContextBase
 from ._run import (

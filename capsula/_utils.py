@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from collections.abc import Mapping, Sequence
+from collections.abc import Hashable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Hashable
+from typing import TYPE_CHECKING, Annotated, Any
 
-from typing_extensions import Annotated, Doc
+from typing_extensions import Doc
 
 if TYPE_CHECKING:
     from types import TracebackType

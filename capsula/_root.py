@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Annotated, Any
 
-from typing_extensions import Annotated, Doc
+from typing_extensions import Doc
 
 from ._encapsulator import Encapsulator, _CapsuleItemKey
 from ._run import Run

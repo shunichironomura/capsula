@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import os
+from typing import Annotated
 
-from typing_extensions import Annotated, Doc
+from typing_extensions import Doc
 
 from ._base import ContextBase
 
