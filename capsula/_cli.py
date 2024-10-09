@@ -7,7 +7,7 @@ from enum import Enum
 from pathlib import Path
 from random import choices
 from string import ascii_letters, digits
-from typing import Annotated, Any, List, Literal, NoReturn, Optional
+from typing import Annotated, Any, Literal, NoReturn, Optional
 
 import typer
 from rich.console import Console
@@ -35,7 +35,7 @@ err_console = Console(stderr=True)
 
 @app.command()
 def run(
-    command: Annotated[List[str], typer.Argument(help="Command to run", show_default=False)],
+    command: Annotated[list[str], typer.Argument(help="Command to run", show_default=False)],
     run_name: Annotated[
         Optional[str],
         typer.Option(

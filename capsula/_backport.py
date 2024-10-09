@@ -1,8 +1,6 @@
 from __future__ import annotations
 
 __all__ = [
-    "AbstractContextManager",
-    "Annotated",
     "Concatenate",
     "ParamSpec",
     "Self",

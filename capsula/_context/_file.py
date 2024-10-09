@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import logging
 import warnings
-from collections.abc import Iterable
 from pathlib import Path
 from shutil import copyfile, move
 from typing import TYPE_CHECKING, Annotated, Callable, TypedDict
@@ -14,6 +13,8 @@ from capsula._backport import file_digest
 from ._base import ContextBase
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from capsula._run import CapsuleParams
 
 logger = logging.getLogger(__name__)
