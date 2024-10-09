@@ -25,7 +25,7 @@ repos:
         args: ["--fix=lf"]
       - id: check-shebang-scripts-are-executable
       - id: check-executables-have-shebangs
-      # # - id: check-illegal-windows-names # Will be introduced in v4.7.0
+      - id: check-illegal-windows-names
       - id: fix-byte-order-marker
       - id: forbid-submodules
       - id: no-commit-to-branch
