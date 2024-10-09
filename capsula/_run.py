@@ -5,13 +5,13 @@ import logging
 import queue
 import subprocess
 import threading
-from collections import deque
+from collections import OrderedDict, deque
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from random import choices
 from string import ascii_letters, digits
-from typing import TYPE_CHECKING, Any, Callable, Generic, Literal, OrderedDict, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Callable, Generic, Literal, TypeVar, Union
 
 from capsula._exceptions import CapsulaUninitializedError
 

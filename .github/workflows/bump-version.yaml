@@ -15,8 +15,8 @@ on:
           - 'major'
 
 env:
-  PYTHON_VERSION: "3.11"
-  UV_VERSION: "0.4.9"
+  PYTHON_VERSION: "3.12"
+  UV_VERSION: "0.4.x"
 
 jobs:
   bump-version:

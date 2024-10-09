@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import logging
 from contextlib import contextmanager
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Annotated
 
-from typing_extensions import Annotated, Doc
+from typing_extensions import Doc
 
 if TYPE_CHECKING:
     from collections.abc import Iterator

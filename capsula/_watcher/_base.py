@@ -3,12 +3,13 @@ from __future__ import annotations
 import queue
 from abc import ABC, abstractmethod
 from collections.abc import Hashable
-from typing import TYPE_CHECKING, Any, Dict, Final, Generic, OrderedDict, TypeVar
+from contextlib import AbstractContextManager
+from typing import TYPE_CHECKING, Any, Final, Generic, TypeVar
 
-from capsula._backport import AbstractContextManager
 from capsula._capsule import CapsuleItem
 
 if TYPE_CHECKING:
+    from collections import OrderedDict
     from types import TracebackType
 
 
@@ -39,7 +40,7 @@ _K = TypeVar("_K", bound=Hashable)
 _V = TypeVar("_V", bound=WatcherBase)
 
 
-class WatcherGroup(Generic[_K, _V], AbstractContextManager[Dict[_K, Any]]):
+class WatcherGroup(Generic[_K, _V], AbstractContextManager[dict[_K, Any]]):
     def __init__(self, watchers: OrderedDict[_K, _V]) -> None:
         self.watchers = watchers
         self.context_manager_stack: queue.LifoQueue[AbstractContextManager[None]] = queue.LifoQueue()

@@ -4,9 +4,9 @@ import logging
 import time
 from contextlib import contextmanager
 from datetime import timedelta
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Annotated
 
-from typing_extensions import Annotated, Doc
+from typing_extensions import Doc
 
 if TYPE_CHECKING:
     from collections.abc import Iterator

@@ -3,10 +3,10 @@ from __future__ import annotations
 import inspect
 import logging
 from pathlib import Path
-from typing import TYPE_CHECKING, Callable, TypedDict
+from typing import TYPE_CHECKING, Annotated, Callable, TypedDict
 
 from git.repo import Repo
-from typing_extensions import Annotated, Doc
+from typing_extensions import Doc
 
 from capsula._exceptions import CapsulaError
 from capsula._run import CommandInfo, FuncInfo

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Callable, Tuple, Union
+from typing import TYPE_CHECKING, Any, Callable, Union
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from ._backport import Self, TypeAlias
 
 
-_ContextKey: TypeAlias = Union[str, Tuple[str, ...]]
+_ContextKey: TypeAlias = Union[str, tuple[str, ...]]
 
 
 class Capsule:

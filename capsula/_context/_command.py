@@ -3,9 +3,9 @@ from __future__ import annotations
 import logging
 import subprocess
 from pathlib import Path
-from typing import TYPE_CHECKING, Callable, TypedDict
+from typing import TYPE_CHECKING, Annotated, Callable, TypedDict
 
-from typing_extensions import Annotated, Doc
+from typing_extensions import Doc
 
 from ._base import ContextBase
 
