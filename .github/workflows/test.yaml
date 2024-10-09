@@ -2,32 +2,16 @@ name: Test
 
 on:
   push:
-    branches:
-      - main
-    paths:
-      - ".github/workflows/test.yml"
-      - "capsula/**"
-      - "examples/**"
-      - "tests/**"
-      - "pyproject.toml"
-      - "capsula.toml"
-      - "tox.ini"
+    branches: [main]
   pull_request:
-    branches:
-      - main
-    paths:
-      - ".github/workflows/test.yml"
-      - "capsula/**"
-      - "examples/**"
-      - "tests/**"
-      - "pyproject.toml"
-      - "capsula.toml"
-      - "tox.ini"
-    types: [opened, synchronize, reopened, ready_for_review]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   PYTHON_VERSION: "3.12"
-  UV_VERSION: "0.4.9"
+  UV_VERSION: "0.4.x"
 
 jobs:
   ruff:
@@ -51,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.13-dev", "3.12", "3.11", "3.10", "3.9", "3.8"]
+        python-version: ["3.13", "3.12", "3.11", "3.10", "3.9"]
     steps:
       - uses: actions/checkout@v4
 
@@ -97,7 +81,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ["3.13-dev", "3.12", "3.11", "3.10", "3.9", "3.8"]
+        python-version: ["3.13", "3.12", "3.11", "3.10", "3.9"]
         # Python 3.8 & 3.9 are on macos-13 but not macos-latest (macos-14-arm64)
         # https://github.com/actions/setup-python/issues/696#issuecomment-1637587760
         exclude:

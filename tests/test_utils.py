@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Hashable, Mapping, Sequence
+from typing import TYPE_CHECKING, Any
 
 import pytest
 
 from capsula._utils import ExceptionInfo, search_for_project_root, to_flat_dict, to_nested_dict
 
 if TYPE_CHECKING:
+    from collections.abc import Hashable, Mapping, Sequence
     from pathlib import Path
 
 

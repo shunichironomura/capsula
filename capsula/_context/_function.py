@@ -2,16 +2,16 @@ from __future__ import annotations
 
 import inspect
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, Mapping, Sequence, TypedDict
+from typing import TYPE_CHECKING, Annotated, Any, Callable, TypedDict
 
-from typing_extensions import Annotated, Doc
+from typing_extensions import Doc
 
 from capsula._run import FuncInfo
 
 from ._base import ContextBase
 
 if TYPE_CHECKING:
-    from collections.abc import Container
+    from collections.abc import Container, Mapping, Sequence
 
     from capsula._run import CapsuleParams
 

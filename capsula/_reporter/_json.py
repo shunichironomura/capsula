@@ -5,10 +5,10 @@ import traceback
 from datetime import timedelta
 from pathlib import Path
 from types import TracebackType
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Annotated, Any, Callable
 
 import orjson
-from typing_extensions import Annotated, Doc
+from typing_extensions import Doc
 
 from capsula._utils import to_nested_dict
 

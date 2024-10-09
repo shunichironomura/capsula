@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, MutableMapping, Optional, TypedDict
+from typing import TYPE_CHECKING, Any, Callable, Optional, TypedDict
 
 from ._backport import tomllib
 from ._context import ContextBase
@@ -9,6 +9,8 @@ from ._reporter import ReporterBase
 from ._watcher import WatcherBase
 
 if TYPE_CHECKING:
+    from collections.abc import MutableMapping
+
     from ._run import CapsuleParams
 
 

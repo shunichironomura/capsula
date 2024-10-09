@@ -5,7 +5,7 @@ import threading
 import warnings
 from collections import OrderedDict
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Tuple, Union
+from typing import TYPE_CHECKING, Any, Union
 
 from capsula._utils import ExceptionInfo
 
@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
     from ._backport import Self, TypeAlias
 
-_CapsuleItemKey: TypeAlias = Union[str, Tuple[str, ...]]
+_CapsuleItemKey: TypeAlias = Union[str, tuple[str, ...]]
 
 
 class KeyConflictError(CapsulaError):
