@@ -87,13 +87,9 @@ jobs:
         exclude:
           - os: macos-latest
             python-version: "3.9"
-          - os: macos-latest
-            python-version: "3.8"
         include:
           - os: macos-13
             python-version: "3.9"
-          - os: macos-13
-            python-version: "3.8"
     env:
       OS: ${{ matrix.os }}
       PYTHON: ${{ matrix.python-version }}
