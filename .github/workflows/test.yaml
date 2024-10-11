@@ -124,5 +124,13 @@ jobs:
       with:
         file: coverage.xml
         env_vars: OS,PYTHON
-        fail_ci_if_error: false # TODO: Change to true
+        fail_ci_if_error: true
         token: ${{ secrets.CODECOV_TOKEN }}
+
+  collect:
+    if: github.event.pull_request.draft == false
+    needs: [ruff, mypy, build-docs, pytest]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Collect results
+      run: echo "All checks passed!"
