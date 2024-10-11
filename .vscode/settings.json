@@ -27,7 +27,7 @@
         "-v",
         "-s",
         "--color=yes",
-        "--log-cli-level=INFO",
+        "--log-cli-level=INFO"
     ],
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true
