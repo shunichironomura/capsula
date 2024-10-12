@@ -3258,6 +3258,11 @@
 
 
 
+
+
+
+
+
   <div class="doc doc-children">
 
 
@@ -3300,7 +3305,9 @@
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>data</code></td>
+            <td>
+                <code>data</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -3314,7 +3321,9 @@
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>fails</code></td>
+            <td>
+                <code>fails</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -3329,6 +3338,11 @@
           </tr>
       </tbody>
     </table>
+
+
+
+
+
 
                   <details class="quote">
                     <summary>Source code in <code>capsula/_capsule.py</code></summary>
@@ -3459,7 +3473,9 @@
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>command</code></td>
+            <td>
+                <code>command</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -3473,7 +3489,9 @@
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>cwd</code></td>
+            <td>
+                <code>cwd</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -3491,7 +3509,9 @@
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>check</code></td>
+            <td>
+                <code>check</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -3509,7 +3529,9 @@
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>abort_on_error</code></td>
+            <td>
+                <code>abort_on_error</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -3527,7 +3549,9 @@
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>shell</code></td>
+            <td>
+                <code>shell</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -3546,6 +3570,11 @@
           </tr>
       </tbody>
     </table>
+
+
+
+
+
 
                   <details class="quote">
                     <summary>Source code in <code>capsula/_context/_command.py</code></summary>
@@ -3628,7 +3657,9 @@
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>command</code></td>
+            <td>
+                <code>command</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 <p>Command to run</p>
@@ -3642,7 +3673,9 @@
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>cwd</code></td>
+            <td>
+                <code>cwd</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 <p>Working directory for the command, passed to the <code>cwd</code> argument of <code>subprocess.run</code></p>
@@ -3660,7 +3693,9 @@
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>check</code></td>
+            <td>
+                <code>check</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 <p>Whether to raise an exception if the command returns a non-zero exit code, passed to the <code>check</code> argument of `subprocess.run</p>
@@ -3678,7 +3713,9 @@
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>abort_on_error</code></td>
+            <td>
+                <code>abort_on_error</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 <p>Whether to abort the encapsulation if the command returns a non-zero exit code</p>
@@ -3696,7 +3733,9 @@
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>cwd_relative_to_project_root</code></td>
+            <td>
+                <code>cwd_relative_to_project_root</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 <p>Whether <code>cwd</code> argument is relative to the project root. Will be ignored if <code>cwd</code> is None or absolute. If True, it will be interpreted as relative to the project root. If False, <code>cwd</code> will be interpreted as relative to the current working directory. It is recommended to set this to True in the configuration file.</p>
@@ -3714,7 +3753,9 @@
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>shell</code></td>
+            <td>
+                <code>shell</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 <p>Whether to run the command using the shell. If True, the command will be run using the shell. If False, the command will be run directly. For more information, see the <code>shell</code> argument of <code>subprocess.run</code>. </p>
@@ -4002,6 +4043,11 @@
 
 
 
+
+
+
+
+
   <div class="doc doc-children">
 
 
@@ -4065,7 +4111,9 @@
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>name</code></td>
+            <td>
+                <code>name</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -4125,6 +4173,11 @@
 
 
         <p>Context to capture CPU information.</p>
+
+
+
+
+
 
 
 
@@ -4221,6 +4274,11 @@
 
 
         <p>Context to capture the current working directory.</p>
+
+
+
+
+
 
 
 
@@ -4331,7 +4389,9 @@
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>name</code></td>
+            <td>
+                <code>name</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 <p>Name of the environment variable</p>
@@ -4346,6 +4406,11 @@
           </tr>
       </tbody>
     </table>
+
+
+
+
+
 
                   <details class="quote">
                     <summary>Source code in <code>capsula/_context/_envvar.py</code></summary>
@@ -4501,7 +4566,9 @@
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>path</code></td>
+            <td>
+                <code>path</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -4515,7 +4582,9 @@
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>compute_hash</code></td>
+            <td>
+                <code>compute_hash</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -4533,7 +4602,9 @@
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>hash_algorithm</code></td>
+            <td>
+                <code>hash_algorithm</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -4551,7 +4622,9 @@
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>copy_to</code></td>
+            <td>
+                <code>copy_to</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -4569,7 +4642,9 @@
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>move_to</code></td>
+            <td>
+                <code>move_to</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -4587,7 +4662,9 @@
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>ignore_missing</code></td>
+            <td>
+                <code>ignore_missing</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -4606,6 +4683,11 @@
           </tr>
       </tbody>
     </table>
+
+
+
+
+
 
                   <details class="quote">
                     <summary>Source code in <code>capsula/_context/_file.py</code></summary>
@@ -4703,7 +4785,9 @@
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>path</code></td>
+            <td>
+                <code>path</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 <p>Path to the file</p>
@@ -4717,7 +4801,9 @@
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>compute_hash</code></td>
+            <td>
+                <code>compute_hash</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 <p>Whether to compute the hash of the file</p>
@@ -4735,7 +4821,9 @@
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>hash_algorithm</code></td>
+            <td>
+                <code>hash_algorithm</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 <p>Hash algorithm to use. This will be fed to <code>hashlib.file_digest</code> as the <code>digest</code> argument. If not provided, <code>sha256</code> will be used.</p>
@@ -4753,7 +4841,9 @@
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>copy</code></td>
+            <td>
+                <code>copy</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 <p>Whether to copy the file to the run directory</p>
@@ -4771,7 +4861,9 @@
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>move</code></td>
+            <td>
+                <code>move</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 <p>Whether to move the file to the run directory</p>
@@ -4789,7 +4881,9 @@
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>ignore_missing</code></td>
+            <td>
+                <code>ignore_missing</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 <p>Whether to ignore if the file does not exist</p>
@@ -4807,7 +4901,9 @@
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>path_relative_to_project_root</code></td>
+            <td>
+                <code>path_relative_to_project_root</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 <p>Whether <code>path</code> is relative to the project root. Will be ignored if <code>path</code> is absolute. If True, it will be interpreted as relative to the project root. If False, <code>path</code> will be interpreted as relative to the current working directory. It is recommended to set this to True in the configuration file.</p>
@@ -5100,7 +5196,9 @@
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>function</code></td>
+            <td>
+                <code>function</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -5114,7 +5212,9 @@
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>args</code></td>
+            <td>
+                <code>args</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -5128,7 +5228,9 @@
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>kwargs</code></td>
+            <td>
+                <code>kwargs</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -5142,7 +5244,9 @@
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>ignore</code></td>
+            <td>
+                <code>ignore</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -5160,7 +5264,9 @@
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>_remove_pre_run_capsule_before_binding</code></td>
+            <td>
+                <code>_remove_pre_run_capsule_before_binding</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -5179,6 +5285,11 @@
           </tr>
       </tbody>
     </table>
+
+
+
+
+
 
                   <details class="quote">
                     <summary>Source code in <code>capsula/_context/_function.py</code></summary>
@@ -5253,7 +5364,9 @@
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>ignore</code></td>
+            <td>
+                <code>ignore</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 <p>Parameters to ignore when capturing the arguments. This is useful when you pass values that you don't want to be in the output, such as a large data structure or a function that is not serializable, or a secret.</p>
@@ -5474,7 +5587,9 @@
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>name</code></td>
+            <td>
+                <code>name</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -5488,7 +5603,9 @@
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>path</code></td>
+            <td>
+                <code>path</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -5502,7 +5619,9 @@
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>diff_file</code></td>
+            <td>
+                <code>diff_file</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -5520,7 +5639,9 @@
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>search_parent_directories</code></td>
+            <td>
+                <code>search_parent_directories</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -5538,7 +5659,9 @@
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>allow_dirty</code></td>
+            <td>
+                <code>allow_dirty</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -5557,6 +5680,11 @@
           </tr>
       </tbody>
     </table>
+
+
+
+
+
 
                   <details class="quote">
                     <summary>Source code in <code>capsula/_context/_git.py</code></summary>
@@ -5635,7 +5763,9 @@
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>name</code></td>
+            <td>
+                <code>name</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 <p>Name of the Git repository. If not provided, the name of the working directory will be used.</p>
@@ -5653,7 +5783,9 @@
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>path</code></td>
+            <td>
+                <code>path</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 <p>Path to the Git repository. If not provided, the parent directories of the file where the function is defined will be searched for a Git repository.</p>
@@ -5671,7 +5803,9 @@
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>path_relative_to_project_root</code></td>
+            <td>
+                <code>path_relative_to_project_root</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 <p>Whether <code>path</code> is relative to the project root. Will be ignored if <code>path</code> is None or absolute. If True, it will be interpreted as relative to the project root. If False, <code>path</code> will be interpreted as relative to the current working directory. It is recommended to set this to True in the configuration file.</p>
@@ -5689,7 +5823,9 @@
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>allow_dirty</code></td>
+            <td>
+                <code>allow_dirty</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 <p>Whether to allow the repository to be dirty</p>
@@ -5973,6 +6109,11 @@
 
 
 
+
+
+
+
+
   <div class="doc doc-children">
 
 
@@ -6133,7 +6274,9 @@
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>context</code></td>
+            <td>
+                <code>context</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 <p>Context or a builder function to create a context from the capsule parameters.</p>
@@ -6147,7 +6290,9 @@
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>mode</code></td>
+            <td>
+                <code>mode</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 <p>Phase to add the context. Specify 'all' to add to all phases.</p>
@@ -6321,7 +6466,9 @@ repository is added to the pre-run phase:</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>func</code></td>
+            <td>
+                <code>func</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 <p>Function to decorate.</p>
@@ -6467,7 +6614,9 @@ repository is added to the pre-run phase:</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>reporter</code></td>
+            <td>
+                <code>reporter</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 <p>Reporter or a builder function to create a reporter from the capsule parameters.</p>
@@ -6481,7 +6630,9 @@ repository is added to the pre-run phase:</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>mode</code></td>
+            <td>
+                <code>mode</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 <p>Phase to add the reporter. Specify 'all' to add to all phases.</p>
@@ -6672,7 +6823,9 @@ repository is added to the pre-run phase:</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>run_name_factory</code></td>
+            <td>
+                <code>run_name_factory</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 <p>Function to generate the run name. If not specified, the default run name factory will be used.</p>
@@ -6690,7 +6843,9 @@ repository is added to the pre-run phase:</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>ignore_config</code></td>
+            <td>
+                <code>ignore_config</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 <p>Whether to ignore the configuration file.</p>
@@ -6708,7 +6863,9 @@ repository is added to the pre-run phase:</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>config_path</code></td>
+            <td>
+                <code>config_path</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 <p>Path to the configuration file. If not specified, the default configuration file will be used.</p>
@@ -6726,7 +6883,9 @@ repository is added to the pre-run phase:</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>vault_dir</code></td>
+            <td>
+                <code>vault_dir</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 <p>Path to the vault directory.</p>
@@ -7010,7 +7169,9 @@ repository is added to the pre-run phase:</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>watcher</code></td>
+            <td>
+                <code>watcher</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 <p>Watcher or a builder function to create a watcher from the capsule parameters.</p>
@@ -7151,6 +7312,11 @@ repository is added to the pre-run phase:</p>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
+
+
+
+
+
 
 
                   <details class="quote">
@@ -7332,7 +7498,9 @@ repository is added to the pre-run phase:</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>exc_type</code></td>
+            <td>
+                <code>exc_type</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -7346,7 +7514,9 @@ repository is added to the pre-run phase:</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>exc_value</code></td>
+            <td>
+                <code>exc_value</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -7360,7 +7530,9 @@ repository is added to the pre-run phase:</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>traceback</code></td>
+            <td>
+                <code>traceback</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -7429,7 +7601,9 @@ repository is added to the pre-run phase:</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>context</code></td>
+            <td>
+                <code>context</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -7443,7 +7617,9 @@ repository is added to the pre-run phase:</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>key</code></td>
+            <td>
+                <code>key</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -7512,7 +7688,9 @@ repository is added to the pre-run phase:</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>key</code></td>
+            <td>
+                <code>key</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -7526,7 +7704,9 @@ repository is added to the pre-run phase:</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>record</code></td>
+            <td>
+                <code>record</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -7585,7 +7765,9 @@ repository is added to the pre-run phase:</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>watcher</code></td>
+            <td>
+                <code>watcher</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -7599,7 +7781,9 @@ repository is added to the pre-run phase:</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>key</code></td>
+            <td>
+                <code>key</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -7747,6 +7931,11 @@ repository is added to the pre-run phase:</p>
 
 
 
+
+
+
+
+
     </div>
 
 </div>
@@ -7770,6 +7959,11 @@ repository is added to the pre-run phase:</p>
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
               Bases: <code>Exception</code></p>
+
+
+
+
+
 
 
 
@@ -7811,7 +8005,9 @@ repository is added to the pre-run phase:</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>*uninitialized_names</code></td>
+            <td>
+                <code>*uninitialized_names</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -7830,6 +8026,11 @@ repository is added to the pre-run phase:</p>
           </tr>
       </tbody>
     </table>
+
+
+
+
+
 
                   <details class="quote">
                     <summary>Source code in <code>capsula/_exceptions.py</code></summary>
@@ -7897,7 +8098,9 @@ repository is added to the pre-run phase:</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>path</code></td>
+            <td>
+                <code>path</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -7911,7 +8114,9 @@ repository is added to the pre-run phase:</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>default</code></td>
+            <td>
+                <code>default</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -7929,7 +8134,9 @@ repository is added to the pre-run phase:</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>option</code></td>
+            <td>
+                <code>option</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -7947,7 +8154,9 @@ repository is added to the pre-run phase:</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>mkdir</code></td>
+            <td>
+                <code>mkdir</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -7966,6 +8175,11 @@ repository is added to the pre-run phase:</p>
           </tr>
       </tbody>
     </table>
+
+
+
+
+
 
                   <details class="quote">
                     <summary>Source code in <code>capsula/_reporter/_json.py</code></summary>
@@ -8062,7 +8276,9 @@ repository is added to the pre-run phase:</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>option</code></td>
+            <td>
+                <code>option</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 <p>Option to pass to <code>orjson.dumps</code>. If not provided, <code>orjson.OPT_INDENT_2</code> will be used.</p>
@@ -8153,7 +8369,9 @@ repository is added to the pre-run phase:</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>capsule</code></td>
+            <td>
+                <code>capsule</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -8237,6 +8455,11 @@ repository is added to the pre-run phase:</p>
 
 
 
+
+
+
+
+
   <div class="doc doc-children">
 
 
@@ -8274,7 +8497,9 @@ repository is added to the pre-run phase:</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>name</code></td>
+            <td>
+                <code>name</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -8337,7 +8562,9 @@ repository is added to the pre-run phase:</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>capsule</code></td>
+            <td>
+                <code>capsule</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -8402,7 +8629,9 @@ repository is added to the pre-run phase:</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>*args</code></td>
+            <td>
+                <code>*args</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -8420,7 +8649,9 @@ repository is added to the pre-run phase:</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>**kwargs</code></td>
+            <td>
+                <code>**kwargs</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -8510,7 +8741,9 @@ repository is added to the pre-run phase:</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>phase</code></td>
+            <td>
+                <code>phase</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -8524,7 +8757,9 @@ repository is added to the pre-run phase:</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>channel</code></td>
+            <td>
+                <code>channel</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -8538,7 +8773,9 @@ repository is added to the pre-run phase:</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>token</code></td>
+            <td>
+                <code>token</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -8552,7 +8789,9 @@ repository is added to the pre-run phase:</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>run_name</code></td>
+            <td>
+                <code>run_name</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -8567,6 +8806,11 @@ repository is added to the pre-run phase:</p>
           </tr>
       </tbody>
     </table>
+
+
+
+
+
 
                   <details class="quote">
                     <summary>Source code in <code>capsula/_reporter/_slack.py</code></summary>
@@ -8623,7 +8867,9 @@ repository is added to the pre-run phase:</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>channel</code></td>
+            <td>
+                <code>channel</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -8637,7 +8883,9 @@ repository is added to the pre-run phase:</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>token</code></td>
+            <td>
+                <code>token</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -8714,7 +8962,9 @@ repository is added to the pre-run phase:</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>capsule</code></td>
+            <td>
+                <code>capsule</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -8881,7 +9131,9 @@ repository is added to the pre-run phase:</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>key</code></td>
+            <td>
+                <code>key</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 <p>The key to use for the value.</p>
@@ -8895,7 +9147,9 @@ repository is added to the pre-run phase:</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>value</code></td>
+            <td>
+                <code>value</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 <p>The value to record.</p>
@@ -9026,6 +9280,11 @@ repository is added to the pre-run phase:</p>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
+
+
+
+
+
 
 
 
@@ -9202,6 +9461,11 @@ repository is added to the pre-run phase:</p>
 
 
 
+
+
+
+
+
   <div class="doc doc-children">
 
 
@@ -9269,6 +9533,11 @@ repository is added to the pre-run phase:</p>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
+
+
+
+
+
 
 
 
@@ -9458,7 +9727,9 @@ repository is added to the pre-run phase:</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>run_dto</code></td>
+            <td>
+                <code>run_dto</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -9473,6 +9744,11 @@ repository is added to the pre-run phase:</p>
           </tr>
       </tbody>
     </table>
+
+
+
+
+
 
                   <details class="quote">
                     <summary>Source code in <code>capsula/_run.py</code></summary>
@@ -9695,7 +9971,9 @@ repository is added to the pre-run phase:</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>exc_type</code></td>
+            <td>
+                <code>exc_type</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -9709,7 +9987,9 @@ repository is added to the pre-run phase:</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>exc_value</code></td>
+            <td>
+                <code>exc_value</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -9723,7 +10003,9 @@ repository is added to the pre-run phase:</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>traceback</code></td>
+            <td>
+                <code>traceback</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -9792,7 +10074,9 @@ repository is added to the pre-run phase:</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>exec_info</code></td>
+            <td>
+                <code>exec_info</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -9947,7 +10231,9 @@ repository is added to the pre-run phase:</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>params</code></td>
+            <td>
+                <code>params</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -10013,7 +10299,7 @@ repository is added to the pre-run phase:</p>
 
 
 </h4>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">in_run</span><span class="p">(</span><span class="n">params</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="capsula._run.CapsuleParams" href="#capsula.CapsuleParams">CapsuleParams</a></span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n"><span title="typing.Callable">Callable</span></span><span class="p">[[],</span> <span class="n"><span title="capsula._run._T">_T</span></span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n"><span title="capsula._run._T">_T</span></span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">in_run</span><span class="p">(</span><span class="n">params</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="capsula._run.CapsuleParams" href="#capsula.CapsuleParams">CapsuleParams</a></span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n"><span title="typing.Callable">Callable</span></span><span class="p">[[],</span> <span class="n"><span title="capsula._run.<autoref identifier=">_T</span>" optional hover><span title="capsula._run._T">_T</span></autoref></span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n"><span title="capsula._run._T">_T</span></span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
@@ -10030,7 +10316,9 @@ repository is added to the pre-run phase:</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>params</code></td>
+            <td>
+                <code>params</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -10044,7 +10332,9 @@ repository is added to the pre-run phase:</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>func</code></td>
+            <td>
+                <code>func</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -10135,7 +10425,9 @@ repository is added to the pre-run phase:</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>*args</code></td>
+            <td>
+                <code>*args</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -10153,7 +10445,9 @@ repository is added to the pre-run phase:</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>**kwargs</code></td>
+            <td>
+                <code>**kwargs</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
@@ -10328,7 +10622,9 @@ repository is added to the pre-run phase:</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>start</code></td>
+            <td>
+                <code>start</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 <p>The start directory to search.</p>
@@ -10461,7 +10757,9 @@ repository is added to the pre-run phase:</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>name</code></td>
+            <td>
+                <code>name</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 <p>Name of the time watcher. Used as a key in the output.</p>
@@ -10480,6 +10778,11 @@ repository is added to the pre-run phase:</p>
           </tr>
       </tbody>
     </table>
+
+
+
+
+
 
                   <details class="quote">
                     <summary>Source code in <code>capsula/_watcher/_time.py</code></summary>
@@ -10631,7 +10934,7 @@ repository is added to the pre-run phase:</p>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">UncaughtExceptionWatcher</span><span class="p">(</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">name</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="s2">&quot;exception&quot;</span><span class="p">,</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="o">*</span><span class="p">,</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">base</span><span class="p">:</span> <span class="n">type</span><span class="p">[</span><span class="n">BaseException</span><span class="p">]</span> <span class="o">=</span> <span class="ne">Exception</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">base</span><span class="p">:</span> <span class="n">type</span><span class="p">[</span><span class="n">BaseException</span><span class="p">]</span> <span class="o">=</span> <span class="n">Exception</span>
 </span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="p">)</span>
 </span></code></pre></div>
 
@@ -10656,7 +10959,9 @@ Note that it does not consume the exception, so it will still be raised.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>name</code></td>
+            <td>
+                <code>name</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 <p>Name of the exception. Used as a key in the output.</p>
@@ -10674,7 +10979,9 @@ Note that it does not consume the exception, so it will still be raised.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>base</code></td>
+            <td>
+                <code>base</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 <p>Base exception class to catch.</p>
@@ -10693,6 +11000,11 @@ Note that it does not consume the exception, so it will still be raised.</p>
           </tr>
       </tbody>
     </table>
+
+
+
+
+
 
                   <details class="quote">
                     <summary>Source code in <code>capsula/_watcher/_exception.py</code></summary>
@@ -10857,6 +11169,11 @@ Note that it does not consume the exception, so it will still be raised.</p>
 
 
 
+
+
+
+
+
   <div class="doc doc-children">
 
 
@@ -10920,7 +11237,9 @@ Note that it does not consume the exception, so it will still be raised.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>name</code></td>
+            <td>
+                <code>name</code>
+            </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
                 
