@@ -56,7 +56,7 @@ dev-dependencies = [
     "deptry==0.20.0",
     # "pre-commit==3.8.0", # pre-commit requires Python 3.9+
     # For docs
-    "mkdocs-material==9.5.40",
+    "mkdocs-material==9.5.41",
     "mkdocstrings[python]==0.26.2",
     "mkdocs-gen-files==0.5.0",
     "mkdocs-literate-nav==0.6.1",
