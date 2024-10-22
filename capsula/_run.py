@@ -397,7 +397,7 @@ class Run(Generic[P, T]):
 
             def _func_2() -> T:
                 assert self._func is not None
-                return self._func(*args, **kwargs)
+                return self._func(*args, **kwargs)  # type: ignore[arg-type]
 
             func = _func_2
 
