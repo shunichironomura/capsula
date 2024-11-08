@@ -53,7 +53,7 @@ dev-dependencies = [
     "pytest==8.3.3",
     "coverage==7.6.4",
     "genbadge[coverage]==1.1.1",
-    "deptry==0.20.0",
+    "deptry==0.21.0",
     # "pre-commit==3.8.0", # pre-commit requires Python 3.9+
     # For docs
     "mkdocs-material==9.5.44",
