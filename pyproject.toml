@@ -48,16 +48,16 @@ capsula = "capsula._cli:app"
 
 [tool.uv]
 dev-dependencies = [
-    "ruff==0.7.2",
+    "ruff==0.7.3",
     "mypy==1.13.0",
     "pytest==8.3.3",
     "coverage==7.6.4",
     "genbadge[coverage]==1.1.1",
-    "deptry==0.20.0",
+    "deptry==0.21.0",
     # "pre-commit==3.8.0", # pre-commit requires Python 3.9+
     # For docs
-    "mkdocs-material==9.5.43",
-    "mkdocstrings[python]==0.26.2",
+    "mkdocs-material==9.5.44",
+    "mkdocstrings[python]==0.27.0",
     "mkdocs-gen-files==0.5.0",
     "mkdocs-literate-nav==0.6.1",
     "mkdocs-section-index==0.3.9",
