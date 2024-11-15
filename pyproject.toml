@@ -51,7 +51,7 @@ dev-dependencies = [
     "ruff==0.7.4",
     "mypy==1.13.0",
     "pytest==8.3.3",
-    "coverage==7.6.5",
+    "coverage==7.6.7",
     "genbadge[coverage]==1.1.1",
     "deptry==0.21.0",
     # "pre-commit==3.8.0", # pre-commit requires Python 3.9+
