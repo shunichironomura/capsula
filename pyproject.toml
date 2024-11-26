@@ -46,15 +46,15 @@ Repository = "https://github.com/shunichironomura/capsula"
 [project.scripts]
 capsula = "capsula._cli:app"
 
-[tool.uv]
-dev-dependencies = [
+[dependency-groups]
+dev = [
     "ruff==0.8.0",
     "mypy==1.13.0",
     "pytest==8.3.3",
     "coverage==7.6.8",
     "genbadge[coverage]==1.1.1",
     "deptry==0.21.1",
-    # "pre-commit==3.8.0", # pre-commit requires Python 3.9+
+    "pre-commit==4.0.1",
     # For docs
     "mkdocs-material==9.5.46",
     "mkdocstrings[python]==0.27.0",
