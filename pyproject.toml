@@ -50,7 +50,7 @@ capsula = "capsula._cli:app"
 dev = [
     "ruff==0.8.0",
     "mypy==1.13.0",
-    "pytest==8.3.3",
+    "pytest==8.3.4",
     "coverage==7.6.8",
     "genbadge[coverage]==1.1.1",
     "deptry==0.21.1",
