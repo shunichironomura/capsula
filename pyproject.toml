@@ -53,7 +53,7 @@ dev = [
     "pytest==8.3.4",
     "coverage==7.6.9",
     "genbadge[coverage]==1.1.1",
-    "deptry==0.21.1",
+    "deptry==0.21.2",
     "pre-commit==4.0.1",
     # For docs
     "mkdocs-material==9.5.49",
