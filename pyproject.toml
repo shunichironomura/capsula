@@ -65,7 +65,7 @@ dev = [
     "griffe-typingdoc==0.2.7",
     "black==24.10.0",
     # For examples
-    "click==8.1.7",
+    "click==8.1.8",
     "rich==13.9.4",
     "tomlkit==0.13.2",
 ]
