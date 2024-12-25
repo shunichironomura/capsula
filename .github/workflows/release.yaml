@@ -7,6 +7,8 @@ on:
 env:
   PYTHON_VERSION: "3.12"
   UV_VERSION: "0.5.x"
+  UV_FROZEN: "1"
+  UV_NO_SYNC: "1"
 
 jobs:
   create-tag:
@@ -111,7 +113,7 @@ jobs:
         python-version: ${{ env.PYTHON_VERSION }}
 
     - name: Install the project
-      run: uv sync
+      run: uv sync --no-dev --group docs
 
     - name: Set up Git
       run: |
