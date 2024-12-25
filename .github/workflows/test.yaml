@@ -21,16 +21,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: ${{ env.UV_VERSION }}
+
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-      - name: Extract Ruff version from pyproject.toml
-        id: extract-ruff-version
-        run: |
-          echo "ruff_version=$(python -c "import tomllib;f=open('pyproject.toml', 'rb');print(next(iter(version.strip() for package, version in (dep.split('==') for dep in tomllib.load(f)['tool']['uv']['dev-dependencies'] if '==' in dep) if package.strip() == 'ruff')));f.close()")" >> "$GITHUB_OUTPUT"
-      - uses: chartboost/ruff-action@v1
-        with:
-          version: ${{ steps.extract-ruff-version.outputs.ruff_version }}
+
+      - name: Install ruff
+        run: uv sync --only-group ruff
+
+      - name: Run ruff
+        run: uv run -- ruff check
 
   mypy:
     if: github.event.pull_request.draft == false
