@@ -1,5 +1,9 @@
 version = 1
 requires-python = ">=3.9"
+resolution-markers = [
+    "python_full_version >= '3.11'",
+    "python_full_version < '3.11'",
+]
 
 [[package]]
 name = "babel"
@@ -81,7 +85,9 @@ dev = [
     { name = "pytest" },
     { name = "rich" },
     { name = "ruff" },
+    { name = "tomli", marker = "python_full_version < '3.11'" },
     { name = "tomlkit" },
+    { name = "typer" },
 ]
 docs = [
     { name = "black" },
@@ -96,11 +102,16 @@ docs = [
 examples = [
     { name = "click" },
     { name = "rich" },
-    { name = "tomlkit" },
 ]
 lint = [
     { name = "deptry" },
     { name = "ruff" },
+]
+scripts = [
+    { name = "rich" },
+    { name = "tomli", marker = "python_full_version < '3.11'" },
+    { name = "tomlkit" },
+    { name = "typer" },
 ]
 testing = [
     { name = "coverage" },
@@ -108,9 +119,14 @@ testing = [
     { name = "pytest" },
 ]
 typing = [
+    { name = "click" },
     { name = "mkdocs-gen-files" },
     { name = "mypy" },
     { name = "pytest" },
+    { name = "rich" },
+    { name = "tomli", marker = "python_full_version < '3.11'" },
+    { name = "tomlkit" },
+    { name = "typer" },
 ]
 
 [package.metadata]
@@ -143,9 +159,12 @@ dev = [
     { name = "pre-commit", specifier = "==4.0.1" },
     { name = "pytest" },
     { name = "pytest", specifier = "==8.3.4" },
+    { name = "rich" },
     { name = "rich", specifier = "==13.9.4" },
     { name = "ruff", specifier = "==0.8.4" },
+    { name = "tomli", marker = "python_full_version < '3.11'" },
     { name = "tomlkit", specifier = "==0.13.2" },
+    { name = "typer" },
 ]
 docs = [
     { name = "black", specifier = "==24.10.0" },
@@ -160,11 +179,16 @@ docs = [
 examples = [
     { name = "click", specifier = "==8.1.8" },
     { name = "rich", specifier = "==13.9.4" },
-    { name = "tomlkit", specifier = "==0.13.2" },
 ]
 lint = [
     { name = "deptry", specifier = "==0.21.1" },
     { name = "ruff", specifier = "==0.8.4" },
+]
+scripts = [
+    { name = "rich" },
+    { name = "tomli", marker = "python_full_version < '3.11'" },
+    { name = "tomlkit", specifier = "==0.13.2" },
+    { name = "typer" },
 ]
 testing = [
     { name = "coverage", specifier = "==7.6.9" },
@@ -172,9 +196,15 @@ testing = [
     { name = "pytest", specifier = "==8.3.4" },
 ]
 typing = [
+    { name = "click", specifier = "==8.1.8" },
     { name = "mkdocs-gen-files" },
     { name = "mypy", specifier = "==1.14.0" },
     { name = "pytest" },
+    { name = "rich" },
+    { name = "rich", specifier = "==13.9.4" },
+    { name = "tomli", marker = "python_full_version < '3.11'" },
+    { name = "tomlkit", specifier = "==0.13.2" },
+    { name = "typer" },
 ]
 
 [[package]]
