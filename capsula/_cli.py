@@ -87,7 +87,7 @@ def run(
                 run_dto.add_watcher(watcher, append_left=False)
             for reporter in reversed(config[phase_key].get("reporters", [])):  # type: ignore[literal-required]
                 assert phase in {"pre", "in", "post"}, f"Invalid phase for reporter: {phase}"
-                run_dto.add_reporter(reporter, mode=phase, append_left=True)  # type: ignore[arg-type]
+                run_dto.add_reporter(reporter, mode=phase, append_left=True)
 
         run_dto.vault_dir = config["vault-dir"] if run_dto.vault_dir is None else run_dto.vault_dir
 
