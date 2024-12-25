@@ -51,14 +51,21 @@ dev = [
     "pre-commit==4.0.1",
     { include-group = "lint" },
     { include-group = "typing" },
-    { include-group = "test" },
+    { include-group = "testing" },
     { include-group = "docs" },
     { include-group = "examples" },
+    { include-group = "scripts" },
 ]
 
 lint = ["ruff==0.8.4", "deptry==0.21.1"]
-typing = ["mypy==1.14.0"]
-test = ["pytest==8.3.4", "coverage==7.6.9", "genbadge[coverage]==1.1.1"]
+typing = [
+    "mypy==1.14.0",
+    "pytest",
+    "mkdocs-gen-files",
+    { include-group = "examples" },
+    { include-group = "scripts" },
+]
+testing = ["pytest==8.3.4", "coverage==7.6.9", "genbadge[coverage]==1.1.1"]
 docs = [
     "mkdocs-material==9.5.49",
     "mkdocstrings[python]==0.27.0",
@@ -69,7 +76,8 @@ docs = [
     "griffe-typingdoc==0.2.7",
     "black==24.10.0",
 ]
-examples = ["click==8.1.8", "rich==13.9.4", "tomlkit==0.13.2"]
+examples = ["click==8.1.8", "rich==13.9.4"]
+scripts = ["rich", "typer", "tomli; python_version<'3.11'", "tomlkit==0.13.2"]
 
 [tool.coverage.report]
 exclude_also = [

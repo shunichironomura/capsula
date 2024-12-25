@@ -29,3 +29,9 @@ repos:
       - id: fix-byte-order-marker
       - id: forbid-submodules
       - id: no-commit-to-branch
+
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    # uv version.
+    rev: 0.5.8
+    hooks:
+      - id: uv-lock
