@@ -16,7 +16,7 @@ on:
 
 env:
   PYTHON_VERSION: "3.12"
-  UV_VERSION: "0.4.x"
+  UV_VERSION: "0.5.x"
 
 concurrency:
   group: "deploy-docs"
