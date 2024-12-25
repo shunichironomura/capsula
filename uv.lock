@@ -102,13 +102,15 @@ lint = [
     { name = "deptry" },
     { name = "ruff" },
 ]
-test = [
+testing = [
     { name = "coverage" },
     { name = "genbadge", extra = ["coverage"] },
     { name = "pytest" },
 ]
 typing = [
+    { name = "mkdocs-gen-files" },
     { name = "mypy" },
+    { name = "pytest" },
 ]
 
 [package.metadata]
@@ -131,6 +133,7 @@ dev = [
     { name = "genbadge", extras = ["coverage"], specifier = "==1.1.1" },
     { name = "griffe-typingdoc", specifier = "==0.2.7" },
     { name = "mike", specifier = "==2.1.3" },
+    { name = "mkdocs-gen-files" },
     { name = "mkdocs-gen-files", specifier = "==0.5.0" },
     { name = "mkdocs-literate-nav", specifier = "==0.6.1" },
     { name = "mkdocs-material", specifier = "==9.5.49" },
@@ -138,6 +141,7 @@ dev = [
     { name = "mkdocstrings", extras = ["python"], specifier = "==0.27.0" },
     { name = "mypy", specifier = "==1.14.0" },
     { name = "pre-commit", specifier = "==4.0.1" },
+    { name = "pytest" },
     { name = "pytest", specifier = "==8.3.4" },
     { name = "rich", specifier = "==13.9.4" },
     { name = "ruff", specifier = "==0.8.4" },
@@ -162,12 +166,16 @@ lint = [
     { name = "deptry", specifier = "==0.21.1" },
     { name = "ruff", specifier = "==0.8.4" },
 ]
-test = [
+testing = [
     { name = "coverage", specifier = "==7.6.9" },
     { name = "genbadge", extras = ["coverage"], specifier = "==1.1.1" },
     { name = "pytest", specifier = "==8.3.4" },
 ]
-typing = [{ name = "mypy", specifier = "==1.14.0" }]
+typing = [
+    { name = "mkdocs-gen-files" },
+    { name = "mypy", specifier = "==1.14.0" },
+    { name = "pytest" },
+]
 
 [[package]]
 name = "certifi"
