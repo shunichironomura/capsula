@@ -60,7 +60,7 @@ dev = [
 lint = [{ include-group = "ruff" }, "deptry==0.21.2"]
 ruff = ["ruff==0.8.5"]
 typing = [
-    "mypy==1.14.0",
+    "mypy==1.14.1",
     "pytest",
     "mkdocs-gen-files",
     { include-group = "examples" },
