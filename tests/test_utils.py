@@ -70,9 +70,9 @@ def test_flat_dict_various(input_dict: Mapping[Hashable, Any], expected_output: 
     ],
 )
 def test_to_nested_dict(flat_dict: Mapping[Sequence[Hashable], Any], expected_nested_dict: dict[Hashable, Any]) -> None:
-    assert (
-        to_nested_dict(flat_dict) == expected_nested_dict
-    ), "The conversion from flat to nested did not match the expected output"
+    assert to_nested_dict(flat_dict) == expected_nested_dict, (
+        "The conversion from flat to nested did not match the expected output"
+    )
 
 
 @pytest.mark.parametrize(
@@ -97,9 +97,9 @@ def test_search_for_project_root_found(tmp_path: Path) -> None:
     (project_root / "pyproject.toml").touch()  # Create an empty pyproject.toml file
 
     # Test that the search correctly identifies the project root
-    assert (
-        search_for_project_root(project_root) == project_root
-    ), "Failed to identify the project root when pyproject.toml is present"
+    assert search_for_project_root(project_root) == project_root, (
+        "Failed to identify the project root when pyproject.toml is present"
+    )
 
 
 def test_search_for_project_root_in_parent(tmp_path: Path) -> None:
