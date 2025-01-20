@@ -48,7 +48,7 @@ capsula = "capsula._cli:app"
 
 [dependency-groups]
 dev = [
-    "pre-commit==4.0.1",
+    "pre-commit==4.1.0",
     { include-group = "lint" },
     { include-group = "typing" },
     { include-group = "testing" },
