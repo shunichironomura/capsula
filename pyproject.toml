@@ -57,7 +57,7 @@ dev = [
     { include-group = "scripts" },
 ]
 
-lint = [{ include-group = "ruff" }, "deptry==0.22.0"]
+lint = [{ include-group = "ruff" }, "deptry==0.23.0"]
 ruff = ["ruff==0.9.3"]
 typing = [
     "mypy==1.14.1",
