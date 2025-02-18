@@ -1,4 +1,5 @@
 version = 1
+revision = 1
 requires-python = ">=3.9"
 resolution-markers = [
     "python_full_version >= '3.11'",
@@ -150,7 +151,7 @@ dev = [
     { name = "coverage", specifier = "==7.6.12" },
     { name = "deptry", specifier = "==0.23.0" },
     { name = "genbadge", extras = ["coverage"], specifier = "==1.1.1" },
-    { name = "griffe-typingdoc", specifier = "==0.2.7" },
+    { name = "griffe-typingdoc", specifier = "==0.2.8" },
     { name = "mike", specifier = "==2.1.3" },
     { name = "mkdocs-gen-files" },
     { name = "mkdocs-gen-files", specifier = "==0.5.0" },
@@ -171,7 +172,7 @@ dev = [
 ]
 docs = [
     { name = "black", specifier = "==25.1.0" },
-    { name = "griffe-typingdoc", specifier = "==0.2.7" },
+    { name = "griffe-typingdoc", specifier = "==0.2.8" },
     { name = "mike", specifier = "==2.1.3" },
     { name = "mkdocs-gen-files", specifier = "==0.5.0" },
     { name = "mkdocs-literate-nav", specifier = "==0.6.1" },
@@ -530,15 +531,15 @@ wheels = [
 
 [[package]]
 name = "griffe-typingdoc"
-version = "0.2.7"
+version = "0.2.8"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "griffe" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/2c/68/e319895bb0437acd1e053bd6e92c8787efb87576f283f81b8d6c55c59a3f/griffe_typingdoc-0.2.7.tar.gz", hash = "sha256:800841e99f8844ea3c1fae80b19bede7d8eed4195a2586f5db753f7a73f4931d", size = 29943 }
+sdist = { url = "https://files.pythonhosted.org/packages/97/5d/5b64411883042f49fa715fdd8085cc39f7378b934d3b35aa479dc9b37f3a/griffe_typingdoc-0.2.8.tar.gz", hash = "sha256:36f2c2f2568240a5d0ab462153d1f3cfec01a9cc56b2291f16ce7869f0f7af05", size = 30472 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/68/0f/833aa84950c04dd386d768a7c23e9d0682c51e8d23104b838c10a432e76e/griffe_typingdoc-0.2.7-py3-none-any.whl", hash = "sha256:74a825df32fc87fcae2f221df5c5524dca23155cd3c04ec9fa46493669d3cf54", size = 9362 },
+    { url = "https://files.pythonhosted.org/packages/8e/50/0b1e5e81027d5664903236b44fee18cd0e1e5f046e02c0b3ebebd6b9e3d3/griffe_typingdoc-0.2.8-py3-none-any.whl", hash = "sha256:a4ed3dd73b9d48311b138d8b317916a0589325a73c525236bf5969a8fe2626b1", size = 9607 },
 ]
 
 [[package]]
