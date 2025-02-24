@@ -2,90 +2,90 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://shunichironomura.github.io/capsula/dev/</loc>
-         <lastmod>2025-02-20</lastmod>
+         <lastmod>2025-02-24</lastmod>
     </url>
     <url>
          <loc>https://shunichironomura.github.io/capsula/dev/concepts/</loc>
-         <lastmod>2025-02-20</lastmod>
+         <lastmod>2025-02-24</lastmod>
     </url>
     <url>
          <loc>https://shunichironomura.github.io/capsula/dev/config/</loc>
-         <lastmod>2025-02-20</lastmod>
+         <lastmod>2025-02-24</lastmod>
     </url>
     <url>
          <loc>https://shunichironomura.github.io/capsula/dev/extending/</loc>
-         <lastmod>2025-02-20</lastmod>
+         <lastmod>2025-02-24</lastmod>
     </url>
     <url>
          <loc>https://shunichironomura.github.io/capsula/dev/helpers/</loc>
-         <lastmod>2025-02-20</lastmod>
+         <lastmod>2025-02-24</lastmod>
     </url>
     <url>
          <loc>https://shunichironomura.github.io/capsula/dev/contexts/</loc>
-         <lastmod>2025-02-20</lastmod>
+         <lastmod>2025-02-24</lastmod>
     </url>
     <url>
          <loc>https://shunichironomura.github.io/capsula/dev/contexts/command/</loc>
-         <lastmod>2025-02-20</lastmod>
+         <lastmod>2025-02-24</lastmod>
     </url>
     <url>
          <loc>https://shunichironomura.github.io/capsula/dev/contexts/cpu/</loc>
-         <lastmod>2025-02-20</lastmod>
+         <lastmod>2025-02-24</lastmod>
     </url>
     <url>
          <loc>https://shunichironomura.github.io/capsula/dev/contexts/cwd/</loc>
-         <lastmod>2025-02-20</lastmod>
+         <lastmod>2025-02-24</lastmod>
     </url>
     <url>
          <loc>https://shunichironomura.github.io/capsula/dev/contexts/envvar/</loc>
-         <lastmod>2025-02-20</lastmod>
+         <lastmod>2025-02-24</lastmod>
     </url>
     <url>
          <loc>https://shunichironomura.github.io/capsula/dev/contexts/file/</loc>
-         <lastmod>2025-02-20</lastmod>
+         <lastmod>2025-02-24</lastmod>
     </url>
     <url>
          <loc>https://shunichironomura.github.io/capsula/dev/contexts/function/</loc>
-         <lastmod>2025-02-20</lastmod>
+         <lastmod>2025-02-24</lastmod>
     </url>
     <url>
          <loc>https://shunichironomura.github.io/capsula/dev/contexts/git/</loc>
-         <lastmod>2025-02-20</lastmod>
+         <lastmod>2025-02-24</lastmod>
     </url>
     <url>
          <loc>https://shunichironomura.github.io/capsula/dev/contexts/platform/</loc>
-         <lastmod>2025-02-20</lastmod>
+         <lastmod>2025-02-24</lastmod>
     </url>
     <url>
          <loc>https://shunichironomura.github.io/capsula/dev/reference/SUMMARY/</loc>
-         <lastmod>2025-02-20</lastmod>
+         <lastmod>2025-02-24</lastmod>
     </url>
     <url>
          <loc>https://shunichironomura.github.io/capsula/dev/reference/capsula/</loc>
-         <lastmod>2025-02-20</lastmod>
+         <lastmod>2025-02-24</lastmod>
     </url>
     <url>
          <loc>https://shunichironomura.github.io/capsula/dev/reporters/</loc>
-         <lastmod>2025-02-20</lastmod>
+         <lastmod>2025-02-24</lastmod>
     </url>
     <url>
          <loc>https://shunichironomura.github.io/capsula/dev/reporters/json_dump/</loc>
-         <lastmod>2025-02-20</lastmod>
+         <lastmod>2025-02-24</lastmod>
     </url>
     <url>
          <loc>https://shunichironomura.github.io/capsula/dev/reporters/slack/</loc>
-         <lastmod>2025-02-20</lastmod>
+         <lastmod>2025-02-24</lastmod>
     </url>
     <url>
          <loc>https://shunichironomura.github.io/capsula/dev/watchers/</loc>
-         <lastmod>2025-02-20</lastmod>
+         <lastmod>2025-02-24</lastmod>
     </url>
     <url>
          <loc>https://shunichironomura.github.io/capsula/dev/watchers/time/</loc>
-         <lastmod>2025-02-20</lastmod>
+         <lastmod>2025-02-24</lastmod>
     </url>
     <url>
          <loc>https://shunichironomura.github.io/capsula/dev/watchers/uncaught_exception/</loc>
-         <lastmod>2025-02-20</lastmod>
+         <lastmod>2025-02-24</lastmod>
     </url>
 </urlset>
