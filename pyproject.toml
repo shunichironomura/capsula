@@ -58,7 +58,7 @@ dev = [
 ]
 
 lint = [{ include-group = "ruff" }, "deptry==0.23.0"]
-ruff = ["ruff==0.9.9"]
+ruff = ["ruff==0.9.10"]
 typing = [
     "mypy==1.15.0",
     "pytest",
