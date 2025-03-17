@@ -68,7 +68,7 @@ typing = [
 ]
 testing = ["pytest==8.3.5", "coverage==7.7.0", "genbadge[coverage]==1.1.1"]
 docs = [
-    "mkdocs-material==9.6.8",
+    "mkdocs-material==9.6.9",
     "mkdocstrings[python]==0.29.0",
     "mkdocs-gen-files==0.5.0",
     "mkdocs-literate-nav==0.6.1",
