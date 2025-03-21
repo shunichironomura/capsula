@@ -47,6 +47,10 @@ jobs:
         echo "new_version=$new_version" >> "$GITHUB_OUTPUT"
         echo "Bumped version to v$new_version" >> $GITHUB_STEP_SUMMARY
 
+    - name: Update uv.lock
+      run: |
+        uv lock
+
     - name: Commit and push
       uses: EndBug/add-and-commit@v9
       with:
