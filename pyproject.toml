@@ -77,7 +77,7 @@ docs = [
     "griffe-typingdoc==0.2.8",
     "black==25.1.0",
 ]
-examples = ["click==8.1.8", "rich==14.0.0"]
+examples = ["click==8.2.0", "rich==14.0.0"]
 scripts = ["rich", "typer", "tomli; python_version<'3.11'", "tomlkit==0.13.2"]
 
 [tool.coverage.report]
