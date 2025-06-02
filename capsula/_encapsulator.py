@@ -5,7 +5,7 @@ import threading
 import warnings
 from collections import OrderedDict
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Union
+from typing import TYPE_CHECKING, Any, TypeAlias, Union
 
 from capsula._utils import ExceptionInfo
 
@@ -17,7 +17,7 @@ from ._watcher import WatcherBase, WatcherGroup
 if TYPE_CHECKING:
     from types import TracebackType
 
-    from ._backport import Self, TypeAlias
+    from typing_extensions import Self
 
 _CapsuleItemKey: TypeAlias = Union[str, tuple[str, ...]]
 

@@ -4,7 +4,8 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, Callable, Final
 
 if TYPE_CHECKING:
-    from capsula._backport import Self
+    from typing_extensions import Self
+
     from capsula._capsule import Capsule
     from capsula._run import CapsuleParams
 
