@@ -98,7 +98,7 @@ exclude_also = [
 strict = true
 
 [[tool.mypy.overrides]]
-module = ["cpuinfo", "matplotlib.*"]
+module = ["cpuinfo"]
 ignore_missing_imports = true
 
 [tool.ruff]
