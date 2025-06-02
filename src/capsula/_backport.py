@@ -54,7 +54,7 @@ if sys.version_info < (3, 11):
         """
         # On Linux we could use AF_ALG sockets and sendfile() to archive zero-copy
         # hashing with hardware acceleration.
-        if isinstance(digest, str):
+        if isinstance(digest, str):  # noqa: SIM108
             digestobj = hashlib.new(digest)
         else:
             digestobj = digest()
@@ -66,7 +66,7 @@ if sys.version_info < (3, 11):
 
         # Only binary files implement readinto().
         if not (hasattr(fileobj, "readinto") and hasattr(fileobj, "readable") and fileobj.readable()):
-            raise ValueError(f"'{fileobj!r}' is not a file-like object in binary reading mode.")
+            raise ValueError(f"'{fileobj!r}' is not a file-like object in binary reading mode.")  # noqa: EM102
 
         # binary file, socket.SocketIO object
         # Note: socket I/O uses different syscalls than file I/O.
