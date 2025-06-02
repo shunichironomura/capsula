@@ -7,7 +7,7 @@ from enum import Enum
 from pathlib import Path
 from random import choices
 from string import ascii_letters, digits
-from typing import Annotated, Any, Literal, NoReturn, Optional
+from typing import Annotated, Any, Literal, NoReturn
 
 import typer
 from rich.console import Console
@@ -38,14 +38,14 @@ def run(
     command: Annotated[list[str], typer.Argument(help="Command to run", show_default=False)],
     *,
     run_name: Annotated[
-        Optional[str],
+        str | None,
         typer.Option(
             ...,
             help="Run name. Make sure it is unique. If not provided, it will be generated randomly.",
         ),
     ] = None,
     vault_dir: Annotated[
-        Optional[Path],
+        Path | None,
         typer.Option(
             ...,
             help="Vault directory. If not provided, it will be set to the default value.",
@@ -59,7 +59,7 @@ def run(
         ),
     ] = False,
     config_path: Annotated[
-        Optional[Path],
+        Path | None,
         typer.Option(
             ...,
             help="Path to the Capsula configuration file.",

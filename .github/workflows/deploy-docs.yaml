@@ -4,15 +4,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - ".github/workflows/deploy-docs.yml"
-      - "capsula/**"
-      - "docs/**"
-      - "scripts/gen_pages.py"
-      - "mkdocs.yml"
-      - "pyproject.toml"
-      - "README.md"
-
 
 env:
   UV_VERSION: "0.7.x"
