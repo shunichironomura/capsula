@@ -2,14 +2,17 @@ from __future__ import annotations
 
 import logging
 import subprocess
+from collections.abc import Callable
 from pathlib import Path
-from typing import TYPE_CHECKING, Annotated, Callable, TypedDict
+from typing import TYPE_CHECKING, Annotated, TypedDict
 
 from typing_extensions import Doc
 
 from ._base import ContextBase
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from capsula._run import CapsuleParams
 
 

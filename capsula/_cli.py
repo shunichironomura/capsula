@@ -36,6 +36,7 @@ err_console = Console(stderr=True)
 @app.command()
 def run(
     command: Annotated[list[str], typer.Argument(help="Command to run", show_default=False)],
+    *,
     run_name: Annotated[
         Optional[str],
         typer.Option(

@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import inspect
+from collections.abc import Callable
 from pathlib import Path
-from typing import TYPE_CHECKING, Annotated, Any, Callable, TypedDict
+from typing import TYPE_CHECKING, Annotated, Any, TypedDict
 
 from typing_extensions import Doc
 
@@ -11,7 +12,7 @@ from capsula._run import FuncInfo
 from ._base import ContextBase
 
 if TYPE_CHECKING:
-    from collections.abc import Container, Mapping, Sequence
+    from collections.abc import Callable, Container, Mapping, Sequence
 
     from capsula._run import CapsuleParams
 

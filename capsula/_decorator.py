@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import inspect
+from collections.abc import Callable
 from pathlib import Path
-from typing import TYPE_CHECKING, Annotated, Callable, Concatenate, Literal, ParamSpec, TypeVar
+from typing import TYPE_CHECKING, Annotated, Concatenate, Literal, ParamSpec, TypeVar
 
 from typing_extensions import Doc
 
@@ -19,6 +20,7 @@ from ._run import (
 from ._utils import get_default_config_path, search_for_project_root
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
     from datetime import datetime
 
     from ._capsule import Capsule
