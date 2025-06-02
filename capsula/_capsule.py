@@ -5,11 +5,12 @@ from typing import TYPE_CHECKING, Any, Callable, Union
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
+    from typing import TypeAlias
+
+    from typing_extensions import Self
 
     from capsula._run import CapsuleParams
     from capsula._utils import ExceptionInfo
-
-    from ._backport import Self, TypeAlias
 
 
 _ContextKey: TypeAlias = Union[str, tuple[str, ...]]

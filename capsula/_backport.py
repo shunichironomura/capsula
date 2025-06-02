@@ -1,10 +1,6 @@
 from __future__ import annotations
 
 __all__ = [
-    "Concatenate",
-    "ParamSpec",
-    "Self",
-    "TypeAlias",
     "file_digest",
     "tomllib",
 ]
@@ -19,17 +15,8 @@ from typing import TYPE_CHECKING, Callable
 # YORE: EOL 3.10: Replace block with lines 5-7.
 if sys.version_info < (3, 11):
     import tomli as tomllib
-    from typing_extensions import Self
 else:
-    from typing import Self
-
     import tomllib
-
-# YORE: EOL 3.9: Replace block with line 4.
-if sys.version_info < (3, 10):
-    from typing_extensions import Concatenate, ParamSpec, TypeAlias
-else:
-    from typing import Concatenate, ParamSpec, TypeAlias
 
 # YORE: EOL 3.10: Replace block with line 59.
 if sys.version_info < (3, 11):

@@ -11,11 +11,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 from random import choices
 from string import ascii_letters, digits
-from typing import TYPE_CHECKING, Any, Callable, Generic, Literal, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Callable, Concatenate, Generic, Literal, ParamSpec, TypeAlias, TypeVar, Union
+
+from typing_extensions import Self
 
 from capsula._exceptions import CapsulaUninitializedError
 
-from ._backport import Concatenate, ParamSpec, Self, TypeAlias
 from ._context import ContextBase
 from ._encapsulator import Encapsulator
 from ._exceptions import CapsulaError, CapsulaNoRunError
@@ -30,7 +31,6 @@ if TYPE_CHECKING:
 
 P = ParamSpec("P")
 T = TypeVar("T")
-_P = ParamSpec("_P")
 _T = TypeVar("_T")
 
 logger = logging.getLogger(__name__)
