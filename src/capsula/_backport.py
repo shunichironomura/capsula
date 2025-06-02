@@ -7,6 +7,7 @@ __all__ = [
 
 import hashlib
 import sys
+from collections.abc import Callable
 from typing import TYPE_CHECKING
 
 # Acknowledgment: Portions of this module, including the `file_digest` function and relevant type definitions,
