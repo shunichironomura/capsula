@@ -7,7 +7,7 @@ __all__ = [
 
 import hashlib
 import sys
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING
 
 # Acknowledgment: Portions of this module, including the `file_digest` function and relevant type definitions,
 # are derived from the Python source code and are licensed under the Python Software Foundation License Version 2.
@@ -21,6 +21,8 @@ else:
 # YORE: EOL 3.10: Replace block with line 59.
 if sys.version_info < (3, 11):
     if TYPE_CHECKING:
+        from collections.abc import Callable
+
         from typing_extensions import Buffer
     from typing import Protocol
 

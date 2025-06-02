@@ -6,12 +6,13 @@ import queue
 import subprocess
 import threading
 from collections import OrderedDict, deque
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from random import choices
 from string import ascii_letters, digits
-from typing import TYPE_CHECKING, Any, Callable, Concatenate, Generic, Literal, ParamSpec, TypeAlias, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Concatenate, Generic, Literal, ParamSpec, TypeAlias, TypeVar
 
 from typing_extensions import Self
 
@@ -25,6 +26,7 @@ from ._utils import search_for_project_root
 from ._watcher import WatcherBase
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
     from types import TracebackType
 
     from ._capsule import Capsule
@@ -65,7 +67,7 @@ class CapsuleParams:
     project_root: Path
 
 
-ExecInfo: TypeAlias = Union[FuncInfo, CommandInfo]
+ExecInfo: TypeAlias = FuncInfo | CommandInfo
 
 
 def get_default_vault_dir(exec_info: ExecInfo | None) -> Path:

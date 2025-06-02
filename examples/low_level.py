@@ -89,7 +89,7 @@ with in_run_enc.watch():
     random.seed(SEED)
     xs = (random.random() for _ in range(N_SAMPLES))
     ys = (random.random() for _ in range(N_SAMPLES))
-    inside = sum(x * x + y * y <= 1.0 for x, y in zip(xs, ys))
+    inside = sum(x * x + y * y <= 1.0 for x, y in zip(xs, ys, strict=True))
 
     in_run_enc.record("inside", inside)
 

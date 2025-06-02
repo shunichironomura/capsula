@@ -2,8 +2,9 @@ from __future__ import annotations
 
 import inspect
 import logging
+from collections.abc import Callable
 from pathlib import Path
-from typing import TYPE_CHECKING, Annotated, Callable, TypedDict
+from typing import TYPE_CHECKING, Annotated, TypedDict
 
 from git.repo import Repo
 from typing_extensions import Doc
@@ -14,6 +15,7 @@ from capsula._run import CommandInfo, FuncInfo
 from ._base import ContextBase
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
     from os import PathLike
 
     from capsula._run import CapsuleParams

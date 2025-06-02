@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import logging
 import traceback
+from collections.abc import Callable
 from datetime import timedelta
 from pathlib import Path
 from types import TracebackType
-from typing import TYPE_CHECKING, Annotated, Any, Callable
+from typing import TYPE_CHECKING, Annotated, Any
 
 import orjson
 from typing_extensions import Doc
@@ -13,6 +14,8 @@ from typing_extensions import Doc
 from capsula._utils import to_nested_dict
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from capsula._capsule import Capsule
     from capsula._run import CapsuleParams
 

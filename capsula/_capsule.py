@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Callable, Union
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping
+    from collections.abc import Callable, Mapping
     from typing import TypeAlias
 
     from typing_extensions import Self
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from capsula._utils import ExceptionInfo
 
 
-_ContextKey: TypeAlias = Union[str, tuple[str, ...]]
+_ContextKey: TypeAlias = str | tuple[str, ...]
 
 
 class Capsule:

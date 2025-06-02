@@ -1,13 +1,15 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Callable, ClassVar, Literal
+from typing import TYPE_CHECKING, ClassVar, Literal
 
 from slack_sdk import WebClient
 
 from ._base import ReporterBase
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from capsula._capsule import Capsule
     from capsula._run import CapsuleParams
 

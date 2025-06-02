@@ -16,7 +16,7 @@ def calc_pi(n_samples: int, seed: int) -> float:
     random.seed(seed)
     xs = (random.random() for _ in range(n_samples))
     ys = (random.random() for _ in range(n_samples))
-    inside = sum(x * x + y * y <= 1.0 for x, y in zip(xs, ys))
+    inside = sum(x * x + y * y <= 1.0 for x, y in zip(xs, ys, strict=True))
 
     capsula.record("inside", inside)
 

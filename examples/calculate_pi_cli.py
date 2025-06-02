@@ -35,7 +35,7 @@ def main(n: int, seed: int | None = None) -> None:
     random.seed(seed)
     xs = (random.random() for _ in range(n))
     ys = (random.random() for _ in range(n))
-    inside = sum(x * x + y * y <= 1.0 for x, y in zip(xs, ys))
+    inside = sum(x * x + y * y <= 1.0 for x, y in zip(xs, ys, strict=True))
 
     pi_estimate = (4.0 * inside) / n
     logger.info(f"Pi estimate: {pi_estimate}")
