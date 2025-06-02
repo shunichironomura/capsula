@@ -15,7 +15,6 @@ on:
 
 
 env:
-  PYTHON_VERSION: "3.12"
   UV_VERSION: "0.7.x"
   UV_FROZEN: "1"
   UV_NO_SYNC: "1"
@@ -40,7 +39,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
+          python-version-file: .python-version
 
       - name: Install the project
         run: uv sync --no-dev --group docs
