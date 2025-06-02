@@ -10,7 +10,7 @@ readme = "README.md"
 authors = [
     { name = "Shunichiro Nomura", email = "nomura@space.t.u-tokyo.ac.jp" },
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
     "py-cpuinfo>=9.0.0",
     "gitpython>=3.1.41",
