@@ -77,7 +77,7 @@ docs = [
     "black==25.1.0",
 ]
 examples = ["click==8.2.1", "rich==14.0.0"]
-scripts = ["rich", "typer", "tomli; python_version<'3.11'", "tomlkit==0.13.2"]
+scripts = ["rich", "typer", "tomli; python_version<'3.11'", "tomlkit==0.13.3"]
 
 [tool.coverage.report]
 exclude_also = [
