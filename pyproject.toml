@@ -150,4 +150,4 @@ ignore = [
 ]
 "scripts/*" = ["INP001", "EXE003", "T201"]
 "tests/**" = ["SLF001"]
-"capsula/_cli.py" = ["UP007", "FBT002", "UP006", "TCH001"]
+"capsula/_cli.py" = ["UP007", "FBT002", "UP006"]
