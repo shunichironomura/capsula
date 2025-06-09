@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Annotated, TypedDict
 from typing_extensions import Doc
 
 from capsula._backport import file_digest
+from capsula._utils import resolve_path_with_project_root
 
 from ._base import ContextBase
 
@@ -64,10 +65,14 @@ class FileContext(ContextBase):
             copy = False
 
         def build(params: CapsuleParams) -> FileContext:
-            if path_relative_to_project_root and path is not None and not Path(path).is_absolute():
-                file_path = params.project_root / path
-            else:
-                file_path = Path(path)
+            file_path = resolve_path_with_project_root(
+                path,
+                params.project_root,
+                path_relative_to_project_root=path_relative_to_project_root,
+            )
+            if file_path is None:
+                msg = "File path cannot be None"
+                raise ValueError(msg)
 
             return cls(
                 path=file_path,
