@@ -3,15 +3,17 @@ from __future__ import annotations
 import logging
 import subprocess
 from collections.abc import Callable
-from pathlib import Path
 from typing import TYPE_CHECKING, Annotated, TypedDict
 
 from typing_extensions import Doc
+
+from capsula._utils import resolve_path_with_project_root
 
 from ._base import ContextBase
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+    from pathlib import Path
 
     from capsula._run import CapsuleParams
 
@@ -69,12 +71,15 @@ class CommandContext(ContextBase):
         ] = True,
     ) -> Callable[[CapsuleParams], CommandContext]:
         def build(params: CapsuleParams) -> CommandContext:
-            if cwd_relative_to_project_root and cwd is not None and not Path(cwd).is_absolute():
-                cwd_path: Path | None = params.project_root / cwd
-            elif cwd_relative_to_project_root and cwd is None:
-                cwd_path = params.project_root
+            # Handle the special case where cwd is None but cwd_relative_to_project_root is True
+            if cwd_relative_to_project_root and cwd is None:
+                cwd_path: Path | None = params.project_root
             else:
-                cwd_path = Path(cwd) if cwd is not None else None
+                cwd_path = resolve_path_with_project_root(
+                    cwd,
+                    params.project_root,
+                    path_relative_to_project_root=cwd_relative_to_project_root,
+                )
 
             return cls(
                 command,

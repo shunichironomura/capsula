@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import warnings
 from collections.abc import Hashable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -96,3 +97,70 @@ def get_default_config_path() -> Path:
         msg = f"Config file not found: {config_path}"
         raise FileNotFoundError(msg)
     return config_path
+
+
+def resolve_path_with_project_root(
+    path: Annotated[Path | str | None, Doc("The path to resolve")],
+    project_root: Annotated[Path, Doc("The project root directory")],
+    *,
+    path_relative_to_project_root: Annotated[
+        bool | None,
+        Doc("Legacy boolean flag for path resolution. Use @/ syntax instead."),
+    ] = None,
+) -> Annotated[Path | None, Doc("The resolved path, or None if input path is None")]:
+    """Resolve a path using the new @/ syntax or legacy boolean flag.
+
+    The new syntax supports:
+    - `@/some/path` - path relative to project root
+    - `./some/path` or `some/path` - path relative to current working directory
+    - `/absolute/path` - absolute path
+
+    For backward compatibility, the legacy `path_relative_to_project_root` boolean
+    flag is still supported but deprecated.
+    """
+    if path is None:
+        return None
+
+    path_str = str(path)
+
+    # Handle new @/ syntax
+    if path_str.startswith("@/"):
+        if path_relative_to_project_root is not None:
+            warnings.warn(
+                "Both @/ syntax and path_relative_to_project_root flag are specified. "
+                "The @/ syntax takes precedence. The path_relative_to_project_root flag is deprecated.",
+                DeprecationWarning,
+                stacklevel=3,
+            )
+        # Remove @/ prefix and resolve relative to project root
+        relative_path = path_str[2:]  # Remove "@/"
+        return project_root / relative_path
+
+    path_obj = Path(path)
+
+    # Handle absolute paths
+    if path_obj.is_absolute():
+        if path_relative_to_project_root is not None:
+            warnings.warn(
+                "path_relative_to_project_root flag is ignored for absolute paths and is deprecated. "
+                "Use @/ syntax for project-relative paths.",
+                DeprecationWarning,
+                stacklevel=3,
+            )
+        return path_obj
+
+    # Handle legacy boolean flag
+    if path_relative_to_project_root is not None:
+        warnings.warn(
+            "path_relative_to_project_root flag is deprecated. "
+            "Use @/ syntax for project-relative paths (e.g., @/some/path).",
+            DeprecationWarning,
+            stacklevel=3,
+        )
+        if path_relative_to_project_root:
+            return project_root / path_obj
+        else:
+            return path_obj
+
+    # Default behavior: relative to current working directory
+    return path_obj

@@ -4,11 +4,18 @@ from typing import TYPE_CHECKING, Any
 
 import pytest
 
-from capsula._utils import ExceptionInfo, search_for_project_root, to_flat_dict, to_nested_dict
+from capsula._utils import (
+    ExceptionInfo,
+    resolve_path_with_project_root,
+    search_for_project_root,
+    to_flat_dict,
+    to_nested_dict,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Hashable, Mapping, Sequence
-    from pathlib import Path
+
+from pathlib import Path
 
 
 def raise_exception() -> None:
@@ -120,3 +127,80 @@ def test_search_for_project_root_not_found(tmp_path: Path) -> None:
     # Test that searching in a directory structure without pyproject.toml raises FileNotFoundError
     with pytest.raises(FileNotFoundError, match="Project root not found."):
         search_for_project_root(start_dir)
+
+
+class TestResolvePathWithProjectRoot:
+    """Test the resolve_path_with_project_root function."""
+
+    def test_none_path(self, tmp_path: Path) -> None:
+        """Test that None path returns None."""
+        result = resolve_path_with_project_root(None, tmp_path)
+        assert result is None
+
+    def test_at_slash_syntax(self, tmp_path: Path) -> None:
+        """Test the new @/ syntax for project root relative paths."""
+        result = resolve_path_with_project_root("@/some/file.txt", tmp_path)
+        expected = tmp_path / "some/file.txt"
+        assert result == expected
+
+    def test_at_slash_empty_path(self, tmp_path: Path) -> None:
+        """Test @/ with empty path (project root itself)."""
+        result = resolve_path_with_project_root("@/", tmp_path)
+        expected = tmp_path / ""
+        assert result == expected
+
+    def test_absolute_path(self, tmp_path: Path) -> None:
+        """Test absolute paths are returned as-is."""
+        absolute_path = "/absolute/path/file.txt"
+        result = resolve_path_with_project_root(absolute_path, tmp_path)
+        expected = Path(absolute_path)
+        assert result == expected
+
+    def test_relative_path_default(self, tmp_path: Path) -> None:
+        """Test relative paths default to current working directory."""
+        result = resolve_path_with_project_root("relative/file.txt", tmp_path)
+        expected = Path("relative/file.txt")
+        assert result == expected
+
+    def test_legacy_boolean_flag_true(self, tmp_path: Path) -> None:
+        """Test legacy boolean flag with True value."""
+        with pytest.warns(DeprecationWarning, match="path_relative_to_project_root flag is deprecated"):
+            result = resolve_path_with_project_root("some/file.txt", tmp_path, path_relative_to_project_root=True)
+        expected = tmp_path / "some/file.txt"
+        assert result == expected
+
+    def test_legacy_boolean_flag_false(self, tmp_path: Path) -> None:
+        """Test legacy boolean flag with False value."""
+        with pytest.warns(DeprecationWarning, match="path_relative_to_project_root flag is deprecated"):
+            result = resolve_path_with_project_root("some/file.txt", tmp_path, path_relative_to_project_root=False)
+        expected = Path("some/file.txt")
+        assert result == expected
+
+    def test_at_slash_with_boolean_flag_warning(self, tmp_path: Path) -> None:
+        """Test that using both @/ syntax and boolean flag generates warning."""
+        with pytest.warns(DeprecationWarning, match="Both @/ syntax and path_relative_to_project_root flag"):
+            result = resolve_path_with_project_root("@/some/file.txt", tmp_path, path_relative_to_project_root=True)
+        expected = tmp_path / "some/file.txt"
+        assert result == expected
+
+    def test_absolute_path_with_boolean_flag_warning(self, tmp_path: Path) -> None:
+        """Test that using boolean flag with absolute paths generates warning."""
+        absolute_path = "/absolute/path/file.txt"
+        with pytest.warns(DeprecationWarning, match="path_relative_to_project_root flag is ignored for absolute paths"):
+            result = resolve_path_with_project_root(absolute_path, tmp_path, path_relative_to_project_root=True)
+        expected = Path(absolute_path)
+        assert result == expected
+
+    def test_path_object_input(self, tmp_path: Path) -> None:
+        """Test that Path objects work as input."""
+        path_obj = Path("some/file.txt")
+        result = resolve_path_with_project_root(path_obj, tmp_path)
+        expected = Path("some/file.txt")
+        assert result == expected
+
+    def test_at_slash_path_object(self, tmp_path: Path) -> None:
+        """Test @/ syntax with Path object input."""
+        path_obj = Path("@/some/file.txt")
+        result = resolve_path_with_project_root(path_obj, tmp_path)
+        expected = tmp_path / "some/file.txt"
+        assert result == expected

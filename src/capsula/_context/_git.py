@@ -11,6 +11,7 @@ from typing_extensions import Doc
 
 from capsula._exceptions import CapsulaError
 from capsula._run import CommandInfo, FuncInfo
+from capsula._utils import resolve_path_with_project_root
 
 from ._base import ContextBase
 
@@ -68,10 +69,11 @@ class GitRepositoryContext(ContextBase):
         allow_dirty: Annotated[bool, Doc("Whether to allow the repository to be dirty")] = True,
     ) -> Callable[[CapsuleParams], GitRepositoryContext]:
         def build(params: CapsuleParams) -> GitRepositoryContext:
-            if path_relative_to_project_root and path is not None and not Path(path).is_absolute():
-                repository_path: Path | None = params.project_root / path
-            else:
-                repository_path = Path(path) if path is not None else None
+            repository_path = resolve_path_with_project_root(
+                path,
+                params.project_root,
+                path_relative_to_project_root=path_relative_to_project_root,
+            )
 
             if repository_path is not None:
                 repo = Repo(repository_path, search_parent_directories=False)

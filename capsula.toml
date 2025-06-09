@@ -5,12 +5,12 @@ contexts = [
     { type = "CwdContext" },
     { type = "CpuContext" },
     { type = "PlatformContext" },
-    { type = "GitRepositoryContext", name = "capsula", path = ".", path_relative_to_project_root = true },
-    { type = "CommandContext", command = "uv lock --locked", cwd = ".", cwd_relative_to_project_root = true },
-    { type = "FileContext", path = "pyproject.toml", copy = true, path_relative_to_project_root = true },
-    { type = "FileContext", path = "uv.lock", copy = true, path_relative_to_project_root = true },
-    { type = "CommandContext", command = "uv export > requirements.txt", cwd = ".", cwd_relative_to_project_root = true },
-    { type = "FileContext", path = "requirements.txt", move = true, path_relative_to_project_root = true },
+    { type = "GitRepositoryContext", name = "capsula", path = "@/" },
+    { type = "CommandContext", command = "uv lock --locked", cwd = "@/" },
+    { type = "FileContext", path = "@/pyproject.toml", copy = true },
+    { type = "FileContext", path = "@/uv.lock", copy = true },
+    { type = "CommandContext", command = "uv export > requirements.txt", cwd = "@/" },
+    { type = "FileContext", path = "@/requirements.txt", move = true },
     { type = "EnvVarContext", name = "HOME" },
 ]
 reporters = [{ type = "JsonDumpReporter" }]
