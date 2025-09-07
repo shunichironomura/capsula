@@ -15,7 +15,7 @@ on:
           - 'major'
 
 env:
-  UV_VERSION: "0.7.x"
+  UV_VERSION: "0.8.x"
 
 jobs:
   bump-version:
