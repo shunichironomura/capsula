@@ -1,8 +1,8 @@
 [package]
-name = "capsula-core"
+name = "capsula-cwd-context"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+capsula-core = { path = "../capsula-core"}
 serde_json = { workspace = true }
-thiserror = { workspace = true }
