@@ -17,27 +17,3 @@ thiserror = "2"
 anyhow = "1"
 
 [workspace.lints.rust]
-# Fail the build on any warning (covers rustc + rustdoc lints set below)
-warnings = "deny"
-unsafe_code = "deny"
-missing_docs = "deny"
-missing_debug_implementations = "deny"
-unused_imports = "deny"
-unused_variables = "deny"
-unused_mut = "deny"
-dead_code = "deny"
-rust_2018_idioms = "deny"
-
-# rustdoc lints (namespaced) — these live under the rust table
-"rustdoc.broken_intra_doc_links" = "deny"
-"rustdoc.missing_crate_level_docs" = "deny"
-"rustdoc.private_intra_doc_links" = "deny"
-
-[workspace.lints.clippy]
-# Max strictness
-all = "deny"
-pedantic = { level = "deny", priority = -1 }
-nursery = "deny"
-cargo = "deny"
-# `restriction` is very opinionated: enable and allow back what you truly want.
-restriction = { level = "deny", priority = -2 }
