@@ -1,0 +1,33 @@
+[vault]
+name = "capsula"
+
+[storage]
+type = "filesystem"
+
+[storage.filesystem]
+path = ".capsula"
+
+[[phase.pre.contexts]]
+type = "cwd"
+
+[[phase.pre.contexts]]
+type = "git"
+path = "."
+
+[[phase.pre.contexts]]
+type = "file"
+path = "capsula.toml"
+copy = true
+hash = true
+
+[[phase.pre.contexts]]
+type = "file"
+path = "Cargo.toml"
+hash = true
+
+[[phase.in.watchers]]
+type = "time"
+
+[[phase.post.contexts]]
+type = "env"
+key = "PATH"
