@@ -1,3 +1,6 @@
+use capsula_core::captured::Captured;
+use capsula_core::context::{Context, ContextParams, ContextPhase};
+use capsula_cwd_context::CwdContext;
 use clap::{Parser, Subcommand};
 
 #[derive(Parser, Debug)]
@@ -9,21 +12,20 @@ struct Cli {
 
 #[derive(Subcommand, Debug)]
 enum Commands {
-    Capture {
-        #[arg(short, long = "context")]
-        contexts: Vec<String>,
-
-        #[arg(short, long, default_value = "json")]
-        format: String,
-    },
+    Capture,
 }
 
 fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
     match cli.command {
-        Commands::Capture { contexts, format } => {
-            println!("Contexts to be captured: {:?}", contexts);
-            println!("Output format: {:?}", format);
+        Commands::Capture => {
+            let context = CwdContext::default();
+            let params = ContextParams {
+                phase: ContextPhase::PreRun,
+            };
+            let captured = context.run(&params)?;
+            let json = captured.to_json();
+            println!("{}", serde_json::to_string_pretty(&json)?);
         }
     }
     Ok(())

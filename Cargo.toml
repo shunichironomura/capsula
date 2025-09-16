@@ -12,6 +12,7 @@ capsula-cli = { path = "crates/capsula-cli" }
 capsula-core = { path = "crates/capsula-core" }
 capsula-cwd-context = { path = "crates/capsula-cwd-context" }
 
+serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 thiserror = "2"
 anyhow = "1"
