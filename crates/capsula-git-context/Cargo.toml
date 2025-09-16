@@ -1,0 +1,13 @@
+[package]
+name = "capsula-git-context"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+capsula-core = { workspace = true }
+git2 = "0.20.2"
+serde_json = { workspace = true }
+
+[lints]
+workspace = true
