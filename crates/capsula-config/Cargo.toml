@@ -1,0 +1,17 @@
+[package]
+name = "capsula-config"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+capsula-core = { workspace = true }
+capsula-cwd-context = { workspace = true }
+capsula-git-context = { workspace = true }
+
+serde = { workspace = true }
+thiserror = { workspace = true }
+toml = "0.9.6"
+
+[lints]
+workspace = true

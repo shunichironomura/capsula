@@ -9,6 +9,7 @@ rust-version = "1.89"
 
 [workspace.dependencies]
 capsula-cli = { path = "crates/capsula-cli" }
+capsula-config = { path = "crates/capsula-config" }
 capsula-core = { path = "crates/capsula-core" }
 capsula-cwd-context = { path = "crates/capsula-cwd-context" }
 capsula-git-context = { path = "crates/capsula-git-context" }
