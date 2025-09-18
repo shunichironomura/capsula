@@ -1,0 +1,32 @@
+[vault]
+name = "capsula" # Should be unique in the storage
+
+[storage]
+type = "filesystem"
+path = ".capsula"
+
+[[phase.pre.contexts]]
+type = "cwd"
+
+[[phase.pre.contexts]]
+type = "git"
+path = "." # Relative to the project root.
+allow_dirty = true
+
+[[phase.pre.contexts]]
+type = "file"
+path = "capsula.toml"
+copy = true
+hash = true
+
+[[phase.pre.contexts]]
+type = "file"
+path = "Cargo.toml"
+hash = true
+
+[[phase.in.watchers]]
+type = "time"
+
+[[phase.post.contexts]]
+type = "env"
+key = "PATH"
