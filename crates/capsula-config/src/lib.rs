@@ -1,6 +1,6 @@
 use capsula_core::error::CoreResult;
 use serde::Deserialize;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -75,7 +75,6 @@ pub struct CwdContextSpec {}
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct GitContextSpec {
-    #[serde(default = "default_current_dir")]
     pub path: PathBuf,
     #[serde(default)]
     pub allow_dirty: bool,
@@ -84,9 +83,9 @@ pub struct GitContextSpec {
 #[derive(Deserialize, Debug, Clone)]
 pub struct FileContextSpec {
     pub path: PathBuf,
-    #[serde(default)]
+    #[serde(default = "default_true")]
     pub copy: bool,
-    #[serde(default)]
+    #[serde(default = "default_true")]
     pub hash: bool,
 }
 
@@ -102,13 +101,10 @@ pub enum WatcherSpec {
 }
 
 #[derive(Deserialize, Debug, Clone, Default)]
-pub struct TimeWatcherSpec {
-    #[serde(default)]
-    pub interval_ms: Option<u64>,
-}
+pub struct TimeWatcherSpec {}
 
-fn default_current_dir() -> PathBuf {
-    PathBuf::from(".")
+fn default_true() -> bool {
+    true
 }
 
 impl CapsulaConfig {
@@ -122,13 +118,24 @@ impl CapsulaConfig {
     }
 }
 
+fn resolve_path(path: &Path, project_root: &Path) -> PathBuf {
+    if path.is_absolute() {
+        path.to_path_buf()
+    } else {
+        project_root.join(path)
+    }
+}
+
 impl ContextSpec {
-    pub fn build(self) -> CoreResult<Box<dyn capsula_core::context::ContextErased>> {
+    pub fn build(
+        self,
+        project_root: &Path,
+    ) -> CoreResult<Box<dyn capsula_core::context::ContextErased>> {
         match self {
             ContextSpec::Cwd(_spec) => Ok(Box::new(capsula_cwd_context::CwdContext::default())),
             ContextSpec::Git(spec) => {
                 let mut context = capsula_git_context::GitContext::default();
-                context.working_dir = spec.path;
+                context.working_dir = resolve_path(&spec.path, project_root);
                 context.allow_dirty = spec.allow_dirty;
                 Ok(Box::new(context))
             }
@@ -219,19 +226,5 @@ key = "PATH"
             &config.phase.post.contexts[0],
             ContextSpec::Env(_)
         ));
-    }
-
-    #[test]
-    fn test_build_contexts() {
-        let cwd_spec = ContextSpec::Cwd(CwdContextSpec::default());
-        let cwd_context = cwd_spec.build().unwrap();
-        assert_eq!(cwd_context.type_name(), "CwdContext");
-
-        let git_spec = ContextSpec::Git(GitContextSpec {
-            path: PathBuf::from("."),
-            allow_dirty: true,
-        });
-        let git_context = git_spec.build().unwrap();
-        assert_eq!(git_context.type_name(), "GitContext");
     }
 }

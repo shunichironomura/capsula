@@ -69,6 +69,7 @@ name = "capsula-cli"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "capsula-config",
  "capsula-core",
  "capsula-cwd-context",
  "capsula-git-context",

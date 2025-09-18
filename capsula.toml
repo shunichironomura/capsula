@@ -1,10 +1,8 @@
 [vault]
-name = "capsula"
+name = "capsula" # Should be unique in the storage
 
 [storage]
 type = "filesystem"
-
-[storage.filesystem]
 path = ".capsula"
 
 [[phase.pre.contexts]]
@@ -12,7 +10,8 @@ type = "cwd"
 
 [[phase.pre.contexts]]
 type = "git"
-path = "."
+path = "." # Relative to the project root.
+allow_dirty = true
 
 [[phase.pre.contexts]]
 type = "file"
