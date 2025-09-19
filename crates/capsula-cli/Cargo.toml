@@ -7,8 +7,6 @@ rust-version.workspace = true
 [dependencies]
 capsula-config = { workspace = true }
 capsula-core = { workspace = true }
-capsula-cwd-context = { workspace = true }
-capsula-git-context = { workspace = true }
 capsula-registry = { workspace = true }
 
 anyhow = { workspace = true }

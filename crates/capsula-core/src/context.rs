@@ -45,8 +45,8 @@ where
 
 /// Factory trait for creating contexts from configuration
 pub trait ContextFactory: Send + Sync {
-    /// The type name this factory handles (e.g., "cwd", "git", "file")
-    fn context_type(&self) -> &'static str;
+    /// The type key this factory handles (e.g., "cwd", "git", "file")
+    fn key(&self) -> &'static str;
 
     /// Create a context instance from JSON configuration
     fn create_context(

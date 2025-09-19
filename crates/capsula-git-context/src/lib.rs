@@ -88,7 +88,7 @@ pub struct GitContextConfig {
 pub struct GitContextFactory;
 
 impl ContextFactory for GitContextFactory {
-    fn context_type(&self) -> &'static str {
+    fn key(&self) -> &'static str {
         "git"
     }
 

@@ -21,7 +21,7 @@ impl From<RegistryError> for CoreError {
 
 /// Context factory registry
 pub struct ContextRegistry {
-    factories: HashMap<String, Box<dyn ContextFactory>>,
+    factories: HashMap<&'static str, Box<dyn ContextFactory>>,
 }
 
 impl ContextRegistry {
@@ -34,9 +34,9 @@ impl ContextRegistry {
 
     /// Register a context factory
     pub fn register(&mut self, factory: Box<dyn ContextFactory>) -> Result<(), RegistryError> {
-        let context_type = factory.context_type().to_string();
-        if self.factories.contains_key(&context_type) {
-            return Err(RegistryError::AlreadyRegistered(context_type));
+        let context_type = factory.key();
+        if self.factories.contains_key(context_type) {
+            return Err(RegistryError::AlreadyRegistered(context_type.to_string()));
         }
 
         self.factories.insert(context_type, factory);
@@ -59,8 +59,8 @@ impl ContextRegistry {
     }
 
     /// Get list of registered context types
-    pub fn registered_types(&self) -> Vec<String> {
-        self.factories.keys().cloned().collect()
+    pub fn registered_types(&self) -> Vec<&'static str> {
+        self.factories.keys().copied().collect()
     }
 }
 
@@ -96,4 +96,29 @@ impl Default for RegistryBuilder {
     fn default() -> Self {
         Self::new()
     }
+}
+
+/// Create a standard registry with all built-in context types
+///
+/// This is feature-gated so only enabled contexts are included:
+/// - "ctx-cwd": includes CWD context
+/// - "ctx-git": includes Git context
+///
+/// You can disable contexts by turning off features in Cargo.toml
+pub fn standard_registry() -> ContextRegistry {
+    let mut builder = RegistryBuilder::new();
+
+    #[cfg(feature = "ctx-cwd")]
+    {
+        builder = builder.with_factory(capsula_cwd_context::create_factory())
+            .expect("Failed to register CWD context");
+    }
+
+    #[cfg(feature = "ctx-git")]
+    {
+        builder = builder.with_factory(capsula_git_context::create_factory())
+            .expect("Failed to register Git context");
+    }
+
+    builder.build()
 }

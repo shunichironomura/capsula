@@ -42,7 +42,7 @@ pub struct CwdContextConfig {}
 pub struct CwdContextFactory;
 
 impl ContextFactory for CwdContextFactory {
-    fn context_type(&self) -> &'static str {
+    fn key(&self) -> &'static str {
         "cwd"
     }
 

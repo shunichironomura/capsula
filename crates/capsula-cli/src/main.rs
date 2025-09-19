@@ -17,24 +17,14 @@ enum Commands {
     Capture,
 }
 
-fn create_registry() -> anyhow::Result<capsula_registry::ContextRegistry> {
-    // Build registry with all available context factories
-    let registry = capsula_registry::RegistryBuilder::new()
-        .with_factory(capsula_cwd_context::create_factory())
-        .map_err(|e| anyhow::anyhow!("Failed to register CWD context: {}", e))?
-        .with_factory(capsula_git_context::create_factory())
-        .map_err(|e| anyhow::anyhow!("Failed to register Git context: {}", e))?
-        // Future context types can be added here:
-        // .with_factory(capsula_file_context::create_factory())?
-        // .with_factory(capsula_env_context::create_factory())?
-        .build();
-
-    Ok(registry)
+fn create_registry() -> capsula_registry::ContextRegistry {
+    // Use the standard registry with all built-in context types
+    capsula_registry::standard_registry()
 }
 
 fn main() -> anyhow::Result<()> {
     // Create the registry with all available context types
-    let registry = create_registry()?;
+    let registry = create_registry();
 
     let cli = Cli::parse();
     // TODO: Read from CLI option
@@ -50,23 +40,18 @@ fn main() -> anyhow::Result<()> {
                 phase: ContextPhase::PreRun,
             };
 
-            let context_specs = match params.phase {
-                ContextPhase::PreRun => config.phase.pre.contexts,
-                ContextPhase::PostRun => config.phase.post.contexts,
+            let contexts_ok = match params.phase {
+                ContextPhase::PreRun => capsula_config::build_pre_phase_contexts(
+                    &config.phase.pre,
+                    &project_root,
+                    &registry,
+                )?,
+                ContextPhase::PostRun => capsula_config::build_post_phase_contexts(
+                    &config.phase.post,
+                    &project_root,
+                    &registry,
+                )?,
             };
-            let (contexts_ok, _contexts_err) = context_specs
-                .into_iter()
-                .map(|spec| spec.build(&project_root, &registry))
-                .partition::<Vec<_>, _>(Result::is_ok);
-            let contexts_ok = contexts_ok
-                .into_iter()
-                .map(Result::unwrap)
-                .collect::<Vec<_>>();
-
-            // let contexts_err = contexts_err
-            //     .into_iter()
-            //     .map(Result::unwrap_err)
-            //     .collect::<Vec<_>>();
 
             let context_outputs = contexts_ok
                 .iter()

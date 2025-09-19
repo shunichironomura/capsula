@@ -46,7 +46,7 @@ pub struct PhaseConfig {
 #[derive(Deserialize, Debug, Clone, Default)]
 pub struct PrePhaseConfig {
     #[serde(default)]
-    pub contexts: Vec<ContextSpec>,
+    pub contexts: Vec<ContextEnvelope>,
 }
 
 #[derive(Deserialize, Debug, Clone, Default)]
@@ -58,40 +58,15 @@ pub struct InPhaseConfig {
 #[derive(Deserialize, Debug, Clone, Default)]
 pub struct PostPhaseConfig {
     #[serde(default)]
-    pub contexts: Vec<ContextSpec>,
+    pub contexts: Vec<ContextEnvelope>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
-#[serde(tag = "type", rename_all = "lowercase")]
-pub enum ContextSpec {
-    Cwd(CwdContextSpec),
-    Git(GitContextSpec),
-    File(FileContextSpec),
-    Env(EnvContextSpec),
-}
-
-#[derive(Deserialize, Debug, Clone, Default, serde::Serialize)]
-pub struct CwdContextSpec {}
-
-#[derive(Deserialize, Debug, Clone, serde::Serialize)]
-pub struct GitContextSpec {
-    pub path: PathBuf,
-    #[serde(default)]
-    pub allow_dirty: bool,
-}
-
-#[derive(Deserialize, Debug, Clone, serde::Serialize)]
-pub struct FileContextSpec {
-    pub path: PathBuf,
-    #[serde(default = "default_true")]
-    pub copy: bool,
-    #[serde(default = "default_true")]
-    pub hash: bool,
-}
-
-#[derive(Deserialize, Debug, Clone, serde::Serialize)]
-pub struct EnvContextSpec {
-    pub key: String,
+pub struct ContextEnvelope {
+    #[serde(rename = "type")]
+    pub ty: String,
+    #[serde(flatten)]
+    pub rest: serde_json::Value,
 }
 
 #[derive(Deserialize, Debug, Clone)]
@@ -102,10 +77,6 @@ pub enum WatcherSpec {
 
 #[derive(Deserialize, Debug, Clone, Default)]
 pub struct TimeWatcherSpec {}
-
-fn default_true() -> bool {
-    true
-}
 
 impl CapsulaConfig {
     pub fn from_str(content: &str) -> ConfigResult<Self> {
@@ -118,43 +89,30 @@ impl CapsulaConfig {
     }
 }
 
-impl ContextSpec {
-    pub fn build(
-        self,
-        project_root: &Path,
-        registry: &capsula_registry::ContextRegistry,
-    ) -> CoreResult<Box<dyn capsula_core::context::ContextErased>> {
-        // Convert the spec to JSON for the factory
-        let config_json = match self {
-            ContextSpec::Cwd(spec) => {
-                let context_type = "cwd";
-                let config = serde_json::to_value(spec)
-                    .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e))?;
-                registry.create_context(context_type, &config, project_root)?
-            }
-            ContextSpec::Git(spec) => {
-                let context_type = "git";
-                let config = serde_json::to_value(spec)
-                    .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e))?;
-                registry.create_context(context_type, &config, project_root)?
-            }
-            ContextSpec::File(spec) => {
-                let context_type = "file";
-                let config = serde_json::to_value(spec)
-                    .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e))?;
-                // Will fail with "not found" if file context isn't registered
-                registry.create_context(context_type, &config, project_root)?
-            }
-            ContextSpec::Env(spec) => {
-                let context_type = "env";
-                let config = serde_json::to_value(spec)
-                    .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e))?;
-                // Will fail with "not found" if env context isn't registered
-                registry.create_context(context_type, &config, project_root)?
-            }
-        };
-        Ok(config_json)
-    }
+/// Build contexts from envelopes using a registry
+pub fn build_pre_phase_contexts(
+    phase: &PrePhaseConfig,
+    project_root: &Path,
+    registry: &capsula_registry::ContextRegistry,
+) -> CoreResult<Vec<Box<dyn capsula_core::context::ContextErased>>> {
+    phase
+        .contexts
+        .iter()
+        .map(|envelope| registry.create_context(&envelope.ty, &envelope.rest, project_root))
+        .collect()
+}
+
+/// Build contexts from envelopes using a registry (for post phase)
+pub fn build_post_phase_contexts(
+    phase: &PostPhaseConfig,
+    project_root: &Path,
+    registry: &capsula_registry::ContextRegistry,
+) -> CoreResult<Vec<Box<dyn capsula_core::context::ContextErased>>> {
+    phase
+        .contexts
+        .iter()
+        .map(|envelope| registry.create_context(&envelope.ty, &envelope.rest, project_root))
+        .collect()
 }
 
 #[cfg(test)]
@@ -208,16 +166,10 @@ key = "PATH"
         }
 
         assert_eq!(config.phase.pre.contexts.len(), 4);
-        assert!(matches!(&config.phase.pre.contexts[0], ContextSpec::Cwd(_)));
-        assert!(matches!(&config.phase.pre.contexts[1], ContextSpec::Git(_)));
-        assert!(matches!(
-            &config.phase.pre.contexts[2],
-            ContextSpec::File(_)
-        ));
-        assert!(matches!(
-            &config.phase.pre.contexts[3],
-            ContextSpec::File(_)
-        ));
+        assert_eq!(config.phase.pre.contexts[0].ty, "cwd");
+        assert_eq!(config.phase.pre.contexts[1].ty, "git");
+        assert_eq!(config.phase.pre.contexts[2].ty, "file");
+        assert_eq!(config.phase.pre.contexts[3].ty, "file");
 
         assert_eq!(config.phase.in_phase.watchers.len(), 1);
         assert!(matches!(
@@ -226,9 +178,6 @@ key = "PATH"
         ));
 
         assert_eq!(config.phase.post.contexts.len(), 1);
-        assert!(matches!(
-            &config.phase.post.contexts[0],
-            ContextSpec::Env(_)
-        ));
+        assert_eq!(config.phase.post.contexts[0].ty, "env");
     }
 }
