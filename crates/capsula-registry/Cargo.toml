@@ -1,17 +1,16 @@
 [package]
-name = "capsula-config"
+name = "capsula-registry"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 
 [dependencies]
 capsula-core = { workspace = true }
-capsula-registry = { workspace = true }
-
 serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }
 toml = "0.9.6"
+once_cell = "1.20"
 
 [lints]
 workspace = true

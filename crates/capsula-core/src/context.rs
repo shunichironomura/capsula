@@ -1,4 +1,5 @@
 use crate::error::{CoreError, CoreResult};
+use serde_json::Value;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ContextPhase {
@@ -40,4 +41,17 @@ where
         let out = <T as Context>::run(self, params)?;
         Ok(Box::new(out))
     }
+}
+
+/// Factory trait for creating contexts from configuration
+pub trait ContextFactory: Send + Sync {
+    /// The type name this factory handles (e.g., "cwd", "git", "file")
+    fn context_type(&self) -> &'static str;
+
+    /// Create a context instance from JSON configuration
+    fn create_context(
+        &self,
+        config: &Value,
+        project_root: &std::path::Path,
+    ) -> CoreResult<Box<dyn ContextErased>>;
 }

@@ -1,10 +1,7 @@
 use std::path::PathBuf;
 
 use capsula_config::CapsulaConfig;
-use capsula_core::captured::Captured;
-use capsula_core::context::{Context, ContextErased, ContextParams, ContextPhase};
-use capsula_cwd_context::CwdContext;
-use capsula_git_context::GitContext;
+use capsula_core::context::{ContextParams, ContextPhase};
 use clap::{Parser, Subcommand};
 use std::str::FromStr;
 
@@ -20,7 +17,25 @@ enum Commands {
     Capture,
 }
 
+fn create_registry() -> anyhow::Result<capsula_registry::ContextRegistry> {
+    // Build registry with all available context factories
+    let registry = capsula_registry::RegistryBuilder::new()
+        .with_factory(capsula_cwd_context::create_factory())
+        .map_err(|e| anyhow::anyhow!("Failed to register CWD context: {}", e))?
+        .with_factory(capsula_git_context::create_factory())
+        .map_err(|e| anyhow::anyhow!("Failed to register Git context: {}", e))?
+        // Future context types can be added here:
+        // .with_factory(capsula_file_context::create_factory())?
+        // .with_factory(capsula_env_context::create_factory())?
+        .build();
+
+    Ok(registry)
+}
+
 fn main() -> anyhow::Result<()> {
+    // Create the registry with all available context types
+    let registry = create_registry()?;
+
     let cli = Cli::parse();
     // TODO: Read from CLI option
     let project_root = PathBuf::from_str(".")?;
@@ -41,7 +56,7 @@ fn main() -> anyhow::Result<()> {
             };
             let (contexts_ok, _contexts_err) = context_specs
                 .into_iter()
-                .map(|spec| spec.build(&project_root))
+                .map(|spec| spec.build(&project_root, &registry))
                 .partition::<Vec<_>, _>(Result::is_ok);
             let contexts_ok = contexts_ok
                 .into_iter()

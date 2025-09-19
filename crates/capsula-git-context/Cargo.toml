@@ -6,7 +6,9 @@ rust-version.workspace = true
 
 [dependencies]
 capsula-core = { workspace = true }
+capsula-registry = { workspace = true }
 git2 = "0.20.2"
+serde = { workspace = true }
 serde_json = { workspace = true }
 
 [lints]

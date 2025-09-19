@@ -70,17 +70,17 @@ pub enum ContextSpec {
     Env(EnvContextSpec),
 }
 
-#[derive(Deserialize, Debug, Clone, Default)]
+#[derive(Deserialize, Debug, Clone, Default, serde::Serialize)]
 pub struct CwdContextSpec {}
 
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Deserialize, Debug, Clone, serde::Serialize)]
 pub struct GitContextSpec {
     pub path: PathBuf,
     #[serde(default)]
     pub allow_dirty: bool,
 }
 
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Deserialize, Debug, Clone, serde::Serialize)]
 pub struct FileContextSpec {
     pub path: PathBuf,
     #[serde(default = "default_true")]
@@ -89,7 +89,7 @@ pub struct FileContextSpec {
     pub hash: bool,
 }
 
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Deserialize, Debug, Clone, serde::Serialize)]
 pub struct EnvContextSpec {
     pub key: String,
 }
@@ -118,38 +118,42 @@ impl CapsulaConfig {
     }
 }
 
-fn resolve_path(path: &Path, project_root: &Path) -> PathBuf {
-    if path.is_absolute() {
-        path.to_path_buf()
-    } else {
-        project_root.join(path)
-    }
-}
-
 impl ContextSpec {
     pub fn build(
         self,
         project_root: &Path,
+        registry: &capsula_registry::ContextRegistry,
     ) -> CoreResult<Box<dyn capsula_core::context::ContextErased>> {
-        match self {
-            ContextSpec::Cwd(_spec) => Ok(Box::new(capsula_cwd_context::CwdContext::default())),
-            ContextSpec::Git(spec) => {
-                let mut context = capsula_git_context::GitContext::default();
-                context.working_dir = resolve_path(&spec.path, project_root);
-                context.allow_dirty = spec.allow_dirty;
-                Ok(Box::new(context))
+        // Convert the spec to JSON for the factory
+        let config_json = match self {
+            ContextSpec::Cwd(spec) => {
+                let context_type = "cwd";
+                let config = serde_json::to_value(spec)
+                    .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e))?;
+                registry.create_context(context_type, &config, project_root)?
             }
-            ContextSpec::File(_spec) => Err(std::io::Error::new(
-                std::io::ErrorKind::Other,
-                "File context not yet implemented",
-            )
-            .into()),
-            ContextSpec::Env(_spec) => Err(std::io::Error::new(
-                std::io::ErrorKind::Other,
-                "Env context not yet implemented",
-            )
-            .into()),
-        }
+            ContextSpec::Git(spec) => {
+                let context_type = "git";
+                let config = serde_json::to_value(spec)
+                    .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e))?;
+                registry.create_context(context_type, &config, project_root)?
+            }
+            ContextSpec::File(spec) => {
+                let context_type = "file";
+                let config = serde_json::to_value(spec)
+                    .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e))?;
+                // Will fail with "not found" if file context isn't registered
+                registry.create_context(context_type, &config, project_root)?
+            }
+            ContextSpec::Env(spec) => {
+                let context_type = "env";
+                let config = serde_json::to_value(spec)
+                    .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e))?;
+                // Will fail with "not found" if env context isn't registered
+                registry.create_context(context_type, &config, project_root)?
+            }
+        };
+        Ok(config_json)
     }
 }
 
