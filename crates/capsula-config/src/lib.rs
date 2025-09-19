@@ -43,23 +43,24 @@ pub struct PhaseConfig {
     pub post: PostPhaseConfig,
 }
 
+/// A phase configuration that contains contexts
 #[derive(Deserialize, Debug, Clone, Default)]
-pub struct PrePhaseConfig {
+pub struct ContextPhaseConfig {
     #[serde(default)]
     pub contexts: Vec<ContextEnvelope>,
 }
 
+/// A phase configuration that contains watchers
 #[derive(Deserialize, Debug, Clone, Default)]
-pub struct InPhaseConfig {
+pub struct WatcherPhaseConfig {
     #[serde(default)]
     pub watchers: Vec<WatcherSpec>,
 }
 
-#[derive(Deserialize, Debug, Clone, Default)]
-pub struct PostPhaseConfig {
-    #[serde(default)]
-    pub contexts: Vec<ContextEnvelope>,
-}
+// Type aliases for semantic clarity
+pub type PrePhaseConfig = ContextPhaseConfig;
+pub type PostPhaseConfig = ContextPhaseConfig;
+pub type InPhaseConfig = WatcherPhaseConfig;
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct ContextEnvelope {
@@ -89,22 +90,9 @@ impl CapsulaConfig {
     }
 }
 
-/// Build contexts from envelopes using a registry
-pub fn build_pre_phase_contexts(
-    phase: &PrePhaseConfig,
-    project_root: &Path,
-    registry: &capsula_registry::ContextRegistry,
-) -> CoreResult<Vec<Box<dyn capsula_core::context::ContextErased>>> {
-    phase
-        .contexts
-        .iter()
-        .map(|envelope| registry.create_context(&envelope.ty, &envelope.rest, project_root))
-        .collect()
-}
-
-/// Build contexts from envelopes using a registry (for post phase)
-pub fn build_post_phase_contexts(
-    phase: &PostPhaseConfig,
+/// Build contexts from any phase config that contains contexts
+pub fn build_contexts(
+    phase: &ContextPhaseConfig,
     project_root: &Path,
     registry: &capsula_registry::ContextRegistry,
 ) -> CoreResult<Vec<Box<dyn capsula_core::context::ContextErased>>> {

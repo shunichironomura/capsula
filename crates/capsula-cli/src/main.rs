@@ -35,23 +35,18 @@ fn main() -> anyhow::Result<()> {
 
     match cli.command {
         Commands::Capture => {
-            // TODO: These are only for testing. Will be loaded from config in the future.
             let params = ContextParams {
                 phase: ContextPhase::PreRun,
             };
 
-            let contexts_ok = match params.phase {
-                ContextPhase::PreRun => capsula_config::build_pre_phase_contexts(
-                    &config.phase.pre,
-                    &project_root,
-                    &registry,
-                )?,
-                ContextPhase::PostRun => capsula_config::build_post_phase_contexts(
-                    &config.phase.post,
-                    &project_root,
-                    &registry,
-                )?,
-            };
+            let contexts_ok = capsula_config::build_contexts(
+                match params.phase {
+                    ContextPhase::PreRun => &config.phase.pre,
+                    ContextPhase::PostRun => &config.phase.post,
+                },
+                &project_root,
+                &registry,
+            )?;
 
             let context_outputs = contexts_ok
                 .iter()
