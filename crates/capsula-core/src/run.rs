@@ -1,6 +1,8 @@
 use chrono::{DateTime, Utc};
 use serde::ser::SerializeStruct;
 use serde::{Deserialize, Serialize, Serializer};
+use shlex::try_join;
+use std::collections::HashMap;
 use std::io::{self, Read, Write};
 use std::process::{Command, ExitStatus, Stdio};
 use std::thread;
@@ -93,12 +95,19 @@ impl Run {
         let program = &self.command[0];
         let args: Vec<&str> = self.command[1..].iter().map(|s| s.as_str()).collect();
 
+        let mut env_vars = HashMap::new();
+        env_vars.insert("CAPSULA_RUN_ID", self.id.to_string());
+        env_vars.insert("CAPSULA_RUN_NAME", self.name.clone());
+        env_vars.insert("CAPSULA_RUN_TIMESTAMP", self.timestamp().to_rfc3339());
+        if let Ok(cmd_str) = try_join(self.command.iter().map(|s| s.as_str())) {
+            env_vars.insert("CAPSULA_RUN_COMMAND", cmd_str);
+        }
+
         let start = Instant::now();
 
         let mut child = Command::new(program)
             .args(&args)
-            .env("CAPSULA_RUN_ID", self.id.to_string())
-            .env("CAPSULA_RUN_NAME", &self.name)
+            .envs(&env_vars)
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())
             .spawn()?;
