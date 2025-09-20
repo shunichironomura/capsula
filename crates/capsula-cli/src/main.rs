@@ -149,6 +149,9 @@ fn main() -> anyhow::Result<()> {
 
             let run_dir = run.setup_run_dir(&config.vault.path)?;
             eprintln!("Run directory: {}", run_dir.to_string_lossy());
+            // Save run metadata to run_dir/run.json
+            let run_metadata_path = run_dir.join("metadata.json");
+            std::fs::write(&run_metadata_path, serde_json::to_string_pretty(&run)?)?;
 
             // Pre-run contexts capture
             let pre_params = RuntimeParams {

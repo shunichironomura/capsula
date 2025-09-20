@@ -6,7 +6,7 @@ use std::thread;
 use std::time::{Duration, Instant};
 use ulid::Ulid;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Run {
     pub id: Ulid,
     pub name: String,
