@@ -73,7 +73,7 @@ impl Run {
         // 2. 01K5K4571FGKBFTTRJCG1J3DCZ
         // which is not the correct chronological order.
         // By adding time prefix, it will be sorted correctly.
-        let run_dir_name = format!("{}-{}", time_str, self.id.to_string());
+        let run_dir_name = format!("{}-{}--{}", time_str, self.name, self.id.to_string());
         vault_dir.as_ref().join(date_str).join(&run_dir_name)
     }
 
