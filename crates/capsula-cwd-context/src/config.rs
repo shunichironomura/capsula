@@ -4,7 +4,7 @@ use capsula_core::error::CoreResult;
 use serde_json::Value;
 use std::path::Path;
 
-use crate::CwdContext;
+use crate::{CwdContext, KEY};
 
 /// Configuration for CwdContext
 // #[derive(Debug, Clone, Default, Deserialize, Serialize)]
@@ -15,7 +15,7 @@ pub struct CwdContextFactory;
 
 impl ContextFactory for CwdContextFactory {
     fn key(&self) -> &'static str {
-        "cwd"
+        KEY
     }
 
     fn create_context(

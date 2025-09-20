@@ -7,6 +7,8 @@ use capsula_core::error::CoreResult;
 use serde_json::json;
 use std::path::PathBuf;
 
+pub const KEY: &str = "cwd";
+
 #[derive(Debug, Default)]
 pub struct CwdContext;
 
@@ -18,9 +20,6 @@ pub struct CwdCaptured {
 impl Context for CwdContext {
     type Output = CwdCaptured;
 
-    fn type_name(&self) -> &'static str {
-        "CwdContext"
-    }
     fn run(&self, _params: &RuntimeParams) -> CoreResult<Self::Output> {
         let cwd_abs = std::env::current_dir()?;
         Ok(CwdCaptured { cwd_abs })
@@ -30,7 +29,7 @@ impl Context for CwdContext {
 impl Captured for CwdCaptured {
     fn to_json(&self) -> serde_json::Value {
         json!({
-            "type": "cwd",
+            "type": KEY.to_string(),
             "cwd": self.cwd_abs.to_string_lossy(),
         })
     }
