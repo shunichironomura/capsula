@@ -4,7 +4,7 @@ use capsula_core::context::ContextFactory;
 use capsula_core::error::CoreResult;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 struct FileContextConfig {

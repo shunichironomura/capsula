@@ -1,11 +1,14 @@
 mod config;
+mod hash;
+
 use crate::config::FileContextFactory;
+use crate::hash::file_digest_sha256;
 use capsula_core::captured::Captured;
 use capsula_core::context::{Context, ContextFactory, RuntimeParams};
 use capsula_core::error::{CoreError, CoreResult};
-use glob::glob;
+use globwalk::GlobWalkerBuilder;
 use serde::{Deserialize, Serialize};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 pub const KEY: &str = "file";
 
@@ -26,7 +29,7 @@ impl Default for CaptureMode {
 #[serde(rename_all = "lowercase")]
 pub enum HashAlgorithm {
     Sha256,
-    Md5,
+    // Md5,
     None,
 }
 
@@ -74,27 +77,68 @@ impl Context for FileContext {
     type Output = FileCaptured;
 
     fn run(&self, params: &RuntimeParams) -> CoreResult<Self::Output> {
-        glob(&self.glob)
-            .unwrap()
+        GlobWalkerBuilder::from_patterns(&params.project_root, &[&self.glob])
+            .max_depth(1)
+            .build()
+            .map_err(|e| CoreError::from(std::io::Error::new(std::io::ErrorKind::Other, e)))?
             .filter_map(Result::ok)
-            .map(|path| capture_file(&path, &params))
+            .map(|entry| self.capture_file(entry.path(), &params))
             .collect::<Result<Vec<_>, CoreError>>()
             .map(|files| FileCaptured { files })
     }
 }
 
-fn capture_file(path: &PathBuf, runtime_params: &RuntimeParams) -> CoreResult<FileCapturedPerFile> {
-    // Compute hash if needed
-    let hash = Some("dummy_hash".to_string()); // Placeholder for actual hash computation
+impl FileContext {
+    fn capture_file(
+        &self,
+        path: &Path,
+        runtime_params: &RuntimeParams,
+    ) -> CoreResult<FileCapturedPerFile> {
+        // Compute hash if needed
+        let hash = match self.hash {
+            HashAlgorithm::Sha256 => Some(format!("sha256:{}", file_digest_sha256(path)?)),
+            HashAlgorithm::None => None,
+        };
 
-    // Copy or move file if needed
-    let copied_path = Some(path.clone()); // Placeholder for actual file operation
+        // Copy or move file if needed
+        let copied_path = match self.mode {
+            CaptureMode::Copy | CaptureMode::Move => {
+                let run_dir = runtime_params.run_dir.as_ref().ok_or_else(|| {
+                    CoreError::from(std::io::Error::new(
+                        std::io::ErrorKind::InvalidInput,
+                        "run_dir is required for Copy or Move mode",
+                    ))
+                })?;
+                let file_name = path
+                    .file_name()
+                    .ok_or_else(|| {
+                        CoreError::from(std::io::Error::new(
+                            std::io::ErrorKind::InvalidInput,
+                            "Invalid file name",
+                        ))
+                    })?
+                    .to_os_string();
+                let dest_path = run_dir.join(file_name);
+                match self.mode {
+                    CaptureMode::Copy => {
+                        std::fs::copy(path, &dest_path)?;
+                    }
+                    CaptureMode::Move => {
+                        std::fs::rename(path, &dest_path)?;
+                    }
+                    _ => unreachable!(),
+                }
+                Some(dest_path)
+            }
+            CaptureMode::None => None,
+        };
 
-    Ok(FileCapturedPerFile {
-        path: path.clone(),
-        copied_path,
-        hash,
-    })
+        Ok(FileCapturedPerFile {
+            path: path.to_path_buf(),
+            copied_path,
+            hash,
+        })
+    }
 }
 
 pub fn create_factory() -> Box<dyn ContextFactory> {
