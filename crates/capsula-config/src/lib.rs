@@ -1,5 +1,5 @@
 use capsula_core::error::CoreResult;
-use serde::Deserialize;
+use serde::{Deserialize, Deserializer};
 use std::path::{Path, PathBuf};
 use thiserror::Error;
 
@@ -18,19 +18,36 @@ pub type ConfigResult<T> = Result<T, ConfigError>;
 #[derive(Deserialize, Debug, Clone)]
 pub struct CapsulaConfig {
     pub vault: VaultConfig,
-    pub storage: StorageConfig,
     pub phase: PhaseConfig,
 }
 
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Debug, Clone)]
 pub struct VaultConfig {
     pub name: String,
+    pub path: PathBuf,
 }
 
-#[derive(Deserialize, Debug, Clone)]
-#[serde(tag = "type", rename_all = "lowercase")]
-pub enum StorageConfig {
-    Filesystem { path: PathBuf },
+impl<'de> Deserialize<'de> for VaultConfig {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        #[derive(Deserialize)]
+        struct VaultConfigHelper {
+            name: String,
+            path: Option<PathBuf>,
+        }
+
+        let helper = VaultConfigHelper::deserialize(deserializer)?;
+        let path = helper
+            .path
+            .unwrap_or_else(|| PathBuf::from(format!(".capsula/{}", helper.name)));
+
+        Ok(VaultConfig {
+            name: helper.name,
+            path,
+        })
+    }
 }
 
 #[derive(Deserialize, Debug, Clone, Default)]
@@ -113,10 +130,6 @@ mod tests {
 [vault]
 name = "capsula"
 
-[storage]
-type = "filesystem"
-path = ".capsula"
-
 [[phase.pre.contexts]]
 type = "cwd"
 
@@ -146,12 +159,7 @@ key = "PATH"
         let config = CapsulaConfig::from_str(config_str).unwrap();
 
         assert_eq!(config.vault.name, "capsula");
-
-        match &config.storage {
-            StorageConfig::Filesystem { path } => {
-                assert_eq!(path, &PathBuf::from(".capsula"));
-            }
-        }
+        assert_eq!(config.vault.path, PathBuf::from(".capsula/capsula"));
 
         assert_eq!(config.phase.pre.contexts.len(), 4);
         assert_eq!(config.phase.pre.contexts[0].ty, "cwd");
@@ -167,5 +175,38 @@ key = "PATH"
 
         assert_eq!(config.phase.post.contexts.len(), 1);
         assert_eq!(config.phase.post.contexts[0].ty, "env");
+    }
+
+    #[test]
+    fn test_vault_config_with_explicit_path() {
+        let config_str = r#"
+[vault]
+name = "my_vault"
+path = "/custom/path/to/vault"
+
+[[phase.pre.contexts]]
+type = "cwd"
+"#;
+
+        let config = CapsulaConfig::from_str(config_str).unwrap();
+
+        assert_eq!(config.vault.name, "my_vault");
+        assert_eq!(config.vault.path, PathBuf::from("/custom/path/to/vault"));
+    }
+
+    #[test]
+    fn test_vault_config_without_path() {
+        let config_str = r#"
+[vault]
+name = "test_vault"
+
+[[phase.pre.contexts]]
+type = "cwd"
+"#;
+
+        let config = CapsulaConfig::from_str(config_str).unwrap();
+
+        assert_eq!(config.vault.name, "test_vault");
+        assert_eq!(config.vault.path, PathBuf::from(".capsula/test_vault"));
     }
 }

@@ -1,10 +1,6 @@
 [vault]
 name = "capsula" # Should be unique in the storage
 
-[storage]
-type = "filesystem"
-path = ".capsula"
-
 [[phase.pre.contexts]]
 type = "cwd"
 
