@@ -1,7 +1,7 @@
 // tests/cwd_context.rs
 
 use capsula_core::captured::Captured;
-use capsula_core::context::{Context, ContextParams, ContextPhase};
+use capsula_core::context::{Context, ContextPhase, RuntimeParams};
 use capsula_cwd_context::CwdContext;
 
 #[test]
@@ -9,8 +9,9 @@ fn cwd_context_captures_current_dir_and_json() {
     // Arrange
     let expected = std::env::current_dir().expect("current_dir");
     let ctx = CwdContext::default();
-    let params = ContextParams {
-        phase: ContextPhase::PreRun,
+    let params = RuntimeParams {
+        phase: ContextPhase::Pre,
+        run_dir: None,
     };
 
     // Act

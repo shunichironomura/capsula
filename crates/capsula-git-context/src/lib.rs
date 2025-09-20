@@ -2,13 +2,13 @@ mod config;
 
 use crate::config::GitContextFactory;
 use capsula_core::captured::Captured;
-use capsula_core::context::{Context, ContextFactory, ContextParams};
+use capsula_core::context::{Context, ContextFactory, RuntimeParams};
 use capsula_core::error::CoreResult;
 use git2::Repository;
 use serde_json::json;
 use std::path::PathBuf;
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct GitContext {
     pub name: String,
     pub working_dir: PathBuf,
@@ -29,7 +29,7 @@ impl Context for GitContext {
         "GitContext"
     }
 
-    fn run(&self, _params: &ContextParams) -> CoreResult<Self::Output> {
+    fn run(&self, _params: &RuntimeParams) -> CoreResult<Self::Output> {
         let repo_path = if self.working_dir.as_os_str().is_empty() {
             std::env::current_dir()?
         } else {

@@ -9,6 +9,7 @@ use std::path::{Path, PathBuf};
 /// Configuration for GitContext
 #[derive(Debug, Clone, Deserialize, Serialize)]
 struct GitContextConfig {
+    pub name: String,
     pub path: PathBuf,
     #[serde(default)]
     pub allow_dirty: bool,
@@ -30,13 +31,17 @@ impl ContextFactory for GitContextFactory {
         let config: GitContextConfig = serde_json::from_value(config.clone())
             .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e))?;
 
-        let mut context = GitContext::default();
-        context.working_dir = if config.path.is_absolute() {
+        let working_dir = if config.path.is_absolute() {
             config.path
         } else {
-            project_root.join(&config.path)
+            project_root.join(&config.path).canonicalize()?
         };
-        context.allow_dirty = config.allow_dirty;
+
+        let context = GitContext {
+            name: config.name,
+            working_dir,
+            allow_dirty: config.allow_dirty,
+        };
 
         Ok(Box::new(context))
     }

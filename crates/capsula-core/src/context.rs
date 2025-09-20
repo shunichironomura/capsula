@@ -1,21 +1,25 @@
 use crate::error::{CoreError, CoreResult};
+use clap::ValueEnum;
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
 pub enum ContextPhase {
-    PreRun,
-    PostRun,
+    Pre,
+    Post,
 }
 
 #[derive(Debug, Clone)]
-pub struct ContextParams {
+pub struct RuntimeParams {
     pub phase: ContextPhase,
+    pub run_dir: Option<std::path::PathBuf>,
 }
 
 pub trait Context {
     type Output: super::captured::Captured;
     fn type_name(&self) -> &'static str;
-    fn run(&self, params: &ContextParams) -> CoreResult<Self::Output>;
+    fn run(&self, params: &RuntimeParams) -> CoreResult<Self::Output>;
 }
 
 /// Engine-facing trait (object-safe, heterogenous)
@@ -23,7 +27,7 @@ pub trait ContextErased: Send + Sync {
     fn type_name(&self) -> &'static str;
     fn run_erased(
         &self,
-        parmas: &ContextParams,
+        parmas: &RuntimeParams,
     ) -> Result<Box<dyn super::captured::Captured>, CoreError>;
 }
 
@@ -36,7 +40,7 @@ where
     }
     fn run_erased(
         &self,
-        params: &ContextParams,
+        params: &RuntimeParams,
     ) -> Result<Box<dyn super::captured::Captured>, CoreError> {
         let out = <T as Context>::run(self, params)?;
         Ok(Box::new(out))

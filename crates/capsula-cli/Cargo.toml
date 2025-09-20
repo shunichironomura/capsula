@@ -4,6 +4,10 @@ version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 
+[[bin]]
+name = "capsula"
+path = "src/main.rs"
+
 [dependencies]
 capsula-config = { workspace = true }
 capsula-core = { workspace = true }
@@ -11,8 +15,9 @@ capsula-registry = { workspace = true }
 
 anyhow = { workspace = true }
 serde_json = { workspace = true }
-
-clap = { version = "4.5.47", features = ["derive"] }
+clap = { workspace = true }
+ulid = { workspace = true }
+names = { workspace = true }
 
 [lints]
 workspace = true
