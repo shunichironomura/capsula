@@ -10,11 +10,13 @@ type = "cwd"
 
 [[phase.pre.contexts]]
 type = "git"
+name = "capsula"
 path = "." # Relative to the project root.
 allow_dirty = true
 
 [[phase.pre.contexts]]
 type = "git"
+name = "capsula"
 path = "." # Relative to the project root.
 allow_dirty = true
 

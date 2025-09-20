@@ -2,7 +2,7 @@ mod config;
 
 use crate::config::CwdContextFactory;
 use capsula_core::captured::Captured;
-use capsula_core::context::{Context, ContextFactory, ContextParams};
+use capsula_core::context::{Context, ContextFactory, RuntimeParams};
 use capsula_core::error::CoreResult;
 use serde_json::json;
 use std::path::PathBuf;
@@ -21,7 +21,7 @@ impl Context for CwdContext {
     fn type_name(&self) -> &'static str {
         "CwdContext"
     }
-    fn run(&self, _params: &ContextParams) -> CoreResult<Self::Output> {
+    fn run(&self, _params: &RuntimeParams) -> CoreResult<Self::Output> {
         let cwd_abs = std::env::current_dir()?;
         Ok(CwdCaptured { cwd_abs })
     }

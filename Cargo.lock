@@ -92,6 +92,8 @@ dependencies = [
 name = "capsula-core"
 version = "0.1.0"
 dependencies = [
+ "clap",
+ "serde",
  "serde_json",
  "thiserror",
 ]

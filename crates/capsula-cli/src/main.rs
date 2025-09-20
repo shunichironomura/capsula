@@ -1,20 +1,31 @@
 use std::path::PathBuf;
 
-use capsula_config::CapsulaConfig;
-use capsula_core::context::{ContextParams, ContextPhase};
+use capsula_config::{CapsulaConfig, ContextPhaseConfig};
+use capsula_core::context::{ContextPhase, RuntimeParams};
 use clap::{Parser, Subcommand};
 use std::str::FromStr;
 
 #[derive(Parser, Debug)]
 #[command(name = "capsula", bin_name = "capsula", version, about = "Capsula CLI")]
 struct Cli {
+    #[arg(short, long)]
+    config: Option<PathBuf>,
+
     #[command(subcommand)]
     command: Commands,
 }
 
 #[derive(Subcommand, Debug)]
 enum Commands {
-    Capture,
+    Capture {
+        #[arg(short, long, default_value = "pre")]
+        phase: ContextPhase,
+    },
+
+    Run {
+        #[arg(trailing_var_arg = true)]
+        cmd: Vec<String>,
+    },
 }
 
 fn create_registry() -> capsula_registry::ContextRegistry {
@@ -22,46 +33,122 @@ fn create_registry() -> capsula_registry::ContextRegistry {
     capsula_registry::standard_registry()
 }
 
+fn build_and_run_contexts(
+    runtime_params: &RuntimeParams,
+    context_phase_config: &ContextPhaseConfig,
+    context_registry: &capsula_registry::ContextRegistry,
+    project_root: &std::path::Path,
+) -> anyhow::Result<Vec<Box<dyn capsula_core::captured::Captured>>> {
+    let contexts =
+        capsula_config::build_contexts(&context_phase_config, &project_root, &context_registry)?;
+
+    contexts
+        .iter()
+        .map(|ctx| {
+            let out = ctx.run_erased(&runtime_params)?;
+            Ok(out)
+        })
+        .collect::<Result<Vec<_>, anyhow::Error>>()
+}
+
 fn main() -> anyhow::Result<()> {
     // Create the registry with all available context types
     let registry = create_registry();
 
     let cli = Cli::parse();
-    // TODO: Read from CLI option
-    let project_root = PathBuf::from_str(".")?;
-    let config_file_path = project_root.join("capsula.toml");
+    let config_file_path = cli
+        .config
+        .unwrap_or_else(|| PathBuf::from_str("capsula.toml").unwrap());
+    // Check if the config file exists
+    // If not, return an error
+    if !config_file_path.exists() {
+        anyhow::bail!(
+            "Config file not found: {}",
+            config_file_path.to_string_lossy()
+        );
+    }
+    // Canonicalize the config file path first to get an absolute path
+    let config_file_path = config_file_path.canonicalize()?;
+    let project_root = config_file_path
+        .parent()
+        .ok_or_else(|| {
+            anyhow::anyhow!(
+                "Failed to get parent directory of config file: {}",
+                config_file_path.to_string_lossy()
+            )
+        })?
+        .to_path_buf();
+
     let config = CapsulaConfig::from_file(&config_file_path)?;
-    dbg!("Loaded config: {:#?}", &config);
+    // dbg!("Loaded config: {:#?}", &config);
 
     match cli.command {
-        Commands::Capture => {
-            let params = ContextParams {
-                phase: ContextPhase::PreRun,
+        Commands::Capture { phase } => {
+            let runtime_params = RuntimeParams { phase: phase };
+            let context_phase_config = match phase {
+                ContextPhase::Pre => &config.phase.pre,
+                ContextPhase::Post => &config.phase.post,
             };
-
-            let contexts_ok = capsula_config::build_contexts(
-                match params.phase {
-                    ContextPhase::PreRun => &config.phase.pre,
-                    ContextPhase::PostRun => &config.phase.post,
-                },
-                &project_root,
+            let context_outputs = build_and_run_contexts(
+                &runtime_params,
+                &context_phase_config,
                 &registry,
+                &project_root,
             )?;
-
-            let context_outputs = contexts_ok
-                .iter()
-                .map(|ctx| {
-                    let out = ctx.run_erased(&params)?;
-                    Ok(out)
-                })
-                .collect::<Result<Vec<_>, anyhow::Error>>()?;
-            let output_json = context_outputs
+            let context_outputs_json = context_outputs
                 .iter()
                 .map(|out| out.to_json())
                 .collect::<Vec<_>>();
+            // Output the captured context along with metadata (project root, phase)
+            let output_json = serde_json::json!({
+                "project_root": project_root.to_string_lossy(),
+                "phase": phase,
+                "contexts": context_outputs_json,
+            });
+            println!("{}", serde_json::to_string_pretty(&output_json)?);
+        }
+
+        Commands::Run { cmd } => {
+            if cmd.is_empty() {
+                anyhow::bail!("No command specified to run");
+            }
+            // Capture pre-run contexts
+            let pre_params = RuntimeParams {
+                phase: ContextPhase::Pre,
+            };
+            let pre_outputs =
+                build_and_run_contexts(&pre_params, &config.phase.pre, &registry, &project_root)?;
+            let pre_json = pre_outputs
+                .iter()
+                .map(|out| out.to_json())
+                .collect::<Vec<_>>();
+            // Output pre-run context outputs
             println!(
-                "Context outputs: {:#}",
-                serde_json::to_string_pretty(&output_json)?
+                "Pre-run contexts captured: {:#}",
+                serde_json::to_string_pretty(&pre_json)?
+            );
+
+            let status = std::process::Command::new(&cmd[0])
+                .args(&cmd[1..])
+                .status()?;
+            if !status.success() {
+                anyhow::bail!("Command {:?} failed with status: {}", cmd, status);
+            }
+
+            // Capture post-run contexts
+            let post_params = RuntimeParams {
+                phase: ContextPhase::Post,
+            };
+            let post_outputs =
+                build_and_run_contexts(&post_params, &config.phase.post, &registry, &project_root)?;
+            let post_json = post_outputs
+                .iter()
+                .map(|out| out.to_json())
+                .collect::<Vec<_>>();
+            // Output post-run context outputs
+            println!(
+                "Post-run contexts captured: {:#}",
+                serde_json::to_string_pretty(&post_json)?
             );
         }
     }
