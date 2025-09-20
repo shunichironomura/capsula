@@ -151,6 +151,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "capsula-file-context"
+version = "0.1.0"
+dependencies = [
+ "capsula-core",
+ "glob",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "capsula-git-context"
 version = "0.1.0"
 dependencies = [
@@ -166,6 +176,7 @@ version = "0.1.0"
 dependencies = [
  "capsula-core",
  "capsula-cwd-context",
+ "capsula-file-context",
  "capsula-git-context",
  "serde",
  "serde_json",
@@ -363,6 +374,12 @@ dependencies = [
  "openssl-sys",
  "url",
 ]
+
+[[package]]
+name = "glob"
+version = "0.3.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0cc23270f6e1808e30a928bdc84dea0b9b4136a8bc82338574f23baf47bbd280"
 
 [[package]]
 name = "hashbrown"
