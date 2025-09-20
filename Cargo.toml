@@ -22,5 +22,6 @@ anyhow = "1"
 clap = { version = "4", features = ["derive"] }
 ulid = { version = "1", features = ["serde"] }
 chrono = "0.4"
+names = "0.14"
 
 [workspace.lints.rust]

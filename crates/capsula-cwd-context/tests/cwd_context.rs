@@ -11,6 +11,7 @@ fn cwd_context_captures_current_dir_and_json() {
     let ctx = CwdContext::default();
     let params = RuntimeParams {
         phase: ContextPhase::Pre,
+        run_dir: None,
     };
 
     // Act

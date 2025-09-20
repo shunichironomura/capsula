@@ -4,6 +4,7 @@ use capsula_config::{CapsulaConfig, ContextPhaseConfig};
 use capsula_core::context::{ContextPhase, RuntimeParams};
 use capsula_core::run::Run;
 use clap::{Parser, Subcommand};
+use names::Generator;
 use std::str::FromStr;
 use ulid::Ulid;
 
@@ -141,7 +142,7 @@ fn main() -> anyhow::Result<()> {
             setup_vault(&config.vault.path)?;
             let run = Run {
                 id: Ulid::new(),
-                name: "todo".to_string(),
+                name: Generator::default().next().unwrap(),
                 command: cmd,
             };
             // Display run ID and name
