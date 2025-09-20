@@ -1,9 +1,11 @@
+mod config;
+
+use crate::config::CwdContextFactory;
 use capsula_core::captured::Captured;
-use capsula_core::context::{Context, ContextErased, ContextFactory, ContextParams};
+use capsula_core::context::{Context, ContextFactory, ContextParams};
 use capsula_core::error::CoreResult;
-use serde::{Deserialize, Serialize};
-use serde_json::{json, Value};
-use std::path::{Path, PathBuf};
+use serde_json::json;
+use std::path::PathBuf;
 
 #[derive(Debug, Default)]
 pub struct CwdContext;
@@ -31,29 +33,6 @@ impl Captured for CwdCaptured {
             "type": "cwd",
             "cwd": self.cwd_abs.to_string_lossy(),
         })
-    }
-}
-
-/// Configuration for CwdContext
-#[derive(Debug, Clone, Default, Deserialize, Serialize)]
-pub struct CwdContextConfig {}
-
-/// Factory for creating CwdContext instances
-pub struct CwdContextFactory;
-
-impl ContextFactory for CwdContextFactory {
-    fn key(&self) -> &'static str {
-        "cwd"
-    }
-
-    fn create_context(
-        &self,
-        _config: &Value,
-        _project_root: &Path,
-    ) -> CoreResult<Box<dyn ContextErased>> {
-        // Config could be deserialized if needed:
-        // let _config: CwdContextConfig = serde_json::from_value(config.clone())?;
-        Ok(Box::new(CwdContext::default()))
     }
 }
 
