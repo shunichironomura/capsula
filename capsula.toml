@@ -14,19 +14,24 @@ path = "." # Relative to the project root.
 allow_dirty = true
 
 [[phase.pre.contexts]]
-type = "file"
-path = "capsula.toml"
-copy = true
-hash = true
+type = "git"
+path = "." # Relative to the project root.
+allow_dirty = true
 
-[[phase.pre.contexts]]
-type = "file"
-path = "Cargo.toml"
-hash = true
+# [[phase.pre.contexts]]
+# type = "file"
+# path = "capsula.toml"
+# copy = true
+# hash = true
 
-[[phase.in.watchers]]
-type = "time"
+# [[phase.pre.contexts]]
+# type = "file"
+# path = "Cargo.toml"
+# hash = true
 
-[[phase.post.contexts]]
-type = "env"
-key = "PATH"
+# [[phase.in.watchers]]
+# type = "time"
+
+# [[phase.post.contexts]]
+# type = "env"
+# key = "PATH"

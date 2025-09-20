@@ -1,10 +1,7 @@
 use std::path::PathBuf;
 
 use capsula_config::CapsulaConfig;
-use capsula_core::captured::Captured;
-use capsula_core::context::{Context, ContextErased, ContextParams, ContextPhase};
-use capsula_cwd_context::CwdContext;
-use capsula_git_context::GitContext;
+use capsula_core::context::{ContextParams, ContextPhase};
 use clap::{Parser, Subcommand};
 use std::str::FromStr;
 
@@ -20,38 +17,36 @@ enum Commands {
     Capture,
 }
 
+fn create_registry() -> capsula_registry::ContextRegistry {
+    // Use the standard registry with all built-in context types
+    capsula_registry::standard_registry()
+}
+
 fn main() -> anyhow::Result<()> {
+    // Create the registry with all available context types
+    let registry = create_registry();
+
     let cli = Cli::parse();
     // TODO: Read from CLI option
     let project_root = PathBuf::from_str(".")?;
     let config_file_path = project_root.join("capsula.toml");
     let config = CapsulaConfig::from_file(&config_file_path)?;
-    println!("Config: {:?}", config);
+    dbg!("Loaded config: {:#?}", &config);
 
     match cli.command {
         Commands::Capture => {
-            // TODO: These are only for testing. Will be loaded from config in the future.
             let params = ContextParams {
                 phase: ContextPhase::PreRun,
             };
 
-            let context_specs = match params.phase {
-                ContextPhase::PreRun => config.phase.pre.contexts,
-                ContextPhase::PostRun => config.phase.post.contexts,
-            };
-            let (contexts_ok, _contexts_err) = context_specs
-                .into_iter()
-                .map(|spec| spec.build(&project_root))
-                .partition::<Vec<_>, _>(Result::is_ok);
-            let contexts_ok = contexts_ok
-                .into_iter()
-                .map(Result::unwrap)
-                .collect::<Vec<_>>();
-
-            // let contexts_err = contexts_err
-            //     .into_iter()
-            //     .map(Result::unwrap_err)
-            //     .collect::<Vec<_>>();
+            let contexts_ok = capsula_config::build_contexts(
+                match params.phase {
+                    ContextPhase::PreRun => &config.phase.pre,
+                    ContextPhase::PostRun => &config.phase.post,
+                },
+                &project_root,
+                &registry,
+            )?;
 
             let context_outputs = contexts_ok
                 .iter()

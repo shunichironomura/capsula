@@ -1,5 +1,8 @@
+mod config;
+
+use crate::config::CwdContextFactory;
 use capsula_core::captured::Captured;
-use capsula_core::context::{Context, ContextParams};
+use capsula_core::context::{Context, ContextFactory, ContextParams};
 use capsula_core::error::CoreResult;
 use serde_json::json;
 use std::path::PathBuf;
@@ -31,4 +34,9 @@ impl Captured for CwdCaptured {
             "cwd": self.cwd_abs.to_string_lossy(),
         })
     }
+}
+
+/// Create a factory for CwdContext
+pub fn create_factory() -> Box<dyn ContextFactory> {
+    Box::new(CwdContextFactory)
 }

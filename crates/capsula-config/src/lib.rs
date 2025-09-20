@@ -43,55 +43,31 @@ pub struct PhaseConfig {
     pub post: PostPhaseConfig,
 }
 
+/// A phase configuration that contains contexts
 #[derive(Deserialize, Debug, Clone, Default)]
-pub struct PrePhaseConfig {
+pub struct ContextPhaseConfig {
     #[serde(default)]
-    pub contexts: Vec<ContextSpec>,
+    pub contexts: Vec<ContextEnvelope>,
 }
 
+/// A phase configuration that contains watchers
 #[derive(Deserialize, Debug, Clone, Default)]
-pub struct InPhaseConfig {
+pub struct WatcherPhaseConfig {
     #[serde(default)]
     pub watchers: Vec<WatcherSpec>,
 }
 
-#[derive(Deserialize, Debug, Clone, Default)]
-pub struct PostPhaseConfig {
-    #[serde(default)]
-    pub contexts: Vec<ContextSpec>,
-}
+// Type aliases for semantic clarity
+pub type PrePhaseConfig = ContextPhaseConfig;
+pub type PostPhaseConfig = ContextPhaseConfig;
+pub type InPhaseConfig = WatcherPhaseConfig;
 
 #[derive(Deserialize, Debug, Clone)]
-#[serde(tag = "type", rename_all = "lowercase")]
-pub enum ContextSpec {
-    Cwd(CwdContextSpec),
-    Git(GitContextSpec),
-    File(FileContextSpec),
-    Env(EnvContextSpec),
-}
-
-#[derive(Deserialize, Debug, Clone, Default)]
-pub struct CwdContextSpec {}
-
-#[derive(Deserialize, Debug, Clone)]
-pub struct GitContextSpec {
-    pub path: PathBuf,
-    #[serde(default)]
-    pub allow_dirty: bool,
-}
-
-#[derive(Deserialize, Debug, Clone)]
-pub struct FileContextSpec {
-    pub path: PathBuf,
-    #[serde(default = "default_true")]
-    pub copy: bool,
-    #[serde(default = "default_true")]
-    pub hash: bool,
-}
-
-#[derive(Deserialize, Debug, Clone)]
-pub struct EnvContextSpec {
-    pub key: String,
+pub struct ContextEnvelope {
+    #[serde(rename = "type")]
+    pub ty: String,
+    #[serde(flatten)]
+    pub rest: serde_json::Value,
 }
 
 #[derive(Deserialize, Debug, Clone)]
@@ -102,10 +78,6 @@ pub enum WatcherSpec {
 
 #[derive(Deserialize, Debug, Clone, Default)]
 pub struct TimeWatcherSpec {}
-
-fn default_true() -> bool {
-    true
-}
 
 impl CapsulaConfig {
     pub fn from_str(content: &str) -> ConfigResult<Self> {
@@ -118,39 +90,17 @@ impl CapsulaConfig {
     }
 }
 
-fn resolve_path(path: &Path, project_root: &Path) -> PathBuf {
-    if path.is_absolute() {
-        path.to_path_buf()
-    } else {
-        project_root.join(path)
-    }
-}
-
-impl ContextSpec {
-    pub fn build(
-        self,
-        project_root: &Path,
-    ) -> CoreResult<Box<dyn capsula_core::context::ContextErased>> {
-        match self {
-            ContextSpec::Cwd(_spec) => Ok(Box::new(capsula_cwd_context::CwdContext::default())),
-            ContextSpec::Git(spec) => {
-                let mut context = capsula_git_context::GitContext::default();
-                context.working_dir = resolve_path(&spec.path, project_root);
-                context.allow_dirty = spec.allow_dirty;
-                Ok(Box::new(context))
-            }
-            ContextSpec::File(_spec) => Err(std::io::Error::new(
-                std::io::ErrorKind::Other,
-                "File context not yet implemented",
-            )
-            .into()),
-            ContextSpec::Env(_spec) => Err(std::io::Error::new(
-                std::io::ErrorKind::Other,
-                "Env context not yet implemented",
-            )
-            .into()),
-        }
-    }
+/// Build contexts from any phase config that contains contexts
+pub fn build_contexts(
+    phase: &ContextPhaseConfig,
+    project_root: &Path,
+    registry: &capsula_registry::ContextRegistry,
+) -> CoreResult<Vec<Box<dyn capsula_core::context::ContextErased>>> {
+    phase
+        .contexts
+        .iter()
+        .map(|envelope| registry.create_context(&envelope.ty, &envelope.rest, project_root))
+        .collect()
 }
 
 #[cfg(test)]
@@ -204,16 +154,10 @@ key = "PATH"
         }
 
         assert_eq!(config.phase.pre.contexts.len(), 4);
-        assert!(matches!(&config.phase.pre.contexts[0], ContextSpec::Cwd(_)));
-        assert!(matches!(&config.phase.pre.contexts[1], ContextSpec::Git(_)));
-        assert!(matches!(
-            &config.phase.pre.contexts[2],
-            ContextSpec::File(_)
-        ));
-        assert!(matches!(
-            &config.phase.pre.contexts[3],
-            ContextSpec::File(_)
-        ));
+        assert_eq!(config.phase.pre.contexts[0].ty, "cwd");
+        assert_eq!(config.phase.pre.contexts[1].ty, "git");
+        assert_eq!(config.phase.pre.contexts[2].ty, "file");
+        assert_eq!(config.phase.pre.contexts[3].ty, "file");
 
         assert_eq!(config.phase.in_phase.watchers.len(), 1);
         assert!(matches!(
@@ -222,9 +166,6 @@ key = "PATH"
         ));
 
         assert_eq!(config.phase.post.contexts.len(), 1);
-        assert!(matches!(
-            &config.phase.post.contexts[0],
-            ContextSpec::Env(_)
-        ));
+        assert_eq!(config.phase.post.contexts[0].ty, "env");
     }
 }

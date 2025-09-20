@@ -1,5 +1,8 @@
+mod config;
+
+use crate::config::GitContextFactory;
 use capsula_core::captured::Captured;
-use capsula_core::context::{Context, ContextParams};
+use capsula_core::context::{Context, ContextFactory, ContextParams};
 use capsula_core::error::CoreResult;
 use git2::Repository;
 use serde_json::json;
@@ -73,4 +76,9 @@ impl Captured for GitCaptured {
             "sha": self.sha
         })
     }
+}
+
+/// Create a factory for GitContext
+pub fn create_factory() -> Box<dyn ContextFactory> {
+    Box::new(GitContextFactory)
 }

@@ -71,8 +71,7 @@ dependencies = [
  "anyhow",
  "capsula-config",
  "capsula-core",
- "capsula-cwd-context",
- "capsula-git-context",
+ "capsula-registry",
  "clap",
  "serde_json",
 ]
@@ -82,9 +81,9 @@ name = "capsula-config"
 version = "0.1.0"
 dependencies = [
  "capsula-core",
- "capsula-cwd-context",
- "capsula-git-context",
+ "capsula-registry",
  "serde",
+ "serde_json",
  "thiserror",
  "toml",
 ]
@@ -102,6 +101,7 @@ name = "capsula-cwd-context"
 version = "0.1.0"
 dependencies = [
  "capsula-core",
+ "serde",
  "serde_json",
 ]
 
@@ -111,7 +111,20 @@ version = "0.1.0"
 dependencies = [
  "capsula-core",
  "git2",
+ "serde",
  "serde_json",
+]
+
+[[package]]
+name = "capsula-registry"
+version = "0.1.0"
+dependencies = [
+ "capsula-core",
+ "capsula-cwd-context",
+ "capsula-git-context",
+ "serde",
+ "serde_json",
+ "thiserror",
 ]
 
 [[package]]

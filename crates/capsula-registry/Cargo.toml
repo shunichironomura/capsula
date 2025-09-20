@@ -1,0 +1,21 @@
+[package]
+name = "capsula-registry"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[features]
+default = ["ctx-cwd", "ctx-git"]
+ctx-cwd = ["dep:capsula-cwd-context"]
+ctx-git = ["dep:capsula-git-context"]
+
+[dependencies]
+capsula-core = { workspace = true }
+capsula-cwd-context = { workspace = true, optional = true }
+capsula-git-context = { workspace = true, optional = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+
+[lints]
+workspace = true
