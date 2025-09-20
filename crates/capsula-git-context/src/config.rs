@@ -1,4 +1,4 @@
-use crate::GitContext;
+use crate::{GitContext, KEY};
 use capsula_core::context::ContextErased;
 use capsula_core::context::ContextFactory;
 use capsula_core::error::CoreResult;
@@ -20,7 +20,7 @@ pub struct GitContextFactory;
 
 impl ContextFactory for GitContextFactory {
     fn key(&self) -> &'static str {
-        "git"
+        KEY
     }
 
     fn create_context(

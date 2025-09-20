@@ -8,6 +8,8 @@ use git2::Repository;
 use serde_json::json;
 use std::path::PathBuf;
 
+pub const KEY: &str = "git";
+
 #[derive(Debug)]
 pub struct GitContext {
     pub name: String,
@@ -22,12 +24,19 @@ pub struct GitCaptured {
     pub sha: String, // TODO: Use more suitable type
 }
 
+impl Captured for GitCaptured {
+    fn to_json(&self) -> serde_json::Value {
+        json!({
+            "type": KEY.to_string(),
+            "name": self.name,
+            "working_dir": self.working_dir.to_string_lossy(),
+            "sha": self.sha
+        })
+    }
+}
+
 impl Context for GitContext {
     type Output = GitCaptured;
-
-    fn type_name(&self) -> &'static str {
-        "GitContext"
-    }
 
     fn run(&self, _params: &RuntimeParams) -> CoreResult<Self::Output> {
         let repo_path = if self.working_dir.as_os_str().is_empty() {
@@ -63,17 +72,6 @@ impl Context for GitContext {
             name: self.name.clone(),
             working_dir: repo_path,
             sha: oid.to_string(),
-        })
-    }
-}
-
-impl Captured for GitCaptured {
-    fn to_json(&self) -> serde_json::Value {
-        json!({
-            "type": "git",
-            "name": self.name,
-            "working_dir": self.working_dir.to_string_lossy(),
-            "sha": self.sha
         })
     }
 }

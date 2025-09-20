@@ -18,13 +18,11 @@ pub struct RuntimeParams {
 
 pub trait Context {
     type Output: super::captured::Captured;
-    fn type_name(&self) -> &'static str;
     fn run(&self, params: &RuntimeParams) -> CoreResult<Self::Output>;
 }
 
 /// Engine-facing trait (object-safe, heterogenous)
 pub trait ContextErased: Send + Sync {
-    fn type_name(&self) -> &'static str;
     fn run_erased(
         &self,
         parmas: &RuntimeParams,
@@ -35,9 +33,6 @@ impl<T> ContextErased for T
 where
     T: Context + Send + Sync + 'static,
 {
-    fn type_name(&self) -> &'static str {
-        <T as Context>::type_name(self)
-    }
     fn run_erased(
         &self,
         params: &RuntimeParams,
