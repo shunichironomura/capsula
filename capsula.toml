@@ -16,11 +16,17 @@ name = "capsula"
 path = "." # Relative to the project root.
 allow_dirty = true
 
-# [[phase.pre.contexts]]
-# type = "file"
-# path = "capsula.toml"
-# copy = true
-# hash = true
+[[phase.pre.contexts]]
+type = "file"
+glob = "capsula.toml"
+mode = "copy"
+hash = "sha256"
+
+[[phase.pre.contexts]]
+type = "file"
+glob = "Cargo.*"
+mode = "copy"
+hash = "sha256"
 
 # [[phase.pre.contexts]]
 # type = "file"

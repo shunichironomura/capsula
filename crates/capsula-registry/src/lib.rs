@@ -110,14 +110,23 @@ pub fn standard_registry() -> ContextRegistry {
 
     #[cfg(feature = "ctx-cwd")]
     {
-        builder = builder.with_factory(capsula_cwd_context::create_factory())
+        builder = builder
+            .with_factory(capsula_cwd_context::create_factory())
             .expect("Failed to register CWD context");
     }
 
     #[cfg(feature = "ctx-git")]
     {
-        builder = builder.with_factory(capsula_git_context::create_factory())
+        builder = builder
+            .with_factory(capsula_git_context::create_factory())
             .expect("Failed to register Git context");
+    }
+
+    #[cfg(feature = "ctx-file")]
+    {
+        builder = builder
+            .with_factory(capsula_file_context::create_factory())
+            .expect("Failed to register File context");
     }
 
     builder.build()

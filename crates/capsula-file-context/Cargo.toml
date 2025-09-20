@@ -1,0 +1,15 @@
+[package]
+name = "capsula-file-context"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+capsula-core = { workspace = true }
+globwalk.workspace = true
+serde = { workspace = true }
+serde_json = { workspace = true }
+sha2 = { workspace = true }
+
+[lints]
+workspace = true

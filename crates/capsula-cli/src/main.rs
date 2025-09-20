@@ -11,7 +11,7 @@ use ulid::Ulid;
 #[derive(Parser, Debug)]
 #[command(name = "capsula", bin_name = "capsula", version, about = "Capsula CLI")]
 struct Cli {
-    #[arg(short, long)]
+    #[arg(short, long, global(true))]
     config: Option<PathBuf>,
 
     #[command(subcommand)]
@@ -72,6 +72,7 @@ fn main() -> anyhow::Result<()> {
     }
     // Canonicalize the config file path first to get an absolute path
     let config_file_path = config_file_path.canonicalize()?;
+    // dbg!("Using config file: {}", config_file_path.to_string_lossy());
     let project_root = config_file_path
         .parent()
         .ok_or_else(|| {
@@ -81,15 +82,24 @@ fn main() -> anyhow::Result<()> {
             )
         })?
         .to_path_buf();
+    // dbg!(&project_root);
 
     let config = CapsulaConfig::from_file(&config_file_path)?;
-    // dbg!("Loaded config: {:#?}", &config);
+
+    // TODO: Resolving paths against project_root should be done in config parsing
+    let vault_dir = if config.vault.path.is_absolute() {
+        config.vault.path.clone()
+    } else {
+        project_root.join(&config.vault.path)
+    };
+    // dbg!(&vault_dir);
 
     match cli.command {
         Commands::Capture { phase } => {
             let runtime_params = RuntimeParams {
                 phase: phase,
                 run_dir: None,
+                project_root: project_root.clone(),
             };
             let context_phase_config = match phase {
                 ContextPhase::Pre => &config.phase.pre,
@@ -123,7 +133,7 @@ fn main() -> anyhow::Result<()> {
             };
             // Display run ID and name
             eprintln!("Run ID: {}, Name: {}", run.id, run.name);
-            let run = run.setup_run_dir(&config.vault.path)?;
+            let run = run.setup_run_dir(&vault_dir)?;
             eprintln!("Run directory: {}", run.run_dir.to_string_lossy());
             // Save run metadata to run_dir/run.json
             let run_metadata_path = run.run_dir.join("metadata.json");
@@ -133,6 +143,7 @@ fn main() -> anyhow::Result<()> {
             let pre_params = RuntimeParams {
                 phase: ContextPhase::Pre,
                 run_dir: Some(run.run_dir.clone()),
+                project_root: project_root.clone(),
             };
             let pre_outputs =
                 build_and_run_contexts(&pre_params, &config.phase.pre, &registry, &project_root)?;
@@ -155,6 +166,7 @@ fn main() -> anyhow::Result<()> {
             let post_params = RuntimeParams {
                 phase: ContextPhase::Post,
                 run_dir: Some(run.run_dir.clone()),
+                project_root: project_root.clone(),
             };
             let post_outputs =
                 build_and_run_contexts(&post_params, &config.phase.post, &registry, &project_root)?;

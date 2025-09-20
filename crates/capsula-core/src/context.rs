@@ -14,6 +14,7 @@ pub enum ContextPhase {
 pub struct RuntimeParams {
     pub phase: ContextPhase,
     pub run_dir: Option<std::path::PathBuf>,
+    pub project_root: std::path::PathBuf,
 }
 
 pub trait Context {
