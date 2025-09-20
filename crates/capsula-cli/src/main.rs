@@ -123,13 +123,7 @@ fn main() -> anyhow::Result<()> {
                 .iter()
                 .map(|out| out.to_json())
                 .collect::<Vec<_>>();
-            // Output the captured context along with metadata (project root, phase)
-            let output_json = serde_json::json!({
-                "project_root": project_root.to_string_lossy(),
-                "phase": phase,
-                "contexts": context_outputs_json,
-            });
-            println!("{}", serde_json::to_string_pretty(&output_json)?);
+            println!("{}", serde_json::to_string_pretty(&context_outputs_json)?);
         }
 
         Commands::Run { cmd } => {
