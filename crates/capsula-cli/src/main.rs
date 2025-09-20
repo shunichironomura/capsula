@@ -31,7 +31,7 @@ fn main() -> anyhow::Result<()> {
     let project_root = PathBuf::from_str(".")?;
     let config_file_path = project_root.join("capsula.toml");
     let config = CapsulaConfig::from_file(&config_file_path)?;
-    println!("Config: {:?}", config);
+    dbg!("Loaded config: {:#?}", &config);
 
     match cli.command {
         Commands::Capture => {
