@@ -775,9 +775,12 @@ dependencies = [
  "serde",
  "serde_json",
  "shlex",
+ "tempfile",
+ "tokio",
  "tracing",
  "ulid",
  "walkdir",
+ "wiremock",
 ]
 
 [[package]]
