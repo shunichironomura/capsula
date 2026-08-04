@@ -708,6 +708,7 @@ name = "capsula-client"
 version = "0.14.0"
 dependencies = [
  "capsula-api-types",
+ "percent-encoding",
  "reqwest",
  "serde",
  "serde_json",
@@ -764,6 +765,7 @@ name = "capsula-orchestration"
 version = "0.14.0"
 dependencies = [
  "anyhow",
+ "capsula-api-types",
  "capsula-client",
  "capsula-config",
  "capsula-core",
@@ -774,6 +776,7 @@ dependencies = [
  "reqwest",
  "serde",
  "serde_json",
+ "sha2 0.11.0",
  "shlex",
  "tempfile",
  "tokio",
