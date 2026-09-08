@@ -1,5 +1,7 @@
+use crate::resolve::VaultPathSource;
 use anyhow::{Context, Result};
 use capsula_api_types::{RunDetailResponse, RunRecord};
+use capsula_config::default_vault_path;
 use capsula_core::run::{run_dir_relative_path, setup_vault};
 use capsula_core::util::hex_encode;
 use sha2::{Digest, Sha256};
@@ -144,10 +146,40 @@ pub fn pull_single_run(
     Ok(target_dir)
 }
 
-/// A run directory restored by `pull` carries this marker (written by
-/// [`write_capsula_dir`]); locally produced runs do not.
-fn is_pulled_run(run_dir: &Path) -> bool {
+/// Whether `run_dir` holds a run restored by `pull`.
+///
+/// A pulled run carries an `_capsula/pulled.json` marker; locally
+/// produced runs do not. A pulled run is a lossy reconstruction of the
+/// original, so callers use this both to protect local runs from being
+/// replaced and to keep pulled runs from being pushed back.
+#[must_use]
+pub fn is_pulled_run(run_dir: &Path) -> bool {
     run_dir.join("_capsula").join("pulled.json").is_file()
+}
+
+/// Decide which vault directory a pulled run is restored into.
+///
+/// `[vault] path` describes the *configured* vault only, so a run from
+/// another vault would land in a location that was never chosen for it
+/// (an external directory, for instance). Such a run therefore defaults
+/// to that vault's default location under the project root. An explicit
+/// `--vault-path` / `CAPSULA_VAULT_PATH` override is a per-invocation
+/// choice and always wins.
+pub fn resolve_pull_vault_dir(
+    vault_name: &str,
+    config_vault_name: &str,
+    vault_dir: PathBuf,
+    vault_path_source: VaultPathSource,
+    project_root: &Path,
+) -> Result<PathBuf> {
+    if vault_name == config_vault_name || vault_path_source == VaultPathSource::Explicit {
+        return Ok(vault_dir);
+    }
+
+    // The vault name becomes a directory name under the project root;
+    // a separator or `..` would place the vault outside it.
+    ensure_single_path_component(vault_name, "vault name")?;
+    Ok(project_root.join(default_vault_path(vault_name)))
 }
 
 /// Assert that `value` is usable as a single, normal path component —

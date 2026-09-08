@@ -7,7 +7,7 @@
 use anyhow::{Context, Result};
 use capsula_core::hook::{PostRun, PreRun};
 use capsula_core::run::PreparedRun;
-use capsula_orchestration::pull::{ensure_single_path_component, pull_single_run};
+use capsula_orchestration::pull::{is_pulled_run, pull_single_run, resolve_pull_vault_dir};
 use capsula_orchestration::push::push_single_run;
 use capsula_orchestration::resolve::{is_same_origin, resolve_server_headers, resolve_server_url};
 use capsula_orchestration::run::{create_and_setup_run, run_post_hooks, run_pre_hooks};
@@ -180,6 +180,7 @@ path = \".\"
         config,
         project_root,
         vault_dir,
+        vault_path_source,
     } = capsula_orchestration::setup::load_config(&config_file_path, cli.vault_path)?;
 
     match cli.command {
@@ -472,7 +473,7 @@ path = \".\"
 
                         // Pulled runs are lossy reconstructions; skip them
                         // instead of degrading the server's copy.
-                        if capsula_dir.join("pulled.json").is_file() {
+                        if is_pulled_run(run_dir) {
                             debug!("Skipping pulled run at {}", run_dir.display());
                             pulled_skip_count += 1;
                             continue;
@@ -524,26 +525,13 @@ path = \".\"
                 build_server_client(server, config.server.as_ref(), &project_root)?;
             let vault_name = vault.unwrap_or_else(|| config.vault.name.clone());
 
-            // The configured vault maps to vault_dir (which may be a custom
-            // path); runs pulled from other vaults are placed in a sibling
-            // directory named after their vault.
-            let target_vault_dir = if vault_name == config.vault.name {
-                vault_dir
-            } else {
-                // The vault name becomes a directory name next to the
-                // configured vault; a separator or `..` would escape it.
-                ensure_single_path_component(&vault_name, "vault name")?;
-                vault_dir
-                    .parent()
-                    .ok_or_else(|| {
-                        anyhow::anyhow!(
-                            "Cannot determine a location for vault '{}': the configured vault directory {} has no parent",
-                            vault_name,
-                            vault_dir.display()
-                        )
-                    })?
-                    .join(&vault_name)
-            };
+            let target_vault_dir = resolve_pull_vault_dir(
+                &vault_name,
+                &config.vault.name,
+                vault_dir,
+                vault_path_source,
+                &project_root,
+            )?;
 
             info!("Pulling run {} from server {}", run_id, server_url);
 

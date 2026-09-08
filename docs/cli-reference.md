@@ -243,6 +243,12 @@ Download a run from a capsula server and restore it to the local vault.
 
 The run is restored at {YYYY-MM-DD}/{HHMMSS}-{name}, using the same layout as a locally created run. Downloaded files are verified against their recorded sizes and SHA-256 hashes. Absolute paths and paths containing .. are rejected.
 
+Where the run lands depends on its vault:
+
+- Runs of the configured vault go into the configured vault directory (`[vault] path` in `capsula.toml`).
+- Runs of another vault go into that vault's default location, `.capsula/<VAULT>/` under the project root, because the configured path describes the configured vault only.
+- A `--vault-path <PATH>` override (or `CAPSULA_VAULT_PATH`) always wins and is used as the destination for either vault.
+
 The _capsula metadata is reconstructed from the server's structured data. A _capsula/pulled.json marker records the source server and pull time.
 
 --force only replaces runs previously created by capsula pull, as identified by _capsula/pulled.json. Locally produced runs are never overwritten. Pulled runs cannot be uploaded again with capsula push.
@@ -258,6 +264,7 @@ capsula pull <RUN_ID>
 | Option | Description |
 | -------- | ------------- |
 | `--vault <NAME>` | Expected vault of the run (defaults to the vault in `capsula.toml`). The pull fails if the run belongs to a different vault. |
+| `--vault-path <PATH>` | Global option; restore the run into this directory instead of the vault's default location. |
 | `--server <URL>` | Server URL (can also be set via `CAPSULA_SERVER_URL` env var or `server` field in `capsula.toml`) |
 | `--force` | Replace a previously pulled copy of the run if it already exists. Locally produced runs are never replaced. |
 
@@ -267,8 +274,11 @@ capsula pull <RUN_ID>
 # Pull a run by ID
 capsula pull 01K8WSYC91YAE21R7CWHQ4KYN2
 
-# Pull a run that belongs to another vault
+# Pull a run that belongs to another vault (restored into .capsula/other-vault/)
 capsula pull 01K8WSYC91YAE21R7CWHQ4KYN2 --vault other-vault
+
+# Pull a run into an explicit directory
+capsula --vault-path /custom/vault/path pull 01K8WSYC91YAE21R7CWHQ4KYN2 --vault other-vault
 
 # Pull from a specific server, replacing a previously pulled copy
 capsula pull 01K8WSYC91YAE21R7CWHQ4KYN2 --server https://capsula.example.com --force

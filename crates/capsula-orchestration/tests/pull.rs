@@ -8,8 +8,9 @@
 
 use capsula_core::run::run_dir_relative_path;
 use capsula_core::util::hex_encode;
-use capsula_orchestration::pull::pull_single_run;
+use capsula_orchestration::pull::{pull_single_run, resolve_pull_vault_dir};
 use capsula_orchestration::push::push_single_run;
+use capsula_orchestration::resolve::VaultPathSource;
 use capsula_orchestration::vault::{find_run_dir, list_runs};
 use serde_json::json;
 use sha2::{Digest, Sha256};
@@ -459,4 +460,76 @@ fn pull_reports_run_not_found() {
     let err = pull_single_run(RUN_ID, VAULT, &tmp.path().join(VAULT), &client, false).unwrap_err();
 
     assert!(err.to_string().contains("not found"), "got: {err}");
+}
+
+#[test]
+fn pull_target_dir_uses_configured_vault_dir_for_configured_vault() {
+    let project_root = Path::new("/project");
+    let configured = PathBuf::from("/dropbox/vaults/test-vault");
+
+    let target = resolve_pull_vault_dir(
+        VAULT,
+        VAULT,
+        configured.clone(),
+        VaultPathSource::Config,
+        project_root,
+    )
+    .unwrap();
+
+    assert_eq!(target, configured);
+}
+
+#[test]
+fn pull_target_dir_defaults_to_default_location_for_another_vault() {
+    let project_root = Path::new("/project");
+
+    // The configured vault lives outside the project; a run from another
+    // vault must not be dropped next to it.
+    let target = resolve_pull_vault_dir(
+        "other-vault",
+        VAULT,
+        PathBuf::from("/dropbox/vaults/test-vault"),
+        VaultPathSource::Config,
+        project_root,
+    )
+    .unwrap();
+
+    assert_eq!(target, project_root.join(".capsula").join("other-vault"));
+}
+
+#[test]
+fn pull_target_dir_honors_explicit_vault_path_override() {
+    let project_root = Path::new("/project");
+    let overridden = PathBuf::from("/tmp/explicit-vault-dir");
+
+    let target = resolve_pull_vault_dir(
+        "other-vault",
+        VAULT,
+        overridden.clone(),
+        VaultPathSource::Explicit,
+        project_root,
+    )
+    .unwrap();
+
+    assert_eq!(target, overridden);
+}
+
+#[test]
+fn pull_target_dir_rejects_vault_name_that_escapes_the_project() {
+    let project_root = Path::new("/project");
+
+    for name in ["../escape", "nested/vault", "/absolute", ""] {
+        let err = resolve_pull_vault_dir(
+            name,
+            VAULT,
+            PathBuf::from("/project/.capsula/test-vault"),
+            VaultPathSource::Config,
+            project_root,
+        )
+        .unwrap_err();
+        assert!(
+            err.to_string().contains("is not a single path component"),
+            "vault name '{name}' should be rejected, got: {err}"
+        );
+    }
 }
