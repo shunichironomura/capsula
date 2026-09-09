@@ -138,6 +138,18 @@ pub struct CommandHeaderSource {
     pub command: String,
 }
 
+/// Directory holding the default location of every vault, relative to
+/// the project root.
+const DEFAULT_VAULT_ROOT: &str = ".capsula";
+
+/// Default directory of the vault named `name`, relative to the project
+/// root. Used when `[vault] path` is absent, and by commands that need a
+/// location for a vault other than the configured one.
+#[must_use]
+pub fn default_vault_path(name: &str) -> PathBuf {
+    Path::new(DEFAULT_VAULT_ROOT).join(name)
+}
+
 #[derive(Debug, Clone)]
 pub struct VaultConfig {
     pub name: String,
@@ -158,7 +170,7 @@ impl<'de> Deserialize<'de> for VaultConfig {
         let helper = VaultConfigHelper::deserialize(deserializer)?;
         let path = helper
             .path
-            .unwrap_or_else(|| PathBuf::from(format!(".capsula/{}", helper.name)));
+            .unwrap_or_else(|| default_vault_path(&helper.name));
 
         Ok(Self {
             name: helper.name,
@@ -273,6 +285,14 @@ name = "PATH"
 
         assert_eq!(config.post_run.hooks.len(), 1);
         assert_eq!(config.post_run.hooks[0].id, "capture-env");
+    }
+
+    #[test]
+    fn test_default_vault_path_is_under_dot_capsula() {
+        assert_eq!(
+            default_vault_path("my-vault"),
+            PathBuf::from(".capsula/my-vault")
+        );
     }
 
     #[test]

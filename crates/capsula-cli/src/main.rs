@@ -7,6 +7,7 @@
 use anyhow::{Context, Result};
 use capsula_core::hook::{PostRun, PreRun};
 use capsula_core::run::PreparedRun;
+use capsula_orchestration::pull::{is_pulled_run, pull_single_run, resolve_pull_vault_dir};
 use capsula_orchestration::push::push_single_run;
 use capsula_orchestration::resolve::{is_same_origin, resolve_server_headers, resolve_server_url};
 use capsula_orchestration::run::{create_and_setup_run, run_post_hooks, run_pre_hooks};
@@ -100,6 +101,23 @@ enum Commands {
         #[arg(long)]
         server: Option<String>,
     },
+    /// Download a run from a Capsula server into the local vault
+    Pull {
+        /// Run ID (ULID) to pull (e.g., 01HQXYZ...)
+        run_id: String,
+
+        /// Expected vault of the run (defaults to the vault in capsula.toml)
+        #[arg(long)]
+        vault: Option<String>,
+
+        /// Server URL (can also be set via `CAPSULA_SERVER_URL` env var after dotenv loading)
+        #[arg(long)]
+        server: Option<String>,
+
+        /// Replace the local run directory if it already exists
+        #[arg(long)]
+        force: bool,
+    },
     /// Launch interactive terminal UI for starting and ending runs
     Tui,
     Vaults {
@@ -162,6 +180,7 @@ path = \".\"
         config,
         project_root,
         vault_dir,
+        vault_path_source,
     } = capsula_orchestration::setup::load_config(&config_file_path, cli.vault_path)?;
 
     match cli.command {
@@ -427,6 +446,7 @@ path = \".\"
 
                     let mut success_count = 0;
                     let mut skip_count = 0;
+                    let mut pulled_skip_count = 0;
                     let mut error_count = 0;
 
                     for entry in walkdir::WalkDir::new(&vault_dir)
@@ -451,6 +471,14 @@ path = \".\"
                             continue;
                         }
 
+                        // Pulled runs are lossy reconstructions; skip them
+                        // instead of degrading the server's copy.
+                        if is_pulled_run(run_dir) {
+                            debug!("Skipping pulled run at {}", run_dir.display());
+                            pulled_skip_count += 1;
+                            continue;
+                        }
+
                         match push_single_run(run_dir, vault_name, &client) {
                             Ok(()) => success_count += 1,
                             Err(e) => {
@@ -465,8 +493,9 @@ path = \".\"
                     }
 
                     info!(
-                        "Push all completed: {} succeeded, {} skipped (already exist), {} failed",
-                        success_count, skip_count, error_count
+                        "Push all completed: {} succeeded, {} skipped (already exist), \
+                         {} skipped (pulled runs), {} failed",
+                        success_count, skip_count, pulled_skip_count, error_count
                     );
 
                     if error_count > 0 {
@@ -485,6 +514,30 @@ path = \".\"
                     unreachable!("clap's push_target group requires a run ID or --all")
                 }
             }
+        }
+        Commands::Pull {
+            run_id,
+            vault,
+            server,
+            force,
+        } => {
+            let (server_url, client) =
+                build_server_client(server, config.server.as_ref(), &project_root)?;
+            let vault_name = vault.unwrap_or_else(|| config.vault.name.clone());
+
+            let target_vault_dir = resolve_pull_vault_dir(
+                &vault_name,
+                &config.vault.name,
+                vault_dir,
+                vault_path_source,
+                &project_root,
+            )?;
+
+            info!("Pulling run {} from server {}", run_id, server_url);
+
+            let run_dir = pull_single_run(&run_id, &vault_name, &target_vault_dir, &client, force)?;
+
+            info!("Pulled run into {}", run_dir.display());
         }
         Commands::Tui => unreachable!("Handled above"),
         Commands::Vaults { command } => match command {

@@ -1,4 +1,7 @@
-use capsula_api_types::{UploadResponse, VaultExistsResponse, VaultInfo, VaultsResponse};
+use capsula_api_types::{
+    RunDetailResponse, UploadResponse, VaultExistsResponse, VaultInfo, VaultsResponse,
+};
+use percent_encoding::{AsciiSet, NON_ALPHANUMERIC, utf8_percent_encode};
 use reqwest::StatusCode;
 use reqwest::blocking::multipart;
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
@@ -6,6 +9,32 @@ use reqwest::redirect::Policy;
 use serde_json::Value as JsonValue;
 use std::path::Path;
 use thiserror::Error;
+
+/// `NON_ALPHANUMERIC` minus the RFC 3986 unreserved characters (`-`,
+/// `.`, `_`, `~`), whose escaped and unescaped forms are defined to be
+/// equivalent (§2.3: such escapes "should not be created").
+const PATH_SEGMENT_ENCODE_SET: &AsciiSet = &NON_ALPHANUMERIC
+    .remove(b'-')
+    .remove(b'.')
+    .remove(b'_')
+    .remove(b'~');
+
+/// Percent-encode a run-relative file path for use as a URL path suffix.
+///
+/// Each `/`-separated segment is encoded with allowlist polarity
+/// (everything except `[0-9A-Za-z]` and the RFC 3986 unreserved set is
+/// encoded), so any byte round-trips through the server's
+/// `/files/{*path}` wildcard route without a curated character list.
+/// This notably covers `\`, which the WHATWG URL parser would otherwise
+/// rewrite to `/` in an http(s) path, silently changing the requested
+/// file.
+fn encode_file_path(file_path: &str) -> String {
+    file_path
+        .split('/')
+        .map(|segment| utf8_percent_encode(segment, PATH_SEGMENT_ENCODE_SET).to_string())
+        .collect::<Vec<_>>()
+        .join("/")
+}
 
 #[derive(Debug, Error)]
 pub enum ClientError {
@@ -101,6 +130,48 @@ impl CapsulaClient {
             ""
         };
         ClientError::ServerError(format!("{action}: {status}{hint}"))
+    }
+
+    /// Base URL of the server this client talks to
+    #[must_use]
+    pub fn base_url(&self) -> &str {
+        &self.base_url
+    }
+
+    /// Fetch a run's detail (record, hook outputs, and captured file list)
+    pub fn get_run(&self, run_id: &str) -> Result<RunDetailResponse> {
+        let url = format!("{}/api/v1/runs/{}", self.base_url, run_id);
+        let response = self.client.get(&url).send()?;
+
+        if !response.status().is_success() {
+            return Err(Self::server_error(
+                &format!("Failed to fetch run {run_id}"),
+                response.status(),
+            ));
+        }
+
+        let detail: RunDetailResponse = response.json()?;
+        Ok(detail)
+    }
+
+    /// Download a captured file of a run, returning its raw bytes
+    pub fn download_file(&self, run_id: &str, file_path: &str) -> Result<Vec<u8>> {
+        let url = format!(
+            "{}/api/v1/runs/{}/files/{}",
+            self.base_url,
+            run_id,
+            encode_file_path(file_path)
+        );
+        let response = self.client.get(&url).send()?;
+
+        if !response.status().is_success() {
+            return Err(Self::server_error(
+                &format!("Failed to download file '{file_path}' of run {run_id}"),
+                response.status(),
+            ));
+        }
+
+        Ok(response.bytes()?.to_vec())
     }
 
     /// List all vaults on the server
@@ -389,6 +460,21 @@ mod tests {
             error
                 .to_string()
                 .contains("authentication may be missing or expired")
+        );
+    }
+
+    #[test]
+    fn encode_file_path_keeps_separators_and_unreserved_chars() {
+        assert_eq!(encode_file_path("output/result.txt"), "output/result.txt");
+        assert_eq!(encode_file_path("a-b_c~d.e/f"), "a-b_c~d.e/f");
+    }
+
+    #[test]
+    fn encode_file_path_encodes_url_significant_and_non_ascii_chars() {
+        assert_eq!(encode_file_path("a b?c#d%e"), "a%20b%3Fc%23d%25e");
+        assert_eq!(
+            encode_file_path("日本語.txt"),
+            "%E6%97%A5%E6%9C%AC%E8%AA%9E.txt"
         );
     }
 }

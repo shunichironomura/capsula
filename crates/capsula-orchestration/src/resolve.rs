@@ -4,22 +4,41 @@ use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 use tracing::debug;
 
+/// Where a resolved vault directory came from.
+///
+/// Commands that may address a vault other than the configured one need
+/// to know whether the resolved directory was chosen explicitly for this
+/// invocation or merely describes the configured vault.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum VaultPathSource {
+    /// A `--vault-path` override or the `CAPSULA_VAULT_PATH` env var.
+    Explicit,
+    /// The `[vault] path` value in `capsula.toml`, or its default.
+    Config,
+}
+
 /// Resolve the vault path with priority: explicit override > environment variable > config file.
 ///
 /// The `override_path` parameter corresponds to CLI arguments or other explicit overrides.
 /// Environment variables are read at call time, so dotenv should be loaded before calling.
+///
+/// Returns the resolved directory together with the source it came from.
 pub(crate) fn resolve_vault_path(
     override_path: Option<PathBuf>,
     config_vault_path: &Path,
     project_root: &Path,
-) -> PathBuf {
-    if let Some(path) = override_path {
-        debug!("Using vault path from override: {}", path.display());
-        return if path.is_absolute() {
+) -> (PathBuf, VaultPathSource) {
+    let absolute = |path: PathBuf| {
+        if path.is_absolute() {
             path
         } else {
             project_root.join(path)
-        };
+        }
+    };
+
+    if let Some(path) = override_path {
+        debug!("Using vault path from override: {}", path.display());
+        return (absolute(path), VaultPathSource::Explicit);
     }
 
     if let Ok(env_path) = std::env::var("CAPSULA_VAULT_PATH") {
@@ -28,22 +47,17 @@ pub(crate) fn resolve_vault_path(
             "Using vault path from CAPSULA_VAULT_PATH env var: {}",
             path.display()
         );
-        return if path.is_absolute() {
-            path
-        } else {
-            project_root.join(path)
-        };
+        return (absolute(path), VaultPathSource::Explicit);
     }
 
     debug!(
         "Using vault path from config file: {}",
         config_vault_path.display()
     );
-    if config_vault_path.is_absolute() {
-        config_vault_path.to_path_buf()
-    } else {
-        project_root.join(config_vault_path)
-    }
+    (
+        absolute(config_vault_path.to_path_buf()),
+        VaultPathSource::Config,
+    )
 }
 
 /// Resolve the server URL with priority: explicit override > environment variable > config file.

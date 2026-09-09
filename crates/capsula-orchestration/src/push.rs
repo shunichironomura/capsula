@@ -10,6 +10,16 @@ pub fn push_single_run(
 ) -> Result<()> {
     let capsula_dir = run_dir.join("_capsula");
 
+    // Runs restored by `pull` are lossy reconstructions (see pull.rs);
+    // re-uploading one would degrade the server's copy of the run.
+    if crate::pull::is_pulled_run(run_dir) {
+        anyhow::bail!(
+            "Run at {} was pulled from a server (found _capsula/pulled.json); \
+             refusing to push a lossy reconstruction",
+            run_dir.display()
+        );
+    }
+
     // Read metadata
     let metadata = crate::vault::read_run_metadata_json(run_dir)?;
 

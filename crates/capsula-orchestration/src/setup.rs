@@ -4,13 +4,16 @@ use anyhow::{Context, Result};
 use capsula_config::CapsulaConfig;
 use tracing::{debug, info, warn};
 
-use crate::resolve::resolve_vault_path;
+use crate::resolve::{VaultPathSource, resolve_vault_path};
 
 /// Result of loading and resolving a capsula configuration.
 pub struct LoadedConfig {
     pub config: CapsulaConfig,
     pub project_root: PathBuf,
     pub vault_dir: PathBuf,
+    /// Whether `vault_dir` was chosen explicitly for this invocation or
+    /// simply describes the configured vault.
+    pub vault_path_source: VaultPathSource,
 }
 
 /// Load a capsula configuration file, resolve dotenv and vault path.
@@ -72,11 +75,13 @@ pub fn load_config(
         }
     }
 
-    let vault_dir = resolve_vault_path(vault_path_override, &config.vault.path, &project_root);
+    let (vault_dir, vault_path_source) =
+        resolve_vault_path(vault_path_override, &config.vault.path, &project_root);
 
     Ok(LoadedConfig {
         config,
         project_root,
         vault_dir,
+        vault_path_source,
     })
 }
